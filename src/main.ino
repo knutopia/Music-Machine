@@ -1,6 +1,8 @@
 
 // inspired by Arduino for Musicians
 
+#define uint8_t byte
+
 // to make SD card work
 #include <Audio.h>
 #include <SD_t3.h>

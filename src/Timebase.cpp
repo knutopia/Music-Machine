@@ -1,13 +1,23 @@
 #include <arduino.h>
 //#include "Arduino.h"
 #include "Timebase.h"
+#include "SynthEngine.h"
 #include "enum.h"
 
-//extern IntervalTimer myTimer;
-extern unsigned long recentInterruptTime;
+extern SynthEngine synth;
+
+extern volatile unsigned long recentInterruptTime;
+extern volatile unsigned long v_note_off_time;
+extern volatile bool vb_prep_next_step;
+extern int next_note;
+extern float next_note_freq;
+extern int next_note_unmuted;
+extern bool next_note_playIt;
+extern unsigned long next_note_durationMS;
+
 extern long g_step_duration;
 
-unsigned long Timebase::MidiClickInterval;
+unsigned long Timebase::midiClickInterval;
 bool Timebase::bMidiTimerOn = false;
 volatile byte Timebase::midiClickCount;
 int Timebase::midiSteps;
@@ -24,11 +34,14 @@ void Timebase::reset()
     swingOffset = 0;
     retrigCount = 0;
     remainingRetrigCount = 0;
-    referenceStepDuration = 60000000 / bpm / speedMultiplier;
+    referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
+    retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
+    midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     resetMidiTimer();
 }
 
+/*
 void Timebase::prepPlay()
 {
 
@@ -39,27 +52,33 @@ void Timebase::prepPlay()
 
     // kick off interrupt
 }
+*/
 
 // React to input ("Setters")
 
 void Timebase::updateTempo(int newBPM) 
 {
     // calculate the intervals when tempo changes
-    bpm = newBPM;
-//    recalcTimings();
-    resetRefTimer = true;
+    if (bpm != newBPM)
+    {
+        bpm = newBPM;
+//      recalcTimings();
+        resetRefTimer = true;
+    }
 }
 
 void Timebase::updateSpeedMultiplier(speedFactor mult) 
 {
-
-    Serial.print("uSM remainingRetrigCount ");
-    Serial.println(remainingRetrigCount);
-    
-    // calculate the intervals when tempo changes
-    speedMultiplier = mult;
-//    recalcTimings();
-    resetRefTimer = true;
+    if (mult != speedMultiplier)
+    {
+        Serial.print("uSM remainingRetrigCount ");
+        Serial.println(remainingRetrigCount);
+        
+        // calculate the intervals when tempo changes
+        speedMultiplier = mult;
+//      recalcTimings();
+        resetRefTimer = true;
+    }
 }
 
 void Timebase::updateSwing(int swingPercentage) 
@@ -110,42 +129,21 @@ void Timebase::updateTimingIfNeeded()
 {
     if(resetRefTimer) 
     {
-
-    Serial.println("reseting reference time");
-    
-    resetRefTimetoMostRecentNote();   // if speed or multiplier changed
-    resetRefTimer = false;
+        Serial.println("reseting reference time");
+        
+//    resetRefTimetoMostRecentNote();   // if speed or multiplier changed
+        resetRefTimer = false;
+        recalcTimings();
+        updateMidiTimer();
     }      
-    recalcTimings();
 }
 
+/*
 long Timebase::getNoteStartTime(int stepIndex) 
-{  
-/*      
-    // Test of time: how stable / variable ?
-    static long older_interval;
-    static long newer_interval;
-    static unsigned long prev_interrupt_time;
-
-    older_interval = newer_interval;
-    newer_interval = (long)recentInterruptTime - (long)prev_interrupt_time;
-    prev_interrupt_time = recentInterruptTime;
-
-    Serial.print("Interval jitter:");
-    Serial.println(newer_interval - older_interval);
-*/       
-
+{        
     unsigned long nextStart = 0;
     
     if(stepIndex >=0 && stepIndex < max_steps) {
-/*
-        Serial.print("gT resetRefTimer ");
-        Serial.print(resetRefTimer);
-        Serial.print(" remainingRetrigCount ");
-        Serial.print(remainingRetrigCount);
-        Serial.print(" retrigCount ");
-        Serial.println(retrigCount);
-*/
         // calculate when the next step should trigger
         // and substract the current time
         // to get the delay until the interrupt that plays the step
@@ -166,14 +164,6 @@ long Timebase::getNoteStartTime(int stepIndex)
 
 //            Serial.println("gNST 1");
 
-/*
-            Serial.print("gT A stepDelay ");
-            Serial.print(stepDelay);
-            Serial.print("  stepsSinceReferenceTime ");
-            Serial.print(stepsSinceReferenceTime);
-            Serial.print("  referenceStepDuration ");
-            Serial.println(referenceStepDuration);
-*/
         } else // cases C or D
         {              
             partialStepsSinceLast = 100 * (retrigCount + 1 - remainingRetrigCount) / (retrigCount + 1);
@@ -199,11 +189,12 @@ long Timebase::getNoteStartTime(int stepIndex)
     noteStartTime = nextStart;
     return nextStart - micros();
 }
+*/
 
 long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCount)
 {
     // Using microseconds (not milliseconds)
-    long retVal;
+    unsigned long retVal;
 
     // cases for note duration:
     // -A if simple note: 
@@ -233,7 +224,7 @@ long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte ho
     // called if note is last retrig and there are holds coming up
 
     // Using microseconds (not milliseconds)
-    long retVal;
+    unsigned long retVal;
 
     retVal = durationAsNoteFraction * referenceStepDuration;
     if (retVal > retrigStepDuration) retVal = retrigStepDuration;
@@ -245,18 +236,15 @@ long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte ho
 // private:
 
 //Helper methods
+/*
 void Timebase::initReferenceTime()
 {
     referenceTime = micros();
     stepsSinceReferenceTime = 0;      
-/*      
-    if (retrigCount > 0)
-    {
-    referenceTime += retrigStepDuration * remainingRetrigCount;
-    }
-*/
 }
+*/
 
+/*
 void Timebase::resetRefTimetoMostRecentNote()
 {
     referenceTime = noteStartTime;
@@ -269,14 +257,15 @@ void Timebase::resetRefTimetoMostRecentNote()
     Serial.print(" referenceStepOffset: ");
     Serial.println(referenceStepOffset);
 }
+*/
 
 void Timebase::recalcTimings()
 {
-    referenceStepDuration = 60000000 / bpm / speedMultiplier;
+    referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
     swingOffset = referenceStepDuration / 300 * swingValue;  
     retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
-    MidiClickInterval = 60000000 / bpm / speedMultiplier / 24;
+    midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }
 
 void Timebase::timeRetrigStep()
@@ -288,31 +277,64 @@ void Timebase::runMidiTimer()
 {
     stopMidiTimer();
     bMidiTimerOn = true;
-    midiTimer.begin(midiClick, MidiClickInterval);
+
+    Serial.print("runMidiTimer midiClickInterval: ");
+    Serial.println(midiClickInterval);
+
+    midiClickCount = 0;
+    midiTimer.begin(Timebase::midiClick, midiClickInterval);
 }
 
 void Timebase::stopMidiTimer()
 {
     if (bMidiTimerOn) {
+        Serial.println("stopMidiTimer");
         bMidiTimerOn = false;
         midiTimer.end();
     }
 }
 
+void Timebase::updateMidiTimer()
+{
+    if (bMidiTimerOn) {
+        Serial.println("updateMidiTimer");
+        midiTimer.update(midiClickInterval);
+    }
+}
 
 void Timebase::resetMidiTimer()
 {
+    Serial.println("resetMidiTimer");
     if (bMidiTimerOn) {
         midiTimer.end();
     }
     bMidiTimerOn = false;
     midiClickCount = 0;
     midiSteps = 0;
+    midiTimer.priority(255);
+
 }
 
 void Timebase::midiClick()
 {
     midiClickCount++;
-    usbMIDI.sendRealTime(usbMIDI.Clock);
-    usbMIDI.send_now();
+//    usbMIDI.sendRealTime(usbMIDI.Clock);
+//    usbMIDI.send_now();
+    if (midiClickCount >= MIDICLOCKDIVIDER)
+    {
+        midiClickCount = 0;
+        recentInterruptTime = micros();
+        v_note_off_time = recentInterruptTime + next_note_durationMS;
+            
+        vb_prep_next_step = true;
+//      b_timer_on = true;
+
+//      Serial.print("in:");
+//      Serial.print(next_note_unmuted);
+//      Serial.println(next_note_playIt);
+        
+        if (next_note_unmuted && next_note_playIt) 
+            synth.playNote(next_note, next_note_freq, .7);
+//          synth.playNote(next_note, next_note_freq, NORMAL_VEL);
+    }
 }

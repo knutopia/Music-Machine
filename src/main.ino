@@ -34,10 +34,11 @@ const float NORMAL_VEL = 0.7;
                                                  // TO DO: make this the play button LED
 boolean b_led1_on_state = false;                 // remembers what we want the state of the LED to be.
 boolean b_note_on = false;
+volatile unsigned long recentInterruptTime;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 unsigned long next_note_durationMS = 0;
-volatile bool b_prep_next_step = false;      // grab the next step's note to be ready for play
+volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
 volatile bool b_timer_on = false;
 float next_note_freq;
 int next_note;
@@ -67,7 +68,6 @@ const char *modeNames[] = {"foo1",
 
 //Time variables and constants
 long g_step_duration = 500000;                //The amount of time between steps
-unsigned long recentInterruptTime;
 //long micro_compare2;
 
 speedFactor speedMultiplier = NORMAL;
@@ -194,24 +194,25 @@ void StartStopCb()
     if(playbackOn == true)
     {
       stopPlayback();
-      Serial.println("  button off: ");
+//    Serial.println("  button off: ");
 
       synth.reportPerformance();
                  
     }else{
       playbackOn = true;
-      Serial.println("  button on: ");
+//    Serial.println("  button on: ");
       
       //Teensy timer
-      myTimer.priority(255);
-      metro.prepPlay();
+//    myTimer.priority(255);
+
+//    metro.prepPlay();
 
       //Midi timer
       metro.runMidiTimer();
 
       //get first note out immediately
       play_first_step();
-      b_prep_next_step = true;
+      vb_prep_next_step = true;
     }  
 }
 
@@ -273,9 +274,9 @@ void loop()
     inout.handleTrellis();
     inout.handleLCDtimeouts();
 
-    while (usbMIDI.read()) {
+//    while (usbMIDI.read()) {
       // ignore incoming messages
-    }
+//    }
 //  inout.showLoopTimer();
 }
 
@@ -284,7 +285,69 @@ void prep_next_step()
 {
     static byte currentStepTick = 1;
     
-    if(b_prep_next_step) {    // this is triggered right after the interrupt
+    if(vb_prep_next_step) {    // this is triggered right after the interrupt
+                              // started playing the current note                              
+      vb_prep_next_step = false; 
+      note_off_time = v_note_off_time;
+
+      // adjust speed if tempo or multiplier have changed
+      metro.updateTimingIfNeeded();
+
+      // two state flags referring to the just-started note
+      b_led1_on_state = true;
+      b_note_on = true;
+
+      // show step indicator for just-started note N-1
+      inout.setRunningStepIndicators(playbackStep, note_off_time);      
+
+                              // schedule the next note's start time
+                              // as prepped previously
+      
+      // gather info about the following note N+1
+      byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+      byte stepPlayTickCount = sequencer.getTicks(playbackStep);
+      byte remainingRetrigs = metro.getAndCountdownRetrigs();
+
+      if (remainingRetrigs < 1) { // next note: either a tick or the next step
+        if (currentStepTick < stepPlayTickCount) {  // Next tick
+            currentStepTick++;
+            metro.resetRemainingRetrigs();
+            Serial.print(" A ");
+        } 
+        else {                                      // Next step
+            playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+
+            currentStepTick = 1;
+            prepNoteGlobals();
+            Serial.print(" B ");
+        }
+      } else {                                      // Next note is a retrig, 
+                                                    // but is it the LAST ONE AND IS THERE A HOLD ?
+                                                    // (...that's different timing)
+                                                    
+            Serial.print(" C ");
+            if (remainingRetrigs == 1) // last retrig
+              if (!(currentStepTick < stepPlayTickCount)) // no more ticks
+              {
+                next_note_durationMS = calcNextNoteDurationAfterRetrigs();
+                Serial.print(" D ");
+              }
+      }
+
+      // make next note an accent ?
+      synth.prepAccent(sequencer.getAccent(playbackStep));
+
+      // change synth patch ?
+      synth.prepPatchIfNeeded();
+    }
+}
+
+/*
+void prep_next_step()
+{
+    static byte currentStepTick = 1;
+    
+    if(vb_prep_next_step) {    // this is triggered right after the interrupt
                               // started playing the current note
                               
       // first things first: interrupt timer off
@@ -296,7 +359,7 @@ void prep_next_step()
       }
 
       // with timer is off, it's safer around here
-      b_prep_next_step = false; 
+      vb_prep_next_step = false; 
 
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
@@ -349,7 +412,7 @@ void prep_next_step()
       synth.prepPatchIfNeeded();
     }
 }
-
+*/
 
 void play_first_step()
 {
@@ -375,13 +438,22 @@ void play_first_step()
 
     metro.setRetrigCount(sequencer.getRetrig(playbackStep));
     prepNoteGlobals();
-    note_off_time = micros() + next_note_durationMS;
+    v_note_off_time = micros() + next_note_durationMS;
+    note_off_time = v_note_off_time;
 
     b_led1_on_state = true;
     b_note_on = true;
+
+/*
+    Serial.println(next_note);
+    Serial.println(next_note_freq);
+    Serial.println(next_note_unmuted);
+    Serial.println(next_note_playIt);
+    Serial.println(next_note_durationMS);
+*/
     
     if (next_note_unmuted) synth.playNote(next_note, next_note_freq, NORMAL_VEL);
-    inout.setRunningStepIndicators(playbackStep, note_off_time);
+//  inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
 void prepNoteGlobals()
@@ -451,7 +523,7 @@ void retimeNextDuration()
 
     // no note playing, next note prepped, next note is first or only retrig
     if (!synth.playingAnote()
-        && !b_prep_next_step 
+        && !vb_prep_next_step 
         && metro.getRetrigs() == sequencer.getRetrig(playbackStep)) 
     {
       // reschedule next note duration
@@ -485,17 +557,19 @@ byte assembleHolds()
 
 void timerBusiness() 
 {
+/*
     if(playbackOn == true)
     {
       recentInterruptTime = micros();
       v_note_off_time = recentInterruptTime + next_note_durationMS;
           
-      b_prep_next_step = true;
+      vb_prep_next_step = true;
       b_timer_on = true;
       
       if (next_note_unmuted && next_note_playIt) 
           synth.playNote(next_note, next_note_freq, NORMAL_VEL);
     }
+*/
 }
 
 
@@ -524,9 +598,9 @@ void handleRewindButton()
 
 void stopPlayback()
 {
-     myTimer.end();
+//   myTimer.end();
      playbackOn = false;
-     b_prep_next_step = false;
+     vb_prep_next_step = false;
      metro.stopMidiTimer();
 }
 

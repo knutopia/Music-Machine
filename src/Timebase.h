@@ -11,7 +11,7 @@ class Timebase
       //Public constructor and methods
       Timebase();    
       void reset();
-      void prepPlay();
+//    void prepPlay();
 
       // React to input ("Setters")
       
@@ -28,12 +28,13 @@ class Timebase
       int getBPM();
       int getSwing();
       void updateTimingIfNeeded();
-      long getNoteStartTime(int stepIndex);
+//    long getNoteStartTime(int stepIndex);
       long getStepDurationMS(float durationAsNoteFraction, byte holdStepCount);
       long getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte holdStepCount);
 
       void runMidiTimer();
       void stopMidiTimer();
+      void updateMidiTimer();
       void resetMidiTimer();
 
     private:
@@ -63,15 +64,15 @@ class Timebase
                                           false, true, false, true, 
                                           false, true, false, true};
 
-      static unsigned long MidiClickInterval;
+      static unsigned long midiClickInterval;
       static bool bMidiTimerOn;
-      static volatile byte midiClickCount;
+      volatile static byte midiClickCount;
       static int midiSteps;
       static IntervalTimer midiTimer;
     
       //Helper methods
-      void initReferenceTime();
-      void resetRefTimetoMostRecentNote();
+//    void initReferenceTime();
+//    void resetRefTimetoMostRecentNote();
       void recalcTimings();
       void timeRetrigStep();
 

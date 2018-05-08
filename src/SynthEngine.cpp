@@ -114,12 +114,12 @@ void SynthEngine::playNote(int note, float freq, float velocity)
   float osc2freq = freqOffset(note, getEditPval(VCO2detune));
   float subOscFreq = freq / 2;
   float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
-/*
+
   Serial.print("freqs: ");
   Serial.print(freq);
   Serial.print(" ");
   Serial.println(osc2freq);
-*/      
+      
   trackJoystick();
   AudioNoInterrupts();
   turboFilter.resonance(filterQEmphasis);

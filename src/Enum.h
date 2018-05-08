@@ -74,6 +74,10 @@ enum synEditStates {PatchChoice, ParamEdit};
 
 enum {lcdTimeoutDuration = 2000};
 
+enum {MIDICLOCKDIVIDER = 24};
+
+enum {BPMCONSTANT = 60000000};
+
 // enum noteTimingType {Beat, Ticking, Retrig, TickingRetrig};
 
 enum trackTypes {Melody, Drum, Logic};

@@ -1372,10 +1372,10 @@ void InOutHelper::setRunningStepIndicators(int step, long led_off_time)
     
     prev_step = latestPlaybackStep;
 
-    Serial.print("step ");
-    Serial.print(step);
-    Serial.print("  offtime ");
-    Serial.print(led_off_time);
+//  Serial.print("step ");
+//  Serial.print(step);
+//  Serial.print("  offtime ");
+//  Serial.println(led_off_time);
     
     stepLedOffTimes[latestPlaybackStep] = led_off_time;
     step_indicator_led_active = true;

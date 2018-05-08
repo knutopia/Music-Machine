@@ -10,14 +10,12 @@
 // general
 #include <EEPROM.h>
 #include <math.h>
-//#include <RotaryEncoder.h>
 #include "Enum.h"
 #include "InOutHelper.h"
 #include "SynthPatch.h"
 #include "SynthEngine.h"
 #include "StepSequence.h"
 #include "StepSequencer.h"
-//#include "InOutHelper.h"
 #include "Path.h"
 #include "Timebase.h"
 
@@ -201,16 +199,19 @@ void StartStopCb()
       synth.reportPerformance();
                  
     }else{
-       playbackOn = true;
-       Serial.println("  button on: ");
-       
-       //Teensy timer
-       myTimer.priority(255);
-       metro.prepPlay();
+      playbackOn = true;
+      Serial.println("  button on: ");
+      
+      //Teensy timer
+      myTimer.priority(255);
+      metro.prepPlay();
 
-       //get first note out immediately
-       play_first_step();
-       b_prep_next_step = true;
+      //Midi timer
+      metro.runMidiTimer();
+
+      //get first note out immediately
+      play_first_step();
+      b_prep_next_step = true;
     }  
 }
 
@@ -272,6 +273,9 @@ void loop()
     inout.handleTrellis();
     inout.handleLCDtimeouts();
 
+    while (usbMIDI.read()) {
+      // ignore incoming messages
+    }
 //  inout.showLoopTimer();
 }
 
@@ -523,6 +527,7 @@ void stopPlayback()
      myTimer.end();
      playbackOn = false;
      b_prep_next_step = false;
+     metro.stopMidiTimer();
 }
 
 

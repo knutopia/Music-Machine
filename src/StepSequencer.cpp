@@ -4,8 +4,6 @@
 //#include "arduino.h"
 #include "StepSequencer.h"
 
-//  public:
-
     //Public constructor and methods
     StepSequencer::StepSequencer()
     {

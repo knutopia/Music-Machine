@@ -31,7 +31,11 @@ class Timebase
       long getNoteStartTime(int stepIndex);
       long getStepDurationMS(float durationAsNoteFraction, byte holdStepCount);
       long getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte holdStepCount);
-      
+
+      void runMidiTimer();
+      void stopMidiTimer();
+      void resetMidiTimer();
+
     private:
 
       enum{max_steps = 16};
@@ -58,12 +62,21 @@ class Timebase
                                           false, true, false, true, 
                                           false, true, false, true, 
                                           false, true, false, true};
+
+      static unsigned long MidiClickInterval;
+      static bool bMidiTimerOn;
+      static volatile byte midiClickCount;
+      static int midiSteps;
+      static IntervalTimer midiTimer;
     
       //Helper methods
       void initReferenceTime();
       void resetRefTimetoMostRecentNote();
       void recalcTimings();
       void timeRetrigStep();
+
+      static void midiClick();
+
 };
 
 #endif

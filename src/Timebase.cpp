@@ -7,6 +7,12 @@
 extern unsigned long recentInterruptTime;
 extern long g_step_duration;
 
+unsigned long Timebase::MidiClickInterval;
+bool Timebase::bMidiTimerOn = false;
+volatile byte Timebase::midiClickCount;
+int Timebase::midiSteps;
+IntervalTimer Timebase::midiTimer;
+
 Timebase::Timebase()
 {
     reset();
@@ -20,6 +26,7 @@ void Timebase::reset()
     remainingRetrigCount = 0;
     referenceStepDuration = 60000000 / bpm / speedMultiplier;
     g_step_duration = referenceStepDuration;
+    resetMidiTimer();
 }
 
 void Timebase::prepPlay()
@@ -269,9 +276,43 @@ void Timebase::recalcTimings()
     swingOffset = referenceStepDuration / 300 * swingValue;  
     retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
+    MidiClickInterval = 60000000 / bpm / speedMultiplier / 24;
 }
 
 void Timebase::timeRetrigStep()
 {
     retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
+}
+
+void Timebase::runMidiTimer()
+{
+    stopMidiTimer();
+    bMidiTimerOn = true;
+    midiTimer.begin(midiClick, MidiClickInterval);
+}
+
+void Timebase::stopMidiTimer()
+{
+    if (bMidiTimerOn) {
+        bMidiTimerOn = false;
+        midiTimer.end();
+    }
+}
+
+
+void Timebase::resetMidiTimer()
+{
+    if (bMidiTimerOn) {
+        midiTimer.end();
+    }
+    bMidiTimerOn = false;
+    midiClickCount = 0;
+    midiSteps = 0;
+}
+
+void Timebase::midiClick()
+{
+    midiClickCount++;
+    usbMIDI.sendRealTime(usbMIDI.Clock);
+    usbMIDI.send_now();
 }

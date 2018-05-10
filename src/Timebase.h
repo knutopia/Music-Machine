@@ -66,7 +66,8 @@ class Timebase
 
       static unsigned long midiClickInterval;
       static bool bMidiTimerOn;
-      volatile static byte midiClickCount;
+      volatile static int midiClickCount;
+      static retrigDivisions retrigClickDivider;
       static int midiSteps;
       static IntervalTimer midiTimer;
     

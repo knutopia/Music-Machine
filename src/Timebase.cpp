@@ -1,8 +1,6 @@
-#include <arduino.h>
-//#include "Arduino.h"
 #include "Timebase.h"
 #include "SynthEngine.h"
-#include "enum.h"
+//#include "Enum.h"
 
 extern SynthEngine synth;
 
@@ -19,8 +17,9 @@ extern long g_step_duration;
 
 unsigned long Timebase::midiClickInterval;
 bool Timebase::bMidiTimerOn = false;
-volatile byte Timebase::midiClickCount;
+volatile int Timebase::midiClickCount;
 int Timebase::midiSteps;
+retrigDivisions Timebase::retrigClickDivider;
 IntervalTimer Timebase::midiTimer;
 
 Timebase::Timebase()
@@ -335,6 +334,21 @@ void Timebase::midiClick()
         
         if (next_note_unmuted && next_note_playIt) 
             synth.playNote(next_note, next_note_freq, .7);
-//          synth.playNote(next_note, next_note_freq, NORMAL_VEL);
+    } else {
+        // handle retrigs
+        if (retrigClickDivider != retrigDivisions::NORETRIGS)
+//      if (retrigClickDivider != 0)
+        {
+            if (midiClickCount % retrigClickDivider == 0) 
+            {
+                v_note_off_time = recentInterruptTime + next_note_durationMS;
+                if (next_note_unmuted && next_note_playIt) 
+                    synth.playNote(next_note, next_note_freq, .7);
+            }
+        }
     }
 }
+// 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23
+// *                 *                  *                 *              
+// *                       *                        *
+// *                                    *

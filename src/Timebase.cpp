@@ -336,8 +336,7 @@ void Timebase::midiClick()
             synth.playNote(next_note, next_note_freq, .7);
     } else {
         // handle retrigs
-        if (retrigClickDivider != retrigDivisions::NORETRIGS)
-//      if (retrigClickDivider != 0)
+        if (retrigClickDivider != NORETRIGS)
         {
             if (midiClickCount % retrigClickDivider == 0) 
             {

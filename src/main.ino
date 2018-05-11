@@ -321,7 +321,8 @@ void prep_next_step()
             prepNoteGlobals();
             Serial.print(" B ");
         }
-      } else {                                      // Next note is a retrig, 
+      } 
+/*    else {                                      // Next note is a retrig, 
                                                     // but is it the LAST ONE AND IS THERE A HOLD ?
                                                     // (...that's different timing)
                                                     
@@ -333,7 +334,7 @@ void prep_next_step()
                 Serial.print(" D ");
               }
       }
-
+*/
       // make next note an accent ?
       synth.prepAccent(sequencer.getAccent(playbackStep));
 

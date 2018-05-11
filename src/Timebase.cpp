@@ -92,6 +92,23 @@ void Timebase::setRetrigCount(int count)
 {
     retrigCount = count;
     remainingRetrigCount = retrigCount;
+    switch (count)
+    {
+        case 0:
+            Timebase::retrigClickDivider = NORETRIGS;
+            break;
+        case 1:
+            Timebase::retrigClickDivider = ONERETRIG;
+            break;
+        case 2:
+            Timebase::retrigClickDivider = TWORETRIGS;
+            break;
+        case 3:
+            Timebase::retrigClickDivider = THREERETRIGS;
+            break;
+        default:
+            break;
+    }
     timeRetrigStep();
 }
 
@@ -332,6 +349,9 @@ void Timebase::midiClick()
 //      Serial.print(next_note_unmuted);
 //      Serial.println(next_note_playIt);
         
+//      Serial.print("Main: ");
+//      Serial.println(midiClickCount);
+
         if (next_note_unmuted && next_note_playIt) 
             synth.playNote(next_note, next_note_freq, .7);
     } else {
@@ -340,6 +360,8 @@ void Timebase::midiClick()
         {
             if (midiClickCount % retrigClickDivider == 0) 
             {
+//              Serial.print("Retrig: ");
+//              Serial.println(midiClickCount);
                 v_note_off_time = recentInterruptTime + next_note_durationMS;
                 if (next_note_unmuted && next_note_playIt) 
                     synth.playNote(next_note, next_note_freq, .7);

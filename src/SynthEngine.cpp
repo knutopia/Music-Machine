@@ -108,15 +108,17 @@ bool SynthEngine::playingAnote()
 }
 
 //Helper methods
-void SynthEngine::playNote(int note, float freq, float velocity)
+
+//void SynthEngine::playNote(int note, float freq, float velocity)
+void SynthEngine::playNote(note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
-  float osc2freq = freqOffset(note, getEditPval(VCO2detune));
-  float subOscFreq = freq / 2;
+  float osc2freq = freqOffset(aNote.pitchVal, getEditPval(VCO2detune));
+  float subOscFreq = aNote.pitchFreq / 2;
   float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
 
   Serial.print("freqs: ");
-  Serial.print(freq);
+  Serial.print(aNote.pitchVal);
   Serial.print(" ");
   Serial.println(osc2freq);
       
@@ -124,7 +126,7 @@ void SynthEngine::playNote(int note, float freq, float velocity)
   AudioNoInterrupts();
   turboFilter.resonance(filterQEmphasis);
   delayFilter.resonance(delayFilterQEmphasis);
-  OSC1.frequency(freq);
+  OSC1.frequency(aNote.pitchVal);
   OSC2.frequency(osc2freq); //modify freq by VCO2detune
   SubOSC.frequency(subOscFreq);
   OSC1.amplitude(255);
@@ -132,7 +134,7 @@ void SynthEngine::playNote(int note, float freq, float velocity)
   SubOSC.amplitude(255);
   inputMixer.gain(3, subOscAmp);  // VCO4mix
 
-  string2.noteOn(freq, velocity);
+  string2.noteOn(aNote.pitchFreq, aNote.velocity);
   VCAenvelope2.noteOn();
   VCAenvelope.noteOn();
   AudioInterrupts();

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Enum.h"
+#include "Note.h"
 
 class StepSequence
 {
@@ -25,6 +26,9 @@ class StepSequence
         byte getAccent(int _step);
         byte getRetrig(int _step);
         byte getVelocity(int _step);
+        bool playItOrNot(int _step);
+        retrigDivisions getRetrigDivider(int count);
+        note getNoteParams(int _step);
         byte getLength();
         int getMaxLength();
         byte getPath();
@@ -49,7 +53,7 @@ class StepSequence
         float m_duration[max_notes];   // float
         byte m_probability[max_notes];
         byte m_ticks[max_notes];
-        bool m_mute[max_notes];        // bool
+        bool m_mute[max_notes];        // bool INVERTED: true = unmuted
         bool m_hold[max_notes];        // bool
         byte m_accent[max_notes];
         byte m_retrig[max_notes];

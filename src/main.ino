@@ -11,6 +11,7 @@
 #include <EEPROM.h>
 #include <math.h>
 #include "Enum.h"
+#include "Note.h"
 #include "InOutHelper.h"
 #include "SynthPatch.h"
 #include "SynthEngine.h"
@@ -37,15 +38,21 @@ boolean b_note_on = false;
 volatile unsigned long recentInterruptTime;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
-unsigned long next_note_durationMS = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
 volatile bool b_timer_on = false;
-float next_note_freq;
+
+/*
 int next_note;
-int next_note_unmuted;
+float next_note_freq;
+bool next_note_unmuted;
 bool next_note_playIt;
+unsigned long next_note_durationMS = 0;
+*/
+
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
+
+note nextNote;
 
 IntervalTimer myTimer;
 
@@ -251,11 +258,13 @@ void setup()
                 StartStopCb,
                 SynthButtonCb);
                 
+    prepNoteGlobals();
+
     playpath.setPath(sequencer.getPath());
-    next_note = sequencer.getNote(0);
-    next_note_freq = midiToFrequency(next_note); // add transposition once available...
-    next_note_unmuted = sequencer.getMute(0);
-    next_note_playIt = true;
+//  next_note = sequencer.getNote(0);
+//  next_note_freq = midiToFrequency(next_note); // add transposition once available...
+//  next_note_unmuted = sequencer.getMute(0);
+//  next_note_playIt = true;
     synth.prepAccent(sequencer.getAccent(0));
 }
 
@@ -308,7 +317,10 @@ void prep_next_step()
       byte stepPlayTickCount = sequencer.getTicks(playbackStep);
       byte remainingRetrigs = metro.getAndCountdownRetrigs();
 
-      if (remainingRetrigs < 1) { // next note: either a tick or the next step
+      Serial.print("RRT: ");
+      Serial.println(remainingRetrigs);
+
+//    if (remainingRetrigs < 1) { // next note: either a tick or the next step
         if (currentStepTick < stepPlayTickCount) {  // Next tick
             currentStepTick++;
             metro.resetRemainingRetrigs();
@@ -321,7 +333,7 @@ void prep_next_step()
             prepNoteGlobals();
             Serial.print(" B ");
         }
-      } 
+//    } 
 /*    else {                                      // Next note is a retrig, 
                                                     // but is it the LAST ONE AND IS THERE A HOLD ?
                                                     // (...that's different timing)
@@ -330,7 +342,7 @@ void prep_next_step()
             if (remainingRetrigs == 1) // last retrig
               if (!(currentStepTick < stepPlayTickCount)) // no more ticks
               {
-                next_note_durationMS = calcNextNoteDurationAfterRetrigs();
+                nextNote.durationMS = calcNextNoteDurationAfterRetrigs();
                 Serial.print(" D ");
               }
       }
@@ -439,32 +451,39 @@ void play_first_step()
 
     metro.setRetrigCount(sequencer.getRetrig(playbackStep));
     prepNoteGlobals();
-    v_note_off_time = micros() + next_note_durationMS;
+    v_note_off_time = micros() + nextNote.durationMS;
     note_off_time = v_note_off_time;
 
     b_led1_on_state = true;
     b_note_on = true;
 
 /*
-    Serial.println(next_note);
-    Serial.println(next_note_freq);
-    Serial.println(next_note_unmuted);
+    Serial.println(nextNote.pitchVal);
+    Serial.println(nextNote.pitchFreq);
+    Serial.println(nextNote.unmuted);
     Serial.println(next_note_playIt);
-    Serial.println(next_note_durationMS);
+    Serial.println(nextNote.durationMS);
 */
-    
-    if (next_note_unmuted) synth.playNote(next_note, next_note_freq, NORMAL_VEL);
+
+//  if (nextNote.unmuted) synth.playNote(nextNote.pitchVal, nextNote.pitchFreq, NORMAL_VEL); // use NOTE
+    if (nextNote.unmuted) synth.playNote(nextNote);
 //  inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
-void prepNoteGlobals()
+void prepNoteGlobals() // use NOTE
 {
+/*
+    next_note_unmuted = sequencer.getMute(0);
+    next_note_playIt = next_note_unmuted && sequencer.playItOrNot(playbackStep);
     metro.setRetrigCount(sequencer.getRetrig(playbackStep));
     next_note = sequencer.getNote(playbackStep);
     next_note_freq = midiToFrequency(next_note); //add transposition etc
-    next_note_unmuted = sequencer.getMute(playbackStep);
-    next_note_playIt = sequencer.playItOrNot(playbackStep);
-    next_note_durationMS = calcNextNoteDuration();              
+    next_note_durationMS = calcNextNoteDuration();
+*/
+    nextNote = sequencer.getNoteParams(playbackStep);
+    nextNote.durationMS = calcNextNoteDuration();
+    metro.setRetrigCount(nextNote.retrigs);
+
 }
 
 unsigned long calcNextNoteDuration()
@@ -482,7 +501,7 @@ unsigned long calcNextNoteDuration()
     // -FUTURE: stretch retrigs across holds ?
     
         
-    if (next_note_unmuted) {
+    if (nextNote.unmuted) {
       byte hold_count = assembleHolds();
       retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
       
@@ -502,7 +521,7 @@ unsigned long calcNextNoteDurationAfterRetrigs()
     // -otherwise, just retrig fraction
     // -FUTURE: stretch retrigs across holds ?
 
-    if (next_note_unmuted) {
+    if (nextNote.unmuted) {
       byte hold_count = assembleHolds();
       if (hold_count > 0)
         retVal = metro.getStepDurationRetrigHoldMS(sequencer.getDuration(playbackStep), hold_count);
@@ -528,11 +547,11 @@ void retimeNextDuration()
         && metro.getRetrigs() == sequencer.getRetrig(playbackStep)) 
     {
       // reschedule next note duration
-      next_note_durationMS = calcNextNoteDuration(); // ### TO BE BRANCHED...
+      nextNote.durationMS = calcNextNoteDuration(); // ### TO BE BRANCHED...
       Serial.println(" yep");
     } else 
       Serial.println(" nope");
-//    next_note_durationMS = calcNextNoteDuration();
+//    nextNote.durationMS = calcNextNoteDuration();
 }
 
 
@@ -568,7 +587,7 @@ void timerBusiness()
       b_timer_on = true;
       
       if (next_note_unmuted && next_note_playIt) 
-          synth.playNote(next_note, next_note_freq, NORMAL_VEL);
+          synth.playNote(nextNote.pitchVal, next_note_freq, NORMAL_VEL);
     }
 */
 }
@@ -603,12 +622,6 @@ void stopPlayback()
      playbackOn = false;
      vb_prep_next_step = false;
      metro.stopMidiTimer();
-}
-
-
-float midiToFrequency(int note)
-{  
-  return (float) 440.0 * (float)(pow(2, (note-57) / 12.0));
 }
 
 
@@ -1082,6 +1095,12 @@ void parseAndAssignSndSD(char *buff)
       }
     }
 }
+
+float midiToFrequency(int note)
+{  
+  return (float) 440.0 * (float)(pow(2, (note-57) / 12.0));
+}
+
 
 void setupSDcard()
 {

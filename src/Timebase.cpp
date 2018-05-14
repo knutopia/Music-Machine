@@ -1,17 +1,20 @@
 #include "Timebase.h"
 #include "SynthEngine.h"
-//#include "Enum.h"
 
 extern SynthEngine synth;
 
 extern volatile unsigned long recentInterruptTime;
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
+/*
 extern int next_note;
 extern float next_note_freq;
 extern int next_note_unmuted;
 extern bool next_note_playIt;
 extern unsigned long next_note_durationMS;
+*/
+
+extern note nextNote;
 
 extern long g_step_duration;
 
@@ -88,7 +91,7 @@ void Timebase::updateSwing(int swingPercentage)
     swingOffset = referenceStepDuration / 300 * swingValue;
 }
 
-void Timebase::setRetrigCount(int count) 
+void Timebase::setRetrigCount(int count) // USE retrigCount in NOTE
 {
     retrigCount = count;
     remainingRetrigCount = retrigCount;
@@ -333,38 +336,61 @@ void Timebase::resetMidiTimer()
 
 void Timebase::midiClick()
 {
+    static retrigDivisions currentRetrigClickDivider = NORETRIGS;
+    static bool current_note_playIt;
+    static int current_note;
+    static float current_note_freq;
+    static float current_note_durationMS;
+
+    static note currentNote;
+
     midiClickCount++;
 //    usbMIDI.sendRealTime(usbMIDI.Clock);
 //    usbMIDI.send_now();
     if (midiClickCount >= MIDICLOCKDIVIDER)
     {
+        Serial.print("1 mCC: ");
+        Serial.print(midiClickCount);
+        Serial.print("  ");
+        
+        currentNote = nextNote;
+/*        
+        current_note = next_note;
+        current_note_freq = next_note_freq;
+        currentRetrigClickDivider = retrigClickDivider;
+        current_note_playIt = next_note_playIt;
+        current_note_durationMS = next_note_durationMS;
+*/
         midiClickCount = 0;
         recentInterruptTime = micros();
-        v_note_off_time = recentInterruptTime + next_note_durationMS;
+        v_note_off_time = recentInterruptTime + currentNote.durationMS;
             
         vb_prep_next_step = true;
 //      b_timer_on = true;
-
-//      Serial.print("in:");
-//      Serial.print(next_note_unmuted);
-//      Serial.println(next_note_playIt);
         
 //      Serial.print("Main: ");
 //      Serial.println(midiClickCount);
-
-        if (next_note_unmuted && next_note_playIt) 
-            synth.playNote(next_note, next_note_freq, .7);
+        
+        if (currentNote.playIt) 
+//          synth.playNote(current_note, current_note_freq, .7);
+            synth.playNote(currentNote);
     } else {
         // handle retrigs
-        if (retrigClickDivider != NORETRIGS)
+        if (currentNote.retrigClickDivider != NORETRIGS)
         {
-            if (midiClickCount % retrigClickDivider == 0) 
+            if (midiClickCount % currentNote.retrigClickDivider == 0) 
             {
 //              Serial.print("Retrig: ");
 //              Serial.println(midiClickCount);
-                v_note_off_time = recentInterruptTime + next_note_durationMS;
-                if (next_note_unmuted && next_note_playIt) 
-                    synth.playNote(next_note, next_note_freq, .7);
+
+                Serial.print("2 mCC: ");
+                Serial.print(midiClickCount);
+                Serial.print("  ");
+
+                v_note_off_time = recentInterruptTime + currentNote.durationMS;
+                if (currentNote.playIt) 
+//                  synth.playNote(current_note, current_note_freq, .7);
+                    synth.playNote(nextNote);
             }
         }
     }

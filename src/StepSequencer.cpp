@@ -19,7 +19,7 @@
         Serial.println(" sequences ");
     }
 
-    bool StepSequencer::playItOrNot(int _step)
+    bool StepSequencer::playItOrNot(int _step) //make obsolete
     {
       // take step probability into account 
       // and check if the step isn't holding from the previous step
@@ -176,6 +176,10 @@
         return m_sequence[m_currentSequence].getVelocity(_step);      
     }
 
+    note StepSequencer::getNoteParams(int _step) // kg
+    {
+      return m_sequence[m_currentSequence].getNoteParams(_step);
+    }
 
     byte StepSequencer::getPath() // kg
     {

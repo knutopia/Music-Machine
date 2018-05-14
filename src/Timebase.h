@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include "Enum.h"
+#include "Note.h"
 
 class Timebase
 {    

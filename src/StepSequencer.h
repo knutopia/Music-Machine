@@ -37,7 +37,9 @@ class StepSequencer
       byte getAccent(int _step); // kg
       byte getRetrig(int _step); // kg
       byte getVelocity(int _step); // kg
+      note getNoteParams(int _step);
       byte getPath(); // kg
+
       int getCurrentSequence();
       byte getLowestSelectedNote(boolean selectedNotes[]);
       byte getHighestSelectedNote(boolean selectedNotes[]);

@@ -141,6 +141,86 @@ byte StepSequence::getVelocity(int _step)
     return false;  //error
 }
 
+bool StepSequence::playItOrNot(int _step)
+{
+    // take step probability into account 
+    // and check if the step isn't holding from the previous step
+    
+    bool retVal = false;
+    if (_step >=0 && _step < max_notes)
+    {
+        if( !m_hold[_step] && m_mute[_step] )
+        {
+            switch ((int)m_probability[_step]) 
+            {
+                case ZEROPROB:
+                    retVal = false;
+                    break;        
+                case LOWPROB:
+                    if (random(100) < 33) retVal = true;
+                    else retVal = false;
+                    break;        
+                case HIGHPROB:
+                    if (random(100) < 66) retVal = true;
+                    else retVal = false;
+                    break;        
+                case FULLPROB:
+                    retVal = true;
+                    break;
+            }
+        }
+    }
+    return retVal;
+}
+
+retrigDivisions StepSequence::getRetrigDivider(int retrigs) 
+{
+    retrigDivisions retVal;
+
+    switch (retrigs)
+    {
+        case 0:
+            retVal = NORETRIGS;
+            break;
+        case 1:
+            retVal = ONERETRIG;
+            break;
+        case 2:
+            retVal = TWORETRIGS;
+            break;
+        case 3:
+            retVal = THREERETRIGS;
+            break;
+        default:
+            retVal = NORETRIGS;
+            break;
+    }
+    return retVal;
+}
+
+note StepSequence::getNoteParams(int _step)
+{
+    note thisNote;
+
+    if(_step >=0 && _step < max_notes)
+    {
+        thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
+        thisNote.unmuted = m_mute[_step];
+        thisNote.playIt = playItOrNot(_step);
+        thisNote.pitchVal = m_notes[_step];
+        thisNote.pitchFreq = (float) 440.0 * (float)(pow(2, ((m_notes[_step]-57) / 12.0)));
+        thisNote.durationMS = 0;
+        thisNote.hold = m_hold[_step];
+        thisNote.retrigs = m_retrig[_step];
+
+        thisNote.duration = m_duration[_step];
+        thisNote.ticks = m_ticks[_step];
+        thisNote.accent = m_accent[_step];
+        thisNote.velocity = m_velocity[_step];
+    }
+    return thisNote;
+}
+
 byte StepSequence::getLength(){return m_length;};
 
 int StepSequence::getMaxLength(){return max_notes;};

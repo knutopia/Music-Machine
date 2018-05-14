@@ -22,9 +22,9 @@ class SynthEngine
       SynthEngine();
       void begin();
       bool playingAnote();
-//    void playNote(int note, float freq, float velocity);
       void playNote(note aNote);
       void endNote(float velocity);
+      void allNotesOff();
       void prepAccent(byte empFlag);
       void prepPatchIfNeeded();
 //    void trackSafeHoldTime();

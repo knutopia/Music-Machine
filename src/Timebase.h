@@ -19,17 +19,12 @@ class Timebase
       void updateTempo(int newBPM);
       void updateSpeedMultiplier(speedFactor mult);
       void updateSwing(int swingPercentage);
-//    void setRetrigCount(int count);
-//    byte getRetrigs();
-//    byte getAndCountdownRetrigs();
-//    void resetRemainingRetrigs();
 
       //"Getters"
 
       int getBPM();
       int getSwing();
       void updateTimingIfNeeded();
-//    long getNoteStartTime(int stepIndex);
       long getStepDurationMS(float durationAsNoteFraction, byte holdStepCount);
       long getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte holdStepCount);
 
@@ -73,10 +68,7 @@ class Timebase
       static IntervalTimer midiTimer;
     
       //Helper methods
-//    void initReferenceTime();
-//    void resetRefTimetoMostRecentNote();
       void recalcTimings();
-//    void timeRetrigStep();
 
       static void midiClick();
 

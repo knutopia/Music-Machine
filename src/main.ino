@@ -193,19 +193,14 @@ void StartStopCb()
     if(playbackOn == true)
     {
       stopPlayback();
-//    Serial.println("  button off: ");
+      Serial.println("  button off: ");
 
       synth.reportPerformance();
                  
     }else{
       playbackOn = true;
-//    Serial.println("  button on: ");
+      Serial.println("  button on: ");
       
-      //Teensy timer
-//    myTimer.priority(255);
-
-//    metro.prepPlay();
-
       //Midi timer
       metro.runMidiTimer();
 
@@ -470,24 +465,6 @@ byte assembleHolds()
 }
 
 
-void timerBusiness() 
-{
-/*
-    if(playbackOn == true)
-    {
-      recentInterruptTime = micros();
-      v_note_off_time = recentInterruptTime + next_note_durationMS;
-          
-      vb_prep_next_step = true;
-      b_timer_on = true;
-      
-      if (next_note_unmuted && next_note_playIt) 
-          synth.playNote(nextNote.pitchVal, next_note_freq, NORMAL_VEL);
-    }
-*/
-}
-
-
 void followNoteOff()
 {
     if((b_note_on == true) && (note_off_time < micros()))
@@ -505,8 +482,8 @@ void handleRewindButton()
       inout.RemoveStepIndicatorOnLCD();
       playpath.resetStep();
       playbackStep = 0;
-
       if(playbackOn == true) stopPlayback();
+      synth.allNotesOff();
     }
 }
 

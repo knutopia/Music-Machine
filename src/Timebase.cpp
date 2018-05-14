@@ -36,19 +36,6 @@ void Timebase::reset()
     resetMidiTimer();
 }
 
-/*
-void Timebase::prepPlay()
-{
-
-    Serial.println("Starting play.");
-
-    // precalculate the timings
-    initReferenceTime();
-
-    // kick off interrupt
-}
-*/
-
 // React to input ("Setters")
 
 void Timebase::updateTempo(int newBPM) 
@@ -83,53 +70,7 @@ void Timebase::updateSwing(int swingPercentage)
     // max swing is 1/3 step duration offset
     swingOffset = referenceStepDuration / 300 * swingValue;
 }
-/*
-void Timebase::setRetrigCount(int count) // USE retrigCount in NOTE
-{
-    retrigCount = count;
-    remainingRetrigCount = retrigCount;
 
-    switch (count)
-    {
-        case 0:
-            Timebase::retrigClickDivider = NORETRIGS;
-            break;
-        case 1:
-            Timebase::retrigClickDivider = ONERETRIG;
-            break;
-        case 2:
-            Timebase::retrigClickDivider = TWORETRIGS;
-            break;
-        case 3:
-            Timebase::retrigClickDivider = THREERETRIGS;
-            break;
-        default:
-            break;
-    }
-
-    timeRetrigStep();
-}
-*/
-/*
-byte Timebase::getRetrigs()
-{
-    return remainingRetrigCount;
-}
-*/
-/*
-byte Timebase::getAndCountdownRetrigs()
-{
-    byte retVal = remainingRetrigCount;
-    if (remainingRetrigCount > 0) remainingRetrigCount--;
-    return retVal;
-}
-*/
-/*
-void Timebase::resetRemainingRetrigs()
-{
-    remainingRetrigCount = retrigCount;      
-}
-*/
 
 //"Getters"
 
@@ -155,59 +96,6 @@ void Timebase::updateTimingIfNeeded()
         updateMidiTimer();
     }      
 }
-
-/*
-long Timebase::getNoteStartTime(int stepIndex) 
-{        
-    unsigned long nextStart = 0;
-    
-    if(stepIndex >=0 && stepIndex < max_steps) {
-        // calculate when the next step should trigger
-        // and substract the current time
-        // to get the delay until the interrupt that plays the step
-
-        // possible conditions:
-        // -A next note is a new beat
-        // -B next note is a new tick within a beat
-        // -C next note is a retrig during a beat
-        // -D next note is a retrig during a tick
-        
-        if (remainingRetrigCount == 0) // cases A or B
-        {              
-            partialStepsSinceLast = 0;
-            nextStart = referenceTime + (stepsSinceReferenceTime + 1) * referenceStepDuration
-                        - referenceStepOffset * referenceStepDuration / 100;  // PROBABLY MINUS
-            if (swingSteps[stepIndex]) nextStart += swingOffset;
-            stepsSinceReferenceTime++;
-
-//            Serial.println("gNST 1");
-
-        } else // cases C or D
-        {              
-            partialStepsSinceLast = 100 * (retrigCount + 1 - remainingRetrigCount) / (retrigCount + 1);
-            nextStart = referenceTime + (stepsSinceReferenceTime) * referenceStepDuration
-                        - referenceStepOffset * referenceStepDuration / 100
-                        + referenceStepDuration * partialStepsSinceLast / 100;
-//            nextStart = referenceTime + (stepsSinceReferenceTime) * referenceStepDuration
-//                       + retrigStepDuration * (retrigCount + 1 - remainingRetrigCount);
-            if (swingSteps[stepIndex]) nextStart += swingOffset;
-
-//            Serial.println("gNST 2");
-            
-        }
-    } else {
-        Serial.print("OOPSIE: getNoteStartTime stepIndex ");
-        Serial.println(stepIndex);        
-    }
-
-    if (nextStart < micros()) {
-        Serial.print("OOPSIE: nextStart behind time ");
-        Serial.println(micros()-nextStart);                
-    }
-    noteStartTime = nextStart;
-    return nextStart - micros();
-}
-*/
 
 long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCount) // USE NOTE
 {
@@ -258,28 +146,6 @@ long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte ho
 // private:
 
 //Helper methods
-/*
-void Timebase::initReferenceTime()
-{
-    referenceTime = micros();
-    stepsSinceReferenceTime = 0;      
-}
-*/
-
-/*
-void Timebase::resetRefTimetoMostRecentNote()
-{
-    referenceTime = noteStartTime;
-    stepsSinceReferenceTime = 0;
-    referenceStepOffset = partialStepsSinceLast % 100;
-//    referenceStepOffset = (100 - partialStepsSinceLast) % 100;
-
-    Serial.print("rRTtMRN partialStepsSinceLast: ");
-    Serial.print(partialStepsSinceLast);
-    Serial.print(" referenceStepOffset: ");
-    Serial.println(referenceStepOffset);
-}
-*/
 
 void Timebase::recalcTimings()
 {
@@ -289,13 +155,6 @@ void Timebase::recalcTimings()
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }
-
-/*
-void Timebase::timeRetrigStep()
-{
-    retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
-}
-*/
 
 void Timebase::runMidiTimer()
 {

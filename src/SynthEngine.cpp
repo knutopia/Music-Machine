@@ -154,6 +154,12 @@ void SynthEngine::endNote(float velocity)
   m_b_playing_a_note = false;
 }
 
+void SynthEngine::allNotesOff()
+{
+  endNote(1);
+  m_b_playing_a_note = false;
+}
+
 void SynthEngine::prepAccent(byte empFlag)
 {
   if (empFlag == 0) {

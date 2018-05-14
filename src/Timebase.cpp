@@ -6,13 +6,6 @@ extern SynthEngine synth;
 extern volatile unsigned long recentInterruptTime;
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
-/*
-extern int next_note;
-extern float next_note_freq;
-extern int next_note_unmuted;
-extern bool next_note_playIt;
-extern unsigned long next_note_durationMS;
-*/
 
 extern note nextNote;
 
@@ -90,11 +83,12 @@ void Timebase::updateSwing(int swingPercentage)
     // max swing is 1/3 step duration offset
     swingOffset = referenceStepDuration / 300 * swingValue;
 }
-
+/*
 void Timebase::setRetrigCount(int count) // USE retrigCount in NOTE
 {
     retrigCount = count;
     remainingRetrigCount = retrigCount;
+
     switch (count)
     {
         case 0:
@@ -112,25 +106,30 @@ void Timebase::setRetrigCount(int count) // USE retrigCount in NOTE
         default:
             break;
     }
+
     timeRetrigStep();
 }
-
+*/
+/*
 byte Timebase::getRetrigs()
 {
     return remainingRetrigCount;
 }
-
+*/
+/*
 byte Timebase::getAndCountdownRetrigs()
 {
     byte retVal = remainingRetrigCount;
     if (remainingRetrigCount > 0) remainingRetrigCount--;
     return retVal;
 }
-
+*/
+/*
 void Timebase::resetRemainingRetrigs()
 {
     remainingRetrigCount = retrigCount;      
 }
+*/
 
 //"Getters"
 
@@ -210,7 +209,7 @@ long Timebase::getNoteStartTime(int stepIndex)
 }
 */
 
-long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCount)
+long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCount) // USE NOTE
 {
     // Using microseconds (not milliseconds)
     unsigned long retVal;
@@ -229,11 +228,13 @@ long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCoun
     // This is not taking ticks into account, but they are handled higher up.
 
     if (retrigCount == 0) {               // cases A
-    retVal = (durationAsNoteFraction * referenceStepDuration) + holdStepCount * referenceStepDuration;
+        retVal = (durationAsNoteFraction * referenceStepDuration) + holdStepCount * referenceStepDuration;
     } else 
     {                                     // case B
-    retVal = durationAsNoteFraction * referenceStepDuration;
-    if (retVal > retrigStepDuration) retVal = retrigStepDuration;
+        retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
+
+        retVal = durationAsNoteFraction * referenceStepDuration;
+        if (retVal > retrigStepDuration) retVal = retrigStepDuration;
     }
     return retVal;
 }
@@ -244,6 +245,8 @@ long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte ho
 
     // Using microseconds (not milliseconds)
     unsigned long retVal;
+
+    retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
 
     retVal = durationAsNoteFraction * referenceStepDuration;
     if (retVal > retrigStepDuration) retVal = retrigStepDuration;
@@ -287,10 +290,12 @@ void Timebase::recalcTimings()
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }
 
+/*
 void Timebase::timeRetrigStep()
 {
     retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
 }
+*/
 
 void Timebase::runMidiTimer()
 {
@@ -336,12 +341,6 @@ void Timebase::resetMidiTimer()
 
 void Timebase::midiClick()
 {
-    static retrigDivisions currentRetrigClickDivider = NORETRIGS;
-    static bool current_note_playIt;
-    static int current_note;
-    static float current_note_freq;
-    static float current_note_durationMS;
-
     static note currentNote;
 
     midiClickCount++;
@@ -353,26 +352,15 @@ void Timebase::midiClick()
         Serial.print(midiClickCount);
         Serial.print("  ");
         
-        currentNote = nextNote;
-/*        
-        current_note = next_note;
-        current_note_freq = next_note_freq;
-        currentRetrigClickDivider = retrigClickDivider;
-        current_note_playIt = next_note_playIt;
-        current_note_durationMS = next_note_durationMS;
-*/
         midiClickCount = 0;
+        currentNote = nextNote;
         recentInterruptTime = micros();
         v_note_off_time = recentInterruptTime + currentNote.durationMS;
             
         vb_prep_next_step = true;
 //      b_timer_on = true;
         
-//      Serial.print("Main: ");
-//      Serial.println(midiClickCount);
-        
         if (currentNote.playIt) 
-//          synth.playNote(current_note, current_note_freq, .7);
             synth.playNote(currentNote);
     } else {
         // handle retrigs
@@ -380,17 +368,13 @@ void Timebase::midiClick()
         {
             if (midiClickCount % currentNote.retrigClickDivider == 0) 
             {
-//              Serial.print("Retrig: ");
-//              Serial.println(midiClickCount);
-
                 Serial.print("2 mCC: ");
                 Serial.print(midiClickCount);
                 Serial.print("  ");
 
-                v_note_off_time = recentInterruptTime + currentNote.durationMS;
+                v_note_off_time = recentInterruptTime + currentNote.durationMS; // FIX THIS
                 if (currentNote.playIt) 
-//                  synth.playNote(current_note, current_note_freq, .7);
-                    synth.playNote(nextNote);
+                    synth.playNote(currentNote);
             }
         }
     }

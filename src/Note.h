@@ -11,7 +11,7 @@ struct note {
     int pitchVal;
     float pitchFreq;
 
-    float durationMS;
+    unsigned long durationMS;
     bool hold;
 
     float duration;

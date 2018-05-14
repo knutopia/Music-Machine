@@ -19,10 +19,10 @@ class Timebase
       void updateTempo(int newBPM);
       void updateSpeedMultiplier(speedFactor mult);
       void updateSwing(int swingPercentage);
-      void setRetrigCount(int count);
-      byte getRetrigs();
-      byte getAndCountdownRetrigs();
-      void resetRemainingRetrigs();
+//    void setRetrigCount(int count);
+//    byte getRetrigs();
+//    byte getAndCountdownRetrigs();
+//    void resetRemainingRetrigs();
 
       //"Getters"
 
@@ -76,7 +76,7 @@ class Timebase
 //    void initReferenceTime();
 //    void resetRefTimetoMostRecentNote();
       void recalcTimings();
-      void timeRetrigStep();
+//    void timeRetrigStep();
 
       static void midiClick();
 

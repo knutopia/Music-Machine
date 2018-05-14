@@ -41,14 +41,6 @@ unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
 volatile bool b_timer_on = false;
 
-/*
-int next_note;
-float next_note_freq;
-bool next_note_unmuted;
-bool next_note_playIt;
-unsigned long next_note_durationMS = 0;
-*/
-
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
 
@@ -259,12 +251,7 @@ void setup()
                 SynthButtonCb);
                 
     prepNoteGlobals();
-
     playpath.setPath(sequencer.getPath());
-//  next_note = sequencer.getNote(0);
-//  next_note_freq = midiToFrequency(next_note); // add transposition once available...
-//  next_note_unmuted = sequencer.getMute(0);
-//  next_note_playIt = true;
     synth.prepAccent(sequencer.getAccent(0));
 }
 
@@ -315,117 +302,30 @@ void prep_next_step()
       // gather info about the following note N+1
       byte seqLength = sequencer.getLength(); // truncate step to available sequence length
       byte stepPlayTickCount = sequencer.getTicks(playbackStep);
-      byte remainingRetrigs = metro.getAndCountdownRetrigs();
+//    byte remainingRetrigs = metro.getAndCountdownRetrigs();
 
-      Serial.print("RRT: ");
-      Serial.println(remainingRetrigs);
+//    Serial.print("RRT: ");
+//    Serial.println(remainingRetrigs);
 
-//    if (remainingRetrigs < 1) { // next note: either a tick or the next step
-        if (currentStepTick < stepPlayTickCount) {  // Next tick
-            currentStepTick++;
-            metro.resetRemainingRetrigs();
-            Serial.print(" A ");
-        } 
-        else {                                      // Next step
-            playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+      if (currentStepTick < stepPlayTickCount) {  // Next tick
+          currentStepTick++;
+//        metro.resetRemainingRetrigs();
+          Serial.print(" A ");
+      } 
+      else {                                      // Next step
+          playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
-            currentStepTick = 1;
-            prepNoteGlobals();
-            Serial.print(" B ");
-        }
-//    } 
-/*    else {                                      // Next note is a retrig, 
-                                                    // but is it the LAST ONE AND IS THERE A HOLD ?
-                                                    // (...that's different timing)
-                                                    
-            Serial.print(" C ");
-            if (remainingRetrigs == 1) // last retrig
-              if (!(currentStepTick < stepPlayTickCount)) // no more ticks
-              {
-                nextNote.durationMS = calcNextNoteDurationAfterRetrigs();
-                Serial.print(" D ");
-              }
+          currentStepTick = 1;
+          prepNoteGlobals();
+          Serial.print(" B ");
       }
-*/
       // make next note an accent ?
-      synth.prepAccent(sequencer.getAccent(playbackStep));
+      synth.prepAccent(nextNote.accent);
 
       // change synth patch ?
       synth.prepPatchIfNeeded();
     }
 }
-
-/*
-void prep_next_step()
-{
-    static byte currentStepTick = 1;
-    
-    if(vb_prep_next_step) {    // this is triggered right after the interrupt
-                              // started playing the current note
-                              
-      // first things first: interrupt timer off
-      if (b_timer_on) // flag used to avoid overriding first step duration after pb start
-      {
-        myTimer.end();                    // discard timer - it's job is done
-        b_timer_on = false;
-        note_off_time = v_note_off_time;  // safe to read - note off time for just-started note
-      }
-
-      // with timer is off, it's safer around here
-      vb_prep_next_step = false; 
-
-      // adjust speed if tempo or multiplier have changed
-      metro.updateTimingIfNeeded();
-
-      // two state flags referring to the just-started note
-      b_led1_on_state = true;
-      b_note_on = true;
-
-      // show step indicator for just-started note N-1
-      inout.setRunningStepIndicators(playbackStep, note_off_time);      
-
-                              // schedule the next note's start time
-                              // as prepped previously
-
-      // set new timer for triggering the next note N
-      long noteStart = metro.getNoteStartTime(playpath.getCurrentStepCount());
-      myTimer.begin(timerBusiness, noteStart);
-
-      Serial.print("  noteStart ");
-      Serial.println(noteStart);
-      
-      // gather info about the following note N+1
-      byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-      byte stepPlayTickCount = sequencer.getTicks(playbackStep);
-      byte remainingRetrigs = metro.getAndCountdownRetrigs();
-
-      if (remainingRetrigs < 1) { // next note: either a tick or the next step
-        if (currentStepTick < stepPlayTickCount) {  // Next tick
-            currentStepTick++;
-            metro.resetRemainingRetrigs();
-        } 
-        else {                                      // Next step
-            playbackStep = playpath.getAndAdvanceStepPos(seqLength);
-
-            currentStepTick = 1;
-            prepNoteGlobals();
-        }
-      } else {                                      // Next note is a retrig, 
-                                                    // but is it the LAST ONE AND IS THERE A HOLD ?
-                                                    // (...that's different timing)
-            if (remainingRetrigs == 1) // last retrig
-              if (!(currentStepTick < stepPlayTickCount)) // no more ticks
-                next_note_durationMS = calcNextNoteDurationAfterRetrigs();
-      }
-
-      // make next note an accent ?
-      synth.prepAccent(sequencer.getAccent(playbackStep));
-
-      // change synth patch ?
-      synth.prepPatchIfNeeded();
-    }
-}
-*/
 
 void play_first_step()
 {
@@ -449,7 +349,7 @@ void play_first_step()
     else
       playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
-    metro.setRetrigCount(sequencer.getRetrig(playbackStep));
+//  metro.setRetrigCount(sequencer.getRetrig(playbackStep));
     prepNoteGlobals();
     v_note_off_time = micros() + nextNote.durationMS;
     note_off_time = v_note_off_time;
@@ -461,7 +361,7 @@ void play_first_step()
     Serial.println(nextNote.pitchVal);
     Serial.println(nextNote.pitchFreq);
     Serial.println(nextNote.unmuted);
-    Serial.println(next_note_playIt);
+    Serial.println(nextNote.playIt);
     Serial.println(nextNote.durationMS);
 */
 
@@ -472,17 +372,9 @@ void play_first_step()
 
 void prepNoteGlobals() // use NOTE
 {
-/*
-    next_note_unmuted = sequencer.getMute(0);
-    next_note_playIt = next_note_unmuted && sequencer.playItOrNot(playbackStep);
-    metro.setRetrigCount(sequencer.getRetrig(playbackStep));
-    next_note = sequencer.getNote(playbackStep);
-    next_note_freq = midiToFrequency(next_note); //add transposition etc
-    next_note_durationMS = calcNextNoteDuration();
-*/
     nextNote = sequencer.getNoteParams(playbackStep);
     nextNote.durationMS = calcNextNoteDuration();
-    metro.setRetrigCount(nextNote.retrigs);
+//  metro.setRetrigCount(nextNote.retrigs);
 
 }
 
@@ -505,6 +397,9 @@ unsigned long calcNextNoteDuration()
       byte hold_count = assembleHolds();
       retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
       
+      Serial.print("Hold count: ");
+      Serial.println(hold_count);
+
     } else {
       retVal = BLIP;  // huh ? this is odd
       Serial.println("BLIP found"); // ...even a muted note needs a duration.
@@ -543,8 +438,8 @@ void retimeNextDuration()
 
     // no note playing, next note prepped, next note is first or only retrig
     if (!synth.playingAnote()
-        && !vb_prep_next_step 
-        && metro.getRetrigs() == sequencer.getRetrig(playbackStep)) 
+        && !vb_prep_next_step)
+//      && metro.getRetrigs() == sequencer.getRetrig(playbackStep)) 
     {
       // reschedule next note duration
       nextNote.durationMS = calcNextNoteDuration(); // ### TO BE BRANCHED...

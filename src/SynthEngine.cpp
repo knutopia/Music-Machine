@@ -113,33 +113,34 @@ bool SynthEngine::playingAnote()
 void SynthEngine::playNote(note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
-  float osc2freq = freqOffset(aNote.pitchVal, getEditPval(VCO2detune));
-  float subOscFreq = aNote.pitchFreq / 2;
-  float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
+    float osc2freq = freqOffset(aNote.pitchVal, getEditPval(VCO2detune));
+    float subOscFreq = aNote.pitchFreq / 2;
+    float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
 
-  Serial.print("freqs: ");
-  Serial.print(aNote.pitchVal);
-  Serial.print(" ");
-  Serial.println(osc2freq);
-      
-  trackJoystick();
-  AudioNoInterrupts();
-  turboFilter.resonance(filterQEmphasis);
-  delayFilter.resonance(delayFilterQEmphasis);
-  OSC1.frequency(aNote.pitchVal);
-  OSC2.frequency(osc2freq); //modify freq by VCO2detune
-  SubOSC.frequency(subOscFreq);
-  OSC1.amplitude(255);
-  OSC2.amplitude(255);
-  SubOSC.amplitude(255);
-  inputMixer.gain(3, subOscAmp);  // VCO4mix
+    Serial.print("freqs: ");
+    Serial.print(aNote.pitchFreq);
+    Serial.print(" ");
+    Serial.println(osc2freq);
+        
+    trackJoystick();
+    AudioNoInterrupts();
+    turboFilter.resonance(filterQEmphasis);
+    delayFilter.resonance(delayFilterQEmphasis);
+    OSC1.frequency(aNote.pitchFreq);
+    OSC2.frequency(osc2freq); //modify freq by VCO2detune
+    SubOSC.frequency(subOscFreq);
+    OSC1.amplitude(255);
+    OSC2.amplitude(255);
+    SubOSC.amplitude(255);
+    inputMixer.gain(3, subOscAmp);  // VCO4mix
 
-  string2.noteOn(aNote.pitchFreq, aNote.velocity);
-  VCAenvelope2.noteOn();
-  VCAenvelope.noteOn();
-  AudioInterrupts();
+    string2.noteOn(aNote.pitchFreq, .7);
+//  string2.noteOn(aNote.pitchFreq, aNote.velocity); // needs float, is byte
+    VCAenvelope2.noteOn();
+    VCAenvelope.noteOn();
+    AudioInterrupts();
 
-  m_b_playing_a_note = true;
+    m_b_playing_a_note = true;
 }
 
 void SynthEngine::endNote(float velocity)

@@ -82,6 +82,8 @@ class SynthEngine
       
       int m_queue_new_patch;    
       bool m_b_playing_a_note;
+
+      int m_Midi_NoteforOff;
 };
 
 #endif

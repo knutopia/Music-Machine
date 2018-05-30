@@ -35,18 +35,19 @@ const float NORMAL_VEL = 0.7;
                                                  // TO DO: make this the play button LED
 boolean b_led1_on_state = false;                 // remembers what we want the state of the LED to be.
 boolean b_note_on = false;
-volatile unsigned long recentInterruptTime;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
-volatile bool b_timer_on = false;
 
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
 
 note nextNote;
 
-IntervalTimer myTimer;
+// midi
+int midiBaseNote = 255;
+int midiTranspose = 0;
+
 
 // uses seqModes enum
 int currentMode = pattern_select;
@@ -193,6 +194,7 @@ void StartStopCb()
     if(playbackOn == true)
     {
       stopPlayback();
+      usbMIDI.sendRealTime(usbMIDI.Stop);
       Serial.println("  button off: ");
 
       synth.reportPerformance();
@@ -217,11 +219,26 @@ void SynthButtonCb(int butNum)
 }
 
 
+void OnNoteOn(byte channel, byte note, byte velocity) {
+    if (midiBaseNote == 255)
+    {
+      midiBaseNote = note;
+    }
+    else
+    {
+      midiTranspose = note - midiBaseNote;
+    }
+
+}
+
+
 void setup()
 {
 
     //Read data from EEPROM
 //    readDataFromEEPROM(); 
+
+    usbMIDI.setHandleNoteOn(OnNoteOn);
 
     setupSDcard();
     Serial.println("Reading sequences from SD");
@@ -265,9 +282,9 @@ void loop()
     inout.handleTrellis();
     inout.handleLCDtimeouts();
 
-//    while (usbMIDI.read()) {
+    while (usbMIDI.read()) {
       // ignore incoming messages
-//    }
+    }
 //  inout.showLoopTimer();
 }
 
@@ -284,6 +301,10 @@ void prep_next_step()
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
 
+//    inout.ShowValueInfoOnLCD("st: ", nextNote.swingTicks);
+
+      // swing index tracking;
+      metro.advanceStepSwingIndex();
       // two state flags referring to the just-started note
       b_led1_on_state = true;
       b_note_on = true;
@@ -308,9 +329,14 @@ void prep_next_step()
           Serial.print(" A ");
       } 
       else {                                      // Next step
+
           playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
           currentStepTick = 1;
+
+          if (playpath.checkForSequenceStart()) 
+            metro.resetStepSwingIndex();
+
           prepNoteGlobals();
           Serial.print(" B ");
       }
@@ -360,17 +386,20 @@ void play_first_step()
     Serial.println(nextNote.durationMS);
 */
 
+    usbMIDI.sendRealTime(usbMIDI.Start);
+
 //  if (nextNote.unmuted) synth.playNote(nextNote.pitchVal, nextNote.pitchFreq, NORMAL_VEL); // use NOTE
     if (nextNote.unmuted) synth.playNote(nextNote);
+    usbMIDI.send_now();
 //  inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
 void prepNoteGlobals() // use NOTE
 {
     nextNote = sequencer.getNoteParams(playbackStep);
+    nextNote.swingTicks = metro.getSwingTicks();
     nextNote.durationMS = calcNextNoteDuration();
 //  metro.setRetrigCount(nextNote.retrigs);
-
 }
 
 unsigned long calcNextNoteDuration()
@@ -390,7 +419,9 @@ unsigned long calcNextNoteDuration()
         
     if (nextNote.unmuted) {
       byte hold_count = assembleHolds();
-      retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
+//    retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
+//    retVal = metro.getStepDurationMS(nextNote.duration, hold_count);
+      retVal = metro.getStepDurationMS(nextNote, hold_count);
       
       Serial.print("Hold count: ");
       Serial.println(hold_count);
@@ -402,7 +433,7 @@ unsigned long calcNextNoteDuration()
     return retVal;
 }
 
-
+/*
 unsigned long calcNextNoteDurationAfterRetrigs()
 {
     unsigned long retVal;
@@ -424,6 +455,7 @@ unsigned long calcNextNoteDurationAfterRetrigs()
     }
     return retVal;
 }
+*/
 
 
 void retimeNextDuration()
@@ -490,7 +522,6 @@ void handleRewindButton()
 
 void stopPlayback()
 {
-//   myTimer.end();
      playbackOn = false;
      vb_prep_next_step = false;
      metro.stopMidiTimer();

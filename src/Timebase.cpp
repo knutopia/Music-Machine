@@ -1,9 +1,11 @@
 #include "Timebase.h"
+#include "InOutHelper.h"
 #include "SynthEngine.h"
 
 extern SynthEngine synth;
+extern InOutHelper inout;
 
-extern volatile unsigned long recentInterruptTime;
+
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
 
@@ -14,6 +16,8 @@ extern long g_step_duration;
 unsigned long Timebase::midiClickInterval;
 bool Timebase::bMidiTimerOn = false;
 volatile int Timebase::midiClickCount;
+volatile int Timebase::swingCountdown = -1;
+
 int Timebase::midiSteps;
 retrigDivisions Timebase::retrigClickDivider;
 IntervalTimer Timebase::midiTimer;
@@ -26,11 +30,11 @@ Timebase::Timebase()
 void Timebase::reset()
 {
     swingValue = 0;
-    swingOffset = 0;
-    retrigCount = 0;
+    swingMidiClicks = 0;
+//  retrigCount = 0;
     remainingRetrigCount = 0;
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
-    retrigStepDuration = referenceStepDuration / (retrigCount + 1);
+//  retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     resetMidiTimer();
@@ -63,13 +67,34 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
     }
 }
 
+
 void Timebase::updateSwing(int swingPercentage) 
 {
     swingValue = swingPercentage;
     // calculate the intervals when tempo changes
     // max swing is 1/3 step duration offset
-    swingOffset = referenceStepDuration / 300 * swingValue;
+
+//  float scaledSwing = round((float) swingPercentage / (100.0 / 9.0) - .5);
+//  swingMidiClicks = uint8_t(scaledSwing);
+
+    swingMidiClicks = (swingValue-2) / 12;
+
+    Serial.print("swingPercentage: ");
+    Serial.print(swingPercentage);
+    Serial.print("  swingMidiClicks: ");
+    Serial.println(swingMidiClicks);
 }
+
+/*
+void Timebase::updateSwing(int swing0to8) 
+{
+    swingValue = swing0to8;
+    // calculate the intervals when tempo changes
+    // max swing is 1/3 step duration offset
+
+    swingMidiClicks = swing0to8
+}
+*/
 
 
 //"Getters"
@@ -82,6 +107,11 @@ int Timebase::getBPM()
 int Timebase::getSwing()
 {
     return swingValue;
+}
+
+u_int8_t Timebase::getSwingMidiClicks()
+{
+    return swingMidiClicks;
 }
 
 void Timebase::updateTimingIfNeeded()
@@ -97,7 +127,7 @@ void Timebase::updateTimingIfNeeded()
     }      
 }
 
-long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCount) // USE NOTE
+long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
 {
     // Using microseconds (not milliseconds)
     unsigned long retVal;
@@ -115,33 +145,50 @@ long Timebase::getStepDurationMS(float durationAsNoteFraction, byte holdStepCoun
     //
     // This is not taking ticks into account, but they are handled higher up.
 
-    if (retrigCount == 0) {               // cases A
-        retVal = (durationAsNoteFraction * referenceStepDuration) + holdStepCount * referenceStepDuration;
+//  if (retrigCount == 0) {
+    if (aNote.retrigs == 0) {               // cases A
+        retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
+        inout.ShowInfoOnLCD("no retrigs.");
     } else 
     {                                     // case B
-        retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
+        inout.ShowValueInfoOnLCD("Retrigs:", aNote.retrigs);
 
-        retVal = durationAsNoteFraction * referenceStepDuration;
+        unsigned long retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1)*.9;      
+
+        retVal = aNote.duration * referenceStepDuration;
         if (retVal > retrigStepDuration) retVal = retrigStepDuration;
     }
     return retVal;
 }
 
-long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte holdStepCount)
+/*
+long Timebase::getStepDurationRetrigHoldMS(note aNote, byte holdStepCount)
 {
     // called if note is last retrig and there are holds coming up
 
     // Using microseconds (not milliseconds)
     unsigned long retVal;
 
-    retrigStepDuration = referenceStepDuration / (retrigCount + 1);      
+    retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1);      
 
-    retVal = durationAsNoteFraction * referenceStepDuration;
+    retVal = aNote.duration * referenceStepDuration;
     if (retVal > retrigStepDuration) retVal = retrigStepDuration;
     retVal += holdStepCount * referenceStepDuration;
 
     return retVal;
 }
+*/
+
+u_int8_t Timebase::getSwingTicks()
+{
+    u_int8_t retVal = 0;
+    if(swingSteps[stepSwingIndex])
+    {
+        retVal = swingMidiClicks;
+    } 
+    return retVal;
+}
+
 
 // private:
 
@@ -150,8 +197,7 @@ long Timebase::getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte ho
 void Timebase::recalcTimings()
 {
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
-    swingOffset = referenceStepDuration / 300 * swingValue;  
-    retrigStepDuration = referenceStepDuration / (retrigCount + 1);
+//  retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }
@@ -165,6 +211,7 @@ void Timebase::runMidiTimer()
     Serial.println(midiClickInterval);
 
     midiClickCount = 0;
+    swingCountdown = 0;
     midiTimer.begin(Timebase::midiClick, midiClickInterval);
 }
 
@@ -193,6 +240,7 @@ void Timebase::resetMidiTimer()
     }
     bMidiTimerOn = false;
     midiClickCount = 0;
+    swingCountdown = 0;
     midiSteps = 0;
     midiTimer.priority(255);
 
@@ -203,8 +251,8 @@ void Timebase::midiClick()
     static note currentNote;
 
     midiClickCount++;
-//    usbMIDI.sendRealTime(usbMIDI.Clock);
-//    usbMIDI.send_now();
+//  usbMIDI.sendRealTime(usbMIDI.Clock);
+//  usbMIDI.send_now();
     if (midiClickCount >= MIDICLOCKDIVIDER)
     {
         Serial.print("1 mCC: ");
@@ -213,32 +261,61 @@ void Timebase::midiClick()
         
         midiClickCount = 0;
         currentNote = nextNote;
+        swingCountdown = currentNote.swingTicks;
+
+/*
         recentInterruptTime = micros();
         v_note_off_time = recentInterruptTime + currentNote.durationMS;
-            
-        vb_prep_next_step = true;
-//      b_timer_on = true;
-        
+*/      
+//      vb_prep_next_step = true;
+/*   
         if (currentNote.playIt) 
             synth.playNote(currentNote);
+*/
     } else {
         // handle retrigs
         if (currentNote.retrigClickDivider != NORETRIGS)
         {
-            if (midiClickCount % currentNote.retrigClickDivider == 0) 
+            if (midiClickCount % (currentNote.retrigClickDivider) 
+                == currentNote.swingTicks) 
             {
                 Serial.print("2 mCC: ");
                 Serial.print(midiClickCount);
                 Serial.print("  ");
 
-                v_note_off_time = recentInterruptTime + currentNote.durationMS; // FIX THIS
+//              v_note_off_time = recentInterruptTime + currentNote.durationMS; // FIX THIS
+                v_note_off_time = micros() + currentNote.durationMS; // FIX THIS
                 if (currentNote.playIt) 
                     synth.playNote(currentNote);
             }
         }
     }
+    if(swingCountdown == 0)
+    {
+        v_note_off_time = micros() + currentNote.durationMS;
+            
+        vb_prep_next_step = true;
+        
+        if (currentNote.playIt) 
+            synth.playNote(currentNote);
+
+    }
+    swingCountdown--;
+
+    usbMIDI.sendRealTime(usbMIDI.Clock);
+    usbMIDI.send_now();
 }
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23
 // *                 *                  *                 *              
 // *                       *                        *
 // *                                    *
+
+void Timebase::advanceStepSwingIndex()
+{
+    stepSwingIndex++;
+}
+
+void Timebase::resetStepSwingIndex()
+{
+    stepSwingIndex = 0;
+}

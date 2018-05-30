@@ -37,7 +37,6 @@ class InOutHelper
                 ReactToInput SaveToSdCbPointer,
                 ReactToInput startStopCbPointer,
                 ReactToInputInt updateSynthCbPointer);
-                
     void setupNewMode();
     void handleEncoders();
     void handleEncoderButtons();
@@ -74,6 +73,7 @@ class InOutHelper
     void showLoopTimer();
 
   private:
+    void ResetSelection();            
     void SetupMuteOrHoldModeTrellis();
     void SetupSelectEditTrellis();
     void SetupAccentModeTrellis();

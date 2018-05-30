@@ -40,7 +40,7 @@ enum holdActionProcess {SHOWNOTHING = 1000, ANNOUNCE = 3000, ACTION = 5000, DONE
 
 enum {BUTTONHOLDTIME = 1000};
 
-enum holdActionMode {NONE, SAVEPATCH, SAVESEQ};
+enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET};
 
 enum speedFactor {NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4};
 
@@ -84,5 +84,7 @@ enum trackTypes {Melody, Drum, Logic};
 enum instruments {Synth, Bassdrum, Snaredrum};
 
 enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS = 5};
+
+enum midiChannels {MIDISENDCHANNEL = 1};
 
 #endif

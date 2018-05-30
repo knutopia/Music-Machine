@@ -1,6 +1,9 @@
 
 #include "StepSequence.h"
 
+extern int midiTranspose;
+
+
 StepSequence::StepSequence()
 {
     m_length = max_notes;
@@ -207,8 +210,10 @@ note StepSequence::getNoteParams(int _step)
         thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
         thisNote.unmuted = m_mute[_step];
         thisNote.playIt = playItOrNot(_step);
-        thisNote.pitchVal = m_notes[_step];
-        thisNote.pitchFreq = (float) 440.0 * (float)(pow(2, ((m_notes[_step]-57) / 12.0)));
+        thisNote.pitchVal = m_notes[_step] + midiTranspose;
+        thisNote.pitchFreq = (float) 440.0 
+                             * (float)(pow(2, ((m_notes[_step] + midiTranspose -57) 
+                             / 12.0)));
         thisNote.durationMS = 0;
         thisNote.hold = m_hold[_step];
         thisNote.retrigs = m_retrig[_step];
@@ -217,6 +222,7 @@ note StepSequence::getNoteParams(int _step)
         thisNote.ticks = m_ticks[_step];
         thisNote.accent = m_accent[_step];
         thisNote.velocity = m_velocity[_step];
+        thisNote.swingTicks = 0;
     }
     return thisNote;
 }

@@ -77,7 +77,6 @@ class Path
       return m_paths[m_currentPath][m_currentStep];
     }
 
-
     byte getDontAdvanceStepPos(byte seqLength)
     {
       m_currentStep %= seqLength;
@@ -91,17 +90,23 @@ class Path
       return m_paths[m_currentPath][stepAhead];
     }
 
-    
+/*    
     byte getAndRetreatStepPos(byte seqLength)
     {
       m_currentStep -= 1;
       m_currentStep %= seqLength;
       return m_paths[m_currentPath][m_currentStep];
     }
-
+*/
 
     byte getCurrentStepCount(){return m_currentStep;}
 
+    bool checkForSequenceStart()
+    {
+      bool retVal = false;
+      if((m_currentStep) == 0) retVal = true;
+      return retVal;        
+    }
 
     void setPath(int index)
     {

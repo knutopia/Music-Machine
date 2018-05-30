@@ -92,7 +92,10 @@ void SynthEngine::begin()
   AudioMemory(255); //255 is max
   
   sgtl5000_1.enable();
-  sgtl5000_1.volume(0.7);
+  sgtl5000_1.volume(0.8);
+  sgtl5000_1.lineOutLevel(13);
+  sgtl5000_1.autoVolumeControl(2,1,0,-18,0.5,2.0);
+//  sgtl5000_1.autoVolumeEnable();
 
   Serial.println("SynthEngine begin ");
   retrievePatch(m_current_patch);
@@ -113,6 +116,7 @@ bool SynthEngine::playingAnote()
 void SynthEngine::playNote(note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
+
     float osc2freq = freqOffset(aNote.pitchVal, getEditPval(VCO2detune));
     float subOscFreq = aNote.pitchFreq / 2;
     float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
@@ -141,17 +145,33 @@ void SynthEngine::playNote(note aNote)
     AudioInterrupts();
 
     m_b_playing_a_note = true;
+
+    // dirty midi send
+    if (m_Midi_NoteforOff < 255)
+    {
+      usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
+    }
+//  usbMIDI.sendNoteOn(aNote.pitchVal, aNote.velocity, MIDISENDCHANNEL);  // 60 = C4
+    usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
+    m_Midi_NoteforOff = aNote.pitchVal;
 }
 
 void SynthEngine::endNote(float velocity)
 {
-  string2.noteOff(velocity);
-//      OSC1.amplitude(0);
-//      OSC2.amplitude(0);
-  VCAenvelope2.noteOff();
-  VCAenvelope.noteOff();
+    string2.noteOff(velocity);
+    //      OSC1.amplitude(0);
+    //      OSC2.amplitude(0);
+    VCAenvelope2.noteOff();
+    VCAenvelope.noteOff();
 
-  m_b_playing_a_note = false;
+    m_b_playing_a_note = false;
+
+    // dirty midi send
+    if (m_Midi_NoteforOff < 255) {
+      usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
+      usbMIDI.send_now();
+      m_Midi_NoteforOff = 255;
+    }
 }
 
 void SynthEngine::allNotesOff()

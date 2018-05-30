@@ -191,13 +191,11 @@ void InOutHelper::setupNewMode() {
     switch (currentMode) {
       case pattern_select:
 
-    
         for (uint8_t i = 0; i < 16; i++) {
           Serial.print(stepLedOffTimes[i]);
           Serial.print("  ");
           Serial.println(stepsToCheck[i]);
-        }
-        
+        }        
         
         StepButtonCb = updateSequenceNumberCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
@@ -255,6 +253,24 @@ void InOutHelper::setupNewMode() {
     }
 
 }
+
+
+void InOutHelper::ResetSelection() {
+
+    ClearBoolSteps(helperSteps, 16);
+    for (uint8_t i = 0; i < 16; i++) {
+      selectedSteps[i] = false;
+      ShowStepStateOnLCD(i, NOBUTTONPRESS);
+    }
+
+    stepSelectionMode = NOSTEPS;
+    selectionChanged = true;
+
+    currentMode = step_edit;
+    setupNewMode();
+    ShowModeOnLCD();                  
+}
+
 
 void InOutHelper::SetupMuteOrHoldModeTrellis() {
 
@@ -575,11 +591,16 @@ void InOutHelper::handleButtonHoldTiming(holdableButton buttn, bool pressed) {
             holdActionState = INACTIVE;
           }          
           break;
+        case STEPEDITMODEBUTTON: 
+          if (currentHoldAction == TRESET) {
+            currentHoldAction = NONE;
+            holdActionState = INACTIVE;
+          }        
+          break;
         case PLAYBUTTON: 
         case REWINDBUTTON: 
         case SELECTBUTTON: 
         case MUTEMODEBUTTON: 
-        case STEPEDITMODEBUTTON: 
         case ACCENTEDITMODEBUTTON: 
         case LENGTHEDITMODEBUTTON: 
         case PATHEDITMODEBUTTON:
@@ -848,7 +869,7 @@ void InOutHelper::updateTrellisStepIndicator(long time_now)
       long stepLedOffTime = stepLedOffTimes[i];
       
       if (stepLedOffTime > 0) {
-        if (stepLedOffTime > time_now) {         // this one can wait, so
+        if (stepLedOffTime > time_now) {    // this one can wait, so
           step_indicator_led_active = true; // leave the led on, keep flag going
         } else {
           stepLedOffTimes[i] = 0;           // deal with this one - it's time has passed
@@ -1258,6 +1279,15 @@ void InOutHelper::handleButtonHolds()
       currentHoldAction = SAVEPATCH;
       if (trackActionHoldTime(held, SAVEPATCH))
           synth.saveToPatch(synth.getButtonPressed());
+    } else {
+
+      // track step edit button to celan up trellis tracking fail
+      held = GetHoldableButtonPressed(STEPEDITMODEBUTTON);
+      if (held > 0) {
+          currentHoldAction = TRESET;
+          if (trackActionHoldTime(held, TRESET))
+              ResetSelection();
+      }
     }
   }
   
@@ -1667,6 +1697,31 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
         }        
         break;
         
+      case TRESET:
+        destination = save_sequence_destination;
+        switch (state)
+        {
+          case SHOWNOTHING:
+            break;
+          case ANNOUNCE:
+            ShowInfoOnLCD("Hold to reset sel");
+            SetLCDinfoTimeout();
+            break;
+          case ACTION:
+            ShowInfoOnLCD("Resetting selection ");
+            SetLCDinfoTimeout();
+            break;
+          case DONE:
+            ShowInfoOnLCD("Selection reset.");
+            SetLCDinfoTimeout();
+            break;
+          case INACTIVE:
+          default:
+            ClearInfoOnLCD();
+            break;
+        }        
+        break;
+                
       default:
         ShowErrorOnLCD("OOPSIE SHA MSG");
         Serial.print("OOPSIE: invalid mode in InOutHelper::ShowHoldActionMessage");

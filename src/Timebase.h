@@ -24,14 +24,20 @@ class Timebase
 
       int getBPM();
       int getSwing();
+      u_int8_t getSwingMidiClicks();
       void updateTimingIfNeeded();
-      long getStepDurationMS(float durationAsNoteFraction, byte holdStepCount);
-      long getStepDurationRetrigHoldMS(float durationAsNoteFraction, byte holdStepCount);
+      long getStepDurationMS(note aNote, byte holdStepCount);
+//    long getStepDurationRetrigHoldMS(note aNote, byte holdStepCount);
+      u_int8_t getSwingTicks();
 
       void runMidiTimer();
       void stopMidiTimer();
+
+      //"Setters"
       void updateMidiTimer();
       void resetMidiTimer();
+      void advanceStepSwingIndex();
+      void resetStepSwingIndex();
 
     private:
 
@@ -44,16 +50,16 @@ class Timebase
       unsigned long referenceTime;              // starting timestamp to calculate step time target from
       unsigned long stepsSinceReferenceTime;    // count of steps since reference time
       unsigned long referenceStepDuration;      // normal step duration
-      unsigned long swingOffset;                // additional time for a swing step
-      unsigned long retrigStepDuration;         // duration for a step with retriggering active
+//    unsigned long retrigStepDuration;         // duration for a step with retriggering active
       unsigned long noteStartTime;              // note start time - updated whenever a start time is calculated
       int partialStepsSinceLast;                // partial step completion
       int referenceStepOffset;                    // delta from reference time to next step start
       
-      byte nextStepIndex;
+      byte stepSwingIndex;
+      byte swingMidiClicks;
       int swingValue;
       bool resetRefTimer = false;
-      byte retrigCount;
+//    byte retrigCount;
       byte remainingRetrigCount;
       const bool swingSteps[max_steps] = {false, true, false, true, 
                                           false, true, false, true, 
@@ -63,6 +69,8 @@ class Timebase
       static unsigned long midiClickInterval;
       static bool bMidiTimerOn;
       volatile static int midiClickCount;
+      volatile static int swingCountdown;
+
       static retrigDivisions retrigClickDivider;
       static int midiSteps;
       static IntervalTimer midiTimer;

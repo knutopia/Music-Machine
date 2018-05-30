@@ -31,10 +31,8 @@ void Timebase::reset()
 {
     swingValue = 0;
     swingMidiClicks = 0;
-//  retrigCount = 0;
     remainingRetrigCount = 0;
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
-//  retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     resetMidiTimer();
@@ -145,13 +143,12 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
     //
     // This is not taking ticks into account, but they are handled higher up.
 
-//  if (retrigCount == 0) {
     if (aNote.retrigs == 0) {               // cases A
         retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
-        inout.ShowInfoOnLCD("no retrigs.");
+//      inout.ShowInfoOnLCD("no retrigs.");
     } else 
     {                                     // case B
-        inout.ShowValueInfoOnLCD("Retrigs:", aNote.retrigs);
+//      inout.ShowValueInfoOnLCD("Retrigs:", aNote.retrigs);
 
         unsigned long retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1)*.9;      
 
@@ -197,7 +194,6 @@ u_int8_t Timebase::getSwingTicks()
 void Timebase::recalcTimings()
 {
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
-//  retrigStepDuration = referenceStepDuration / (retrigCount + 1);
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }

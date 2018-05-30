@@ -257,10 +257,20 @@ void InOutHelper::setupNewMode() {
 
 void InOutHelper::ResetSelection() {
 
+    for (uint8_t i = 0; i < numKeys; i++) {
+      trellis.clrLED(i);
+    }
+    trellis.writeDisplay();
+
     ClearBoolSteps(helperSteps, 16);
     for (uint8_t i = 0; i < 16; i++) {
       selectedSteps[i] = false;
       ShowStepStateOnLCD(i, NOBUTTONPRESS);
+    }
+
+    // no playback steps lit
+    for (uint8_t i = 0; i < 16; i++) {
+      stepLedOffTimes[i] = NULL;
     }
 
     stepSelectionMode = NOSTEPS;

@@ -50,7 +50,6 @@ class Timebase
       unsigned long referenceTime;              // starting timestamp to calculate step time target from
       unsigned long stepsSinceReferenceTime;    // count of steps since reference time
       unsigned long referenceStepDuration;      // normal step duration
-//    unsigned long retrigStepDuration;         // duration for a step with retriggering active
       unsigned long noteStartTime;              // note start time - updated whenever a start time is calculated
       int partialStepsSinceLast;                // partial step completion
       int referenceStepOffset;                    // delta from reference time to next step start
@@ -59,7 +58,6 @@ class Timebase
       byte swingMidiClicks;
       int swingValue;
       bool resetRefTimer = false;
-//    byte retrigCount;
       byte remainingRetrigCount;
       const bool swingSteps[max_steps] = {false, true, false, true, 
                                           false, true, false, true, 

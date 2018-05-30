@@ -1,17 +1,36 @@
 #ifndef __PATH
 #define __PATH
 
+#include <Arduino.h>
+#include "Enum.h"
+
 class Path
 {
-    public:
-     //Use enumeration to define a class constant
+  public:
     enum{max_path_steps = 16};
     
-    private:
+    Path();
+
+    //"Getters" and "setters"
+    byte getAndAdvanceStepPos(byte seqLength);
+    byte getDontAdvanceStepPos(byte seqLength);
+    byte getStepPosForward(byte index, byte seqLength);
+    byte getCurrentStepCount();
+    bool checkForSequenceStart();
+    void setPath(int index);
+    void setNextPath();
+    void setPrevPath();
+    char* getPathName();
+    
+    //Helper methods
+    void resetStep();
+    void resetPath();
+
+  private:
+
     //Class data members:
     int m_currentPath = 0;
     int m_currentStep = 0;
-
 
     char m_pathNames[16][20] = {"Simple path", 
                         "Reverse Path", 
@@ -56,91 +75,6 @@ class Path
       { 0,  5, 10, 15,  8, 13,  3,  1,  6, 11,  4,  9, 14, 12,  2,  7}, //double diagonal
       { 7,  2, 12, 14,  9,  4, 11,  6,  1,  3, 13,  8, 15, 10,  5,  0}}; //double diagonal reverse
 
-
-
-    
-    public:
-    //Public constructor and methods
-    Path()
-    {
-        m_currentPath = 0;
-        m_currentStep = 0;
-    }
-    
-    //"Getters" and "setters"
-
-
-    byte getAndAdvanceStepPos(byte seqLength)
-    {
-      m_currentStep += 1;
-      m_currentStep %= seqLength;
-      return m_paths[m_currentPath][m_currentStep];
-    }
-
-    byte getDontAdvanceStepPos(byte seqLength)
-    {
-      m_currentStep %= seqLength;
-      return m_paths[m_currentPath][m_currentStep];
-    }
-
-
-    byte getStepPosForward(byte index, byte seqLength)
-    {
-      byte stepAhead = (m_currentStep + index) % seqLength;
-      return m_paths[m_currentPath][stepAhead];
-    }
-
-/*    
-    byte getAndRetreatStepPos(byte seqLength)
-    {
-      m_currentStep -= 1;
-      m_currentStep %= seqLength;
-      return m_paths[m_currentPath][m_currentStep];
-    }
-*/
-
-    byte getCurrentStepCount(){return m_currentStep;}
-
-    bool checkForSequenceStart()
-    {
-      bool retVal = false;
-      if((m_currentStep) == 0) retVal = true;
-      return retVal;        
-    }
-
-    void setPath(int index)
-    {
-      m_currentPath = index % max_path_steps;
-    }
-
-    void setNextPath()
-    {
-      m_currentPath = (++m_currentPath)  % max_path_steps;
-    }
-
-    
-    void setPrevPath()
-    {
-      m_currentPath = (--m_currentPath)  % max_path_steps;
-    }
-
-
-    char* getPathName()
-    {
-      return m_pathNames[m_currentPath];
-    }
-
-    
-    //Helper methods
-    void resetStep() 
-    {
-      m_currentStep = 0;
-    }
-
-    void resetPath()
-    {
-      m_currentPath = 0;
-    }
 };
 
 #endif

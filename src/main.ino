@@ -365,10 +365,11 @@ void play_first_step()
     // gather info about the first note
     byte seqLength = sequencer.getLength(); // truncate step to available sequence length
 
-    if (playbackStep == 0) 
+    if (playbackStep == 0) {
       playbackStep = playpath.getDontAdvanceStepPos(seqLength);
-    else
+    } else {
       playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+    }
 
 //  metro.setRetrigCount(sequencer.getRetrig(playbackStep));
     prepNoteGlobals();
@@ -389,7 +390,9 @@ void play_first_step()
     usbMIDI.sendRealTime(usbMIDI.Start);
 
 //  if (nextNote.unmuted) synth.playNote(nextNote.pitchVal, nextNote.pitchFreq, NORMAL_VEL); // use NOTE
-    if (nextNote.unmuted) synth.playNote(nextNote);
+    if (nextNote.unmuted) 
+      synth.playNote(nextNote);
+
     usbMIDI.send_now();
 //  inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
@@ -511,20 +514,20 @@ void handleRewindButton()
 {
     if (inout.checkRewindButton()) 
     {      
-      inout.RemoveStepIndicatorOnLCD();
-      playpath.resetStep();
-      playbackStep = 0;
       if(playbackOn == true) stopPlayback();
       synth.allNotesOff();
+      playbackStep = 0;
+      inout.RemoveStepIndicatorOnLCD();
+      playpath.resetStep();
     }
 }
 
 
 void stopPlayback()
 {
+     metro.stopMidiTimer();
      playbackOn = false;
      vb_prep_next_step = false;
-     metro.stopMidiTimer();
 }
 
 

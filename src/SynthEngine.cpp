@@ -69,6 +69,7 @@ extern InOutHelper inout;
 SynthEngine::SynthEngine()
 {
   m_b_playing_a_note = false;
+  m_Midi_NoteforOff = 255;
   m_current_patch = 1;
   m_queue_new_patch = -1;
   m_b_reset_selector_reference = true;
@@ -100,7 +101,6 @@ void SynthEngine::begin()
   Serial.println("SynthEngine begin ");
   retrievePatch(m_current_patch);
   activatePatch(m_current_patch);
-
 }
 
 //"Getters" and "setters"
@@ -150,6 +150,7 @@ void SynthEngine::playNote(note aNote)
     if (m_Midi_NoteforOff < 255)
     {
       usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
+      inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
     }
 //  usbMIDI.sendNoteOn(aNote.pitchVal, aNote.velocity, MIDISENDCHANNEL);  // 60 = C4
     usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
@@ -177,6 +178,7 @@ void SynthEngine::endNote(float velocity)
 void SynthEngine::allNotesOff()
 {
   endNote(1);
+  m_Midi_NoteforOff = 255;
   m_b_playing_a_note = false;
 }
 

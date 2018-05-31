@@ -83,7 +83,7 @@ enum {BPMCONSTANT = 60000000};
 enum trackTypes {Melody, Drum, Logic};
 enum instruments {Synth, Bassdrum, Snaredrum};
 
-enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS = 5};
+enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS = 6};
 
 enum midiChannels {MIDISENDCHANNEL = 1};
 

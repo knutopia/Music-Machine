@@ -264,6 +264,7 @@ void Timebase::resetMidiTimer()
 void Timebase::midiClick()
 {
     static note currentNote;
+    static uint8_t remainingRetrigs;
 
     midiClickCount++;
     if (midiClickCount >= MIDICLOCKDIVIDER)
@@ -276,19 +277,12 @@ void Timebase::midiClick()
         midiClickCount = 0;
         currentNote = nextNote;
         swingCountdown = currentNote.swingTicks;
+        remainingRetrigs = currentNote.retrigs;
 
-/*
-        recentInterruptTime = micros();
-        v_note_off_time = recentInterruptTime + currentNote.durationMS;
-*/      
-//      vb_prep_next_step = true;
-/*   
-        if (currentNote.playIt) 
-            synth.playNote(currentNote);
-*/
     } else {
         // handle retrigs
-        if (currentNote.retrigClickDivider != NORETRIGS)
+        if (currentNote.retrigClickDivider != NORETRIGS
+            && remainingRetrigs > 0)
         {
             if (midiClickCount % (currentNote.retrigClickDivider) 
                 == currentNote.swingTicks) 
@@ -298,7 +292,7 @@ void Timebase::midiClick()
                 Serial.print(midiClickCount);
                 Serial.print("  ");
 #endif
-//              v_note_off_time = recentInterruptTime + currentNote.durationMS; // FIX THIS
+                remainingRetrigs--;
                 v_note_off_time = micros() + currentNote.durationMS; // FIX THIS
                 if (currentNote.playIt) 
                     synth.playNote(currentNote);

@@ -121,13 +121,15 @@ void SynthEngine::playNote(note aNote)
     float subOscFreq = aNote.pitchFreq / 2;
     float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
 
+#ifdef DEBUG
     Serial.print("note: ");
     Serial.print(aNote.pitchVal);
     Serial.print("  dur: ");
     Serial.print(aNote.duration);
     Serial.print("  ms: ");
     Serial.println(aNote.durationMS);
-        
+#endif
+
     trackJoystick();
     AudioNoInterrupts();
     turboFilter.resonance(filterQEmphasis);
@@ -154,8 +156,10 @@ void SynthEngine::playNote(note aNote)
       #ifdef MIDION
         usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
       #endif
+  #ifdef DEBUG
       Serial.print(" offing: ");
       Serial.println(m_Midi_NoteforOff);
+  #endif
 
 //    inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
     }

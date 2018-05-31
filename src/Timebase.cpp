@@ -5,6 +5,9 @@
 extern SynthEngine synth;
 extern InOutHelper inout;
 
+#ifdef DEBUG
+extern volatile unsigned long timeTracker;
+#endif
 
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
@@ -36,6 +39,7 @@ void Timebase::reset()
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     resetMidiTimer();
+    resetSwingCountDown();
 }
 
 // React to input ("Setters")
@@ -55,9 +59,11 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
 {
     if (mult != speedMultiplier)
     {
+#ifdef DEBUG
         Serial.print("uSM remainingRetrigCount ");
         Serial.println(remainingRetrigCount);
-        
+#endif
+
         // calculate the intervals when tempo changes
         speedMultiplier = mult;
 //      recalcTimings();
@@ -77,10 +83,12 @@ void Timebase::updateSwing(int swingPercentage)
 
     swingMidiClicks = (swingValue-2) / 12;
 
+#ifdef DEBUG
     Serial.print("swingPercentage: ");
     Serial.print(swingPercentage);
     Serial.print("  swingMidiClicks: ");
     Serial.println(swingMidiClicks);
+#endif
 }
 
 /*
@@ -116,8 +124,10 @@ void Timebase::updateTimingIfNeeded()
 {
     if(resetRefTimer) 
     {
+#ifdef DEBUG
         Serial.println("reseting reference time");
-        
+#endif
+
 //    resetRefTimetoMostRecentNote();   // if speed or multiplier changed
         resetRefTimer = false;
         recalcTimings();
@@ -203,18 +213,22 @@ void Timebase::runMidiTimer()
     stopMidiTimer();
     bMidiTimerOn = true;
 
+#ifdef DEBUG
     Serial.print("runMidiTimer midiClickInterval: ");
     Serial.println(midiClickInterval);
+#endif
 
     midiClickCount = 0;
-    swingCountdown = 0;
+    resetSwingCountDown();
     midiTimer.begin(Timebase::midiClick, midiClickInterval);
 }
 
 void Timebase::stopMidiTimer()
 {
     if (bMidiTimerOn) {
+#ifdef DEBUG
         Serial.println("stopMidiTimer");
+#endif
         bMidiTimerOn = false;
         midiTimer.end();
     }
@@ -223,14 +237,19 @@ void Timebase::stopMidiTimer()
 void Timebase::updateMidiTimer()
 {
     if (bMidiTimerOn) {
+#ifdef DEBUG
         Serial.println("updateMidiTimer");
+#endif
         midiTimer.update(midiClickInterval);
     }
 }
 
 void Timebase::resetMidiTimer()
 {
+#ifdef DEBUG
     Serial.println("resetMidiTimer");
+#endif
+
     if (bMidiTimerOn) {
         midiTimer.end();
     }
@@ -247,14 +266,13 @@ void Timebase::midiClick()
     static note currentNote;
 
     midiClickCount++;
-//  usbMIDI.sendRealTime(usbMIDI.Clock);
-//  usbMIDI.send_now();
     if (midiClickCount >= MIDICLOCKDIVIDER)
     {
+#ifdef DEBUG
         Serial.print("1 mCC: ");
         Serial.print(midiClickCount);
         Serial.print("  ");
-        
+#endif
         midiClickCount = 0;
         currentNote = nextNote;
         swingCountdown = currentNote.swingTicks;
@@ -275,10 +293,11 @@ void Timebase::midiClick()
             if (midiClickCount % (currentNote.retrigClickDivider) 
                 == currentNote.swingTicks) 
             {
+#ifdef DEBUG
                 Serial.print("2 mCC: ");
                 Serial.print(midiClickCount);
                 Serial.print("  ");
-
+#endif
 //              v_note_off_time = recentInterruptTime + currentNote.durationMS; // FIX THIS
                 v_note_off_time = micros() + currentNote.durationMS; // FIX THIS
                 if (currentNote.playIt) 
@@ -288,6 +307,12 @@ void Timebase::midiClick()
     }
     if(swingCountdown == 0)
     {
+#ifdef DEBUG
+            unsigned long now = millis();
+            Serial.print("############## time: ");
+            Serial.println(now-timeTracker);
+            timeTracker = now;
+#endif
         v_note_off_time = micros() + currentNote.durationMS;
             
         vb_prep_next_step = true;
@@ -297,9 +322,10 @@ void Timebase::midiClick()
 
     }
     swingCountdown--;
-
-    usbMIDI.sendRealTime(usbMIDI.Clock);
-    usbMIDI.send_now();
+    #ifdef MIDION
+        usbMIDI.sendRealTime(usbMIDI.Clock);
+        usbMIDI.send_now();
+    #endif
 }
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23
 // *                 *                  *                 *              
@@ -314,4 +340,9 @@ void Timebase::advanceStepSwingIndex()
 void Timebase::resetStepSwingIndex()
 {
     stepSwingIndex = 0;
+}
+
+void Timebase::resetSwingCountDown()
+{
+    swingCountdown = -1;
 }

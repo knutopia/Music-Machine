@@ -38,6 +38,7 @@ class Timebase
       void resetMidiTimer();
       void advanceStepSwingIndex();
       void resetStepSwingIndex();
+      void resetSwingCountDown();
 
     private:
 

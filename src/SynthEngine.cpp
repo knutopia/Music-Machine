@@ -121,10 +121,12 @@ void SynthEngine::playNote(note aNote)
     float subOscFreq = aNote.pitchFreq / 2;
     float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
 
-    Serial.print("freqs: ");
-    Serial.print(aNote.pitchFreq);
-    Serial.print(" ");
-    Serial.println(osc2freq);
+    Serial.print("note: ");
+    Serial.print(aNote.pitchVal);
+    Serial.print("  dur: ");
+    Serial.print(aNote.duration);
+    Serial.print("  ms: ");
+    Serial.println(aNote.durationMS);
         
     trackJoystick();
     AudioNoInterrupts();
@@ -149,11 +151,18 @@ void SynthEngine::playNote(note aNote)
     // dirty midi send
     if (m_Midi_NoteforOff < 255)
     {
-      usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
-      inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
+      #ifdef MIDION
+        usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
+      #endif
+      Serial.print(" offing: ");
+      Serial.println(m_Midi_NoteforOff);
+
+//    inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
     }
 //  usbMIDI.sendNoteOn(aNote.pitchVal, aNote.velocity, MIDISENDCHANNEL);  // 60 = C4
-    usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
+    #ifdef MIDION
+      usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
+    #endif
     m_Midi_NoteforOff = aNote.pitchVal;
 }
 
@@ -169,8 +178,10 @@ void SynthEngine::endNote(float velocity)
 
     // dirty midi send
     if (m_Midi_NoteforOff < 255) {
-      usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
-      usbMIDI.send_now();
+      #ifdef MIDION
+        usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
+        usbMIDI.send_now();
+      #endif
       m_Midi_NoteforOff = 255;
     }
 }

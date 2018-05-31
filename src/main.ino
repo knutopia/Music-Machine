@@ -2,6 +2,8 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
+//#define MIDION true
+//#define DEBUG true
 
 // to make SD card work
 #include <Audio.h>
@@ -43,6 +45,10 @@ int save_sequence_destination = -1;
 bool save_to_SD_done = false;
 
 note nextNote;
+
+#ifdef DEBUG
+volatile unsigned long timeTracker;
+#endif
 
 // midi
 int midiBaseNote = 255;
@@ -194,7 +200,9 @@ void StartStopCb()
     if(playbackOn == true)
     {
       stopPlayback();
-      usbMIDI.sendRealTime(usbMIDI.Stop);
+      #ifdef MIDION
+        usbMIDI.sendRealTime(usbMIDI.Stop);
+      #endif
       Serial.println("  button off: ");
 
       synth.reportPerformance();
@@ -204,6 +212,9 @@ void StartStopCb()
       Serial.println("  button on: ");
       
       //Midi timer
+#ifdef DEBUG
+      timeTracker = millis();
+#endif
       metro.runMidiTimer();
 
       //get first note out immediately
@@ -237,8 +248,9 @@ void setup()
 
     //Read data from EEPROM
 //    readDataFromEEPROM(); 
-
-    usbMIDI.setHandleNoteOn(OnNoteOn);
+    #ifdef MIDION
+      usbMIDI.setHandleNoteOn(OnNoteOn);
+    #endif
 
     setupSDcard();
     Serial.println("Reading sequences from SD");
@@ -282,9 +294,11 @@ void loop()
     inout.handleTrellis();
     inout.handleLCDtimeouts();
 
-    while (usbMIDI.read()) {
-      // ignore incoming messages
-    }
+    #ifdef MIDION
+      while (usbMIDI.read()) {
+        // ignore incoming messages
+      }
+    #endif
 //  inout.showLoopTimer();
 }
 
@@ -371,30 +385,34 @@ void play_first_step()
       playbackStep = playpath.getAndAdvanceStepPos(seqLength);
     }
 
-//  metro.setRetrigCount(sequencer.getRetrig(playbackStep));
+    // new here
+    metro.updateTimingIfNeeded();
+    if (playpath.checkForSequenceStart()) 
+      metro.resetStepSwingIndex();
+
     prepNoteGlobals();
     v_note_off_time = micros() + nextNote.durationMS;
     note_off_time = v_note_off_time;
 
+    // make next note an accent ?
+    synth.prepAccent(nextNote.accent);
+
+    // change synth patch ?
+    synth.prepPatchIfNeeded();
+
     b_led1_on_state = true;
     b_note_on = true;
 
-/*
-    Serial.println(nextNote.pitchVal);
-    Serial.println(nextNote.pitchFreq);
-    Serial.println(nextNote.unmuted);
-    Serial.println(nextNote.playIt);
-    Serial.println(nextNote.durationMS);
-*/
-
-    usbMIDI.sendRealTime(usbMIDI.Start);
-
+    #ifdef MIDION
+      usbMIDI.sendRealTime(usbMIDI.Start);
+    #endif
 //  if (nextNote.unmuted) synth.playNote(nextNote.pitchVal, nextNote.pitchFreq, NORMAL_VEL); // use NOTE
     if (nextNote.unmuted) 
       synth.playNote(nextNote);
-
-    usbMIDI.send_now();
-//  inout.setRunningStepIndicators(playbackStep, note_off_time);
+    #ifdef MIDION
+      usbMIDI.send_now();
+    #endif
+    inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
 void prepNoteGlobals() // use NOTE
@@ -426,8 +444,8 @@ unsigned long calcNextNoteDuration()
 //    retVal = metro.getStepDurationMS(nextNote.duration, hold_count);
       retVal = metro.getStepDurationMS(nextNote, hold_count);
       
-      Serial.print("Hold count: ");
-      Serial.println(hold_count);
+//    Serial.print("Hold count: ");
+//    Serial.println(hold_count);
 
     } else {
       retVal = BLIP;  // huh ? this is odd

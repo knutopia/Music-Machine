@@ -1,7 +1,7 @@
 #ifndef __NOTE
 #define __NOTE
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "Enum.h"
 
 struct note {

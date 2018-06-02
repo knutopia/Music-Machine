@@ -8,6 +8,8 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
+#define MIDION true
+
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
 AudioSynthWaveform       OSC1;           //xy=682.6666259765625,662.9999797344208
@@ -153,20 +155,20 @@ void SynthEngine::playNote(note aNote)
     // dirty midi send
     if (m_Midi_NoteforOff < 255)
     {
-      #ifdef MIDION
+#ifdef MIDION
         usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
-      #endif
-  #ifdef DEBUG
+#endif
+#ifdef DEBUG
       Serial.print(" offing: ");
       Serial.println(m_Midi_NoteforOff);
-  #endif
+#endif
 
 //    inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
     }
 //  usbMIDI.sendNoteOn(aNote.pitchVal, aNote.velocity, MIDISENDCHANNEL);  // 60 = C4
-    #ifdef MIDION
+#ifdef MIDION
       usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
-    #endif
+#endif
     m_Midi_NoteforOff = aNote.pitchVal;
 }
 
@@ -182,10 +184,10 @@ void SynthEngine::endNote(float velocity)
 
     // dirty midi send
     if (m_Midi_NoteforOff < 255) {
-      #ifdef MIDION
+#ifdef MIDION
         usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
         usbMIDI.send_now();
-      #endif
+#endif
       m_Midi_NoteforOff = 255;
     }
 }

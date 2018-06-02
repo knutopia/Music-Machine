@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -200,9 +200,9 @@ void StartStopCb()
     if(playbackOn == true)
     {
       stopPlayback();
-      #ifdef MIDION
+#ifdef MIDION
         usbMIDI.sendRealTime(usbMIDI.Stop);
-      #endif
+#endif
       Serial.println("  button off: ");
 
       synth.reportPerformance();
@@ -449,6 +449,7 @@ unsigned long calcNextNoteDuration()
 
     } else {
       retVal = BLIP;  // huh ? this is odd
+      nextNote.pitchFreq = 660;
       Serial.println("BLIP found"); // ...even a muted note needs a duration.
     }
     return retVal;

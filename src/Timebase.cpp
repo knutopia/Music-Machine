@@ -2,6 +2,8 @@
 #include "InOutHelper.h"
 #include "SynthEngine.h"
 
+#define MIDION true
+
 extern SynthEngine synth;
 extern InOutHelper inout;
 

@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -40,6 +40,7 @@ boolean b_note_on = false;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
+volatile bool vb_prep_retrig = false;         // set note end for a retrig
 
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
@@ -287,7 +288,7 @@ void loop()
     inout.handleButtonHolds();
     handleRewindButton();
     followNoteOff();
-    prep_next_step();
+    prep_next_note();
 
     inout.handleEncoders();
     inout.handleEncoderButtons();
@@ -303,7 +304,7 @@ void loop()
 }
 
 
-void prep_next_step()
+void prep_next_note()
 {
     static byte currentStepTick = 1;
     
@@ -359,6 +360,26 @@ void prep_next_step()
 
       // change synth patch ?
       synth.prepPatchIfNeeded();
+#ifdef DEBUG
+      Serial.print("#note dur: ");
+      Serial.println(note_off_time - micros());
+#endif
+    }
+
+    if (vb_prep_retrig)
+    {
+      vb_prep_retrig = false;
+      note_off_time = v_note_off_time;
+
+//    b_led1_on_state = true;
+      b_note_on = true;
+
+      // show step indicator for just-started note N-1
+//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
+#ifdef DEBUG
+      Serial.print("#retrig dur: ");
+      Serial.println(note_off_time - micros());
+#endif
     }
 }
 
@@ -449,7 +470,6 @@ unsigned long calcNextNoteDuration()
 
     } else {
       retVal = BLIP;  // huh ? this is odd
-      nextNote.pitchFreq = 660;
       Serial.println("BLIP found"); // ...even a muted note needs a duration.
     }
     return retVal;
@@ -547,6 +567,7 @@ void stopPlayback()
      metro.stopMidiTimer();
      playbackOn = false;
      vb_prep_next_step = false;
+     vb_prep_retrig = false;
 }
 
 

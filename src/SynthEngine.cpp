@@ -8,7 +8,7 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-#define MIDION true
+//#define MIDION true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552

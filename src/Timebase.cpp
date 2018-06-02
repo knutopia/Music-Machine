@@ -2,7 +2,7 @@
 #include "InOutHelper.h"
 #include "SynthEngine.h"
 
-#define MIDION true
+//#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
@@ -13,6 +13,7 @@ extern volatile unsigned long timeTracker;
 
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
+extern volatile bool vb_prep_retrig;
 
 extern note nextNote;
 
@@ -157,7 +158,7 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
 
     if (aNote.retrigs == 0) {               // cases A
         retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
-//      inout.ShowInfoOnLCD("no retrigs.");
+//      inout.ShowInfoOnLCD("no              ");
     } else 
     {                                     // case B
 //      inout.ShowValueInfoOnLCD("Retrigs:", aNote.retrigs);
@@ -165,7 +166,11 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
         unsigned long retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1)*.9;      
 
         retVal = aNote.duration * referenceStepDuration;
-        if (retVal > retrigStepDuration) retVal = retrigStepDuration;
+        if (retVal > retrigStepDuration)
+        {
+            retVal = retrigStepDuration;
+//          inout.ShowInfoOnLCD("##Duration");
+        }
     }
     return retVal;
 }
@@ -280,6 +285,7 @@ void Timebase::midiClick()
         currentNote = nextNote;
         swingCountdown = currentNote.swingTicks;
         remainingRetrigs = currentNote.retrigs;
+        vb_prep_retrig = false;
 
     } else {
         // handle retrigs
@@ -295,12 +301,19 @@ void Timebase::midiClick()
                 Serial.print("  ");
 #endif
                 remainingRetrigs--;
-                v_note_off_time = micros() + currentNote.durationMS; // FIX THIS
+                v_note_off_time = micros() + currentNote.durationMS; 
+                
+                vb_prep_retrig = true;
+#ifdef DEBUG
+                Serial.print("###retrig dur: ");
+                Serial.println(currentNote.durationMS);
+#endif
                 if (currentNote.playIt) 
                     synth.playNote(currentNote);
             }
         }
     }
+//  if(swingCountdown == 0 && !vb_prep_retrig)
     if(swingCountdown == 0)
     {
 #ifdef DEBUG
@@ -308,9 +321,15 @@ void Timebase::midiClick()
             Serial.print("############## time: ");
             Serial.println(now-timeTracker);
             timeTracker = now;
-#endif
+#endif 
         v_note_off_time = micros() + currentNote.durationMS;
             
+//      inout.ShowValueInfoOnLCD("not dur:", (int)currentNote.durationMS);
+#ifdef DEBUG
+        Serial.print("###note dur: ");
+        Serial.println(currentNote.durationMS);
+        Serial.println();
+#endif
         vb_prep_next_step = true;
         
         if (currentNote.playIt) 
@@ -319,7 +338,7 @@ void Timebase::midiClick()
     }
     swingCountdown--;
     #ifdef MIDION
-        usbMIDI.sendRealTime(usbMIDI.Clock);
+        usbMIDI.sendRealTime(usbMIDI.Clock);   
         usbMIDI.send_now();
     #endif
 }

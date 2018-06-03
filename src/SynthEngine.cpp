@@ -8,7 +8,7 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-//#define MIDION true
+#define MIDION true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
@@ -103,6 +103,10 @@ void SynthEngine::begin()
   Serial.println("SynthEngine begin ");
   retrievePatch(m_current_patch);
   activatePatch(m_current_patch);
+
+  OSC1.amplitude(255); //TODO: REMOVE
+  OSC2.amplitude(255);
+  SubOSC.amplitude(255);
 }
 
 //"Getters" and "setters"
@@ -132,16 +136,13 @@ void SynthEngine::playNote(note aNote)
     Serial.println(aNote.durationMS);
 #endif
 
-    trackJoystick();
+//  trackJoystick();
     AudioNoInterrupts();
     turboFilter.resonance(filterQEmphasis);
     delayFilter.resonance(delayFilterQEmphasis);
     OSC1.frequency(aNote.pitchFreq);
     OSC2.frequency(osc2freq); //modify freq by VCO2detune
     SubOSC.frequency(subOscFreq);
-    OSC1.amplitude(255);
-    OSC2.amplitude(255);
-    SubOSC.amplitude(255);
     inputMixer.gain(3, subOscAmp);  // VCO4mix
 
     string2.noteOn(aNote.pitchFreq, .7);
@@ -174,11 +175,13 @@ void SynthEngine::playNote(note aNote)
 
 void SynthEngine::endNote(float velocity)
 {
+    AudioNoInterrupts();
     string2.noteOff(velocity);
     //      OSC1.amplitude(0);
     //      OSC2.amplitude(0);
     VCAenvelope2.noteOff();
     VCAenvelope.noteOff();
+    AudioInterrupts();
 
     m_b_playing_a_note = false;
 

@@ -2,7 +2,7 @@
 #include "InOutHelper.h"
 #include "SynthEngine.h"
 
-//#define MIDION true
+#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
@@ -304,10 +304,10 @@ void Timebase::midiClick()
                 v_note_off_time = micros() + currentNote.durationMS; 
                 
                 vb_prep_retrig = true;
-#ifdef DEBUG
+//#ifdef DEBUG
                 Serial.print("###retrig dur: ");
                 Serial.println(currentNote.durationMS);
-#endif
+//#endif
                 if (currentNote.playIt) 
                     synth.playNote(currentNote);
             }
@@ -324,12 +324,10 @@ void Timebase::midiClick()
 #endif 
         v_note_off_time = micros() + currentNote.durationMS;
             
-//      inout.ShowValueInfoOnLCD("not dur:", (int)currentNote.durationMS);
-#ifdef DEBUG
+//#ifdef DEBUG
         Serial.print("###note dur: ");
         Serial.println(currentNote.durationMS);
-        Serial.println();
-#endif
+//#endif
         vb_prep_next_step = true;
         
         if (currentNote.playIt) 

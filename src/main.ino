@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -282,18 +282,27 @@ void setup()
 
 void loop()
 {
+static bool bTimeslice = true;
+
+    if (bTimeslice)
+    {
     inout.handleStartStopButton();
     inout.handleSelectButton();
     inout.handleModeButtons();
     inout.handleButtonHolds();
     handleRewindButton();
-    followNoteOff();
-    prep_next_note();
-
+    } else {
     inout.handleEncoders();
     inout.handleEncoderButtons();
     inout.handleTrellis();
     inout.handleLCDtimeouts();
+    synth.trackJoystick();
+
+    }
+    bTimeslice = !bTimeslice;
+
+    followNoteOff();
+    prep_next_note();
 
     #ifdef MIDION
       while (usbMIDI.read()) {
@@ -545,6 +554,9 @@ void followNoteOff()
     {
       b_note_on = false;
       synth.endNote(NORMAL_VEL);
+
+      Serial.print("end ");
+      Serial.println(micros() - note_off_time);
     }
 }
 

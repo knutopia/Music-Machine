@@ -35,7 +35,7 @@ class SynthEngine
       void prepSynPatchForEdit();
       void reportPerformance();
       void saveToPatch(int p);
-
+      void trackJoystick();
 
     private:
       void handleEncoderA(int value);
@@ -56,7 +56,6 @@ class SynthEngine
       void activatePatch(int p);
       void retrievePatch(int p);
       void updateAudioEngine();
-      void trackJoystick();
       float freqOffset(int note, float offset);
 
       //Class data members:

@@ -554,9 +554,10 @@ void followNoteOff()
     {
       b_note_on = false;
       synth.endNote(NORMAL_VEL);
-
+#ifdef DEBUG
       Serial.print("end ");
       Serial.println(micros() - note_off_time);
+#endif
     }
 }
 

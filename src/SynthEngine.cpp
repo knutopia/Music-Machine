@@ -189,7 +189,7 @@ void SynthEngine::endNote(float velocity)
     if (m_Midi_NoteforOff < 255) {
 #ifdef MIDION
         usbMIDI.sendNoteOff(m_Midi_NoteforOff, 0, MIDISENDCHANNEL);
-        usbMIDI.send_now();
+//      usbMIDI.send_now();
 #endif
       m_Midi_NoteforOff = 255;
     }

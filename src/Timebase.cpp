@@ -23,6 +23,7 @@ unsigned long Timebase::midiClickInterval;
 bool Timebase::bMidiTimerOn = false;
 volatile int Timebase::midiClickCount;
 volatile int Timebase::swingCountdown = -1;
+volatile int Timebase::retrigCountdown = -1;
 
 int Timebase::midiSteps;
 retrigDivisions Timebase::retrigClickDivider;
@@ -263,6 +264,7 @@ void Timebase::resetMidiTimer()
     bMidiTimerOn = false;
     midiClickCount = 0;
     swingCountdown = 0;
+    retrigCountdown = 0;
     midiSteps = 0;
     midiTimer.priority(255);
 
@@ -271,7 +273,7 @@ void Timebase::resetMidiTimer()
 void Timebase::midiClick()
 {
     static note currentNote;
-    static uint8_t remainingRetrigs;
+    static uint8_t remainingRetrigs; 
 
     midiClickCount++;
     if (midiClickCount >= MIDICLOCKDIVIDER)
@@ -284,17 +286,27 @@ void Timebase::midiClick()
         midiClickCount = 0;
         currentNote = nextNote;
         swingCountdown = currentNote.swingTicks;
+        retrigCountdown = currentNote.retrigClickDivider;
         remainingRetrigs = currentNote.retrigs;
         vb_prep_retrig = false;
 
     } else {
         // handle retrigs
         if (currentNote.retrigClickDivider != NORETRIGS
-            && remainingRetrigs > 0)
+            && remainingRetrigs > 0
+            && swingCountdown < 0)
         {
-            if (midiClickCount % (currentNote.retrigClickDivider) 
-                == currentNote.swingTicks) 
+#ifdef DEBUG
+            Serial.print("retrigCountdown: ");
+            Serial.println(retrigCountdown);
+#endif
+            if (--retrigCountdown == 0)
             {
+                retrigCountdown = currentNote.retrigClickDivider;
+
+                Serial.print(">Retrig< ");
+                Serial.println(remainingRetrigs);
+
 #ifdef DEBUG
                 Serial.print("2 mCC: ");
                 Serial.print(midiClickCount);
@@ -304,18 +316,20 @@ void Timebase::midiClick()
                 v_note_off_time = micros() + currentNote.durationMS; 
                 
                 vb_prep_retrig = true;
-//#ifdef DEBUG
+#ifdef DEBUG
                 Serial.print("###retrig dur: ");
                 Serial.println(currentNote.durationMS);
-//#endif
+#endif
                 if (currentNote.playIt) 
                     synth.playNote(currentNote);
             }
         }
     }
-//  if(swingCountdown == 0 && !vb_prep_retrig)
-    if(swingCountdown == 0)
+    if(swingCountdown-- == 0)
     {
+#ifdef DEBUG
+                Serial.print(">Note< ");
+#endif
 #ifdef DEBUG
             unsigned long now = millis();
             Serial.print("############## time: ");
@@ -324,17 +338,16 @@ void Timebase::midiClick()
 #endif 
         v_note_off_time = micros() + currentNote.durationMS;
             
-//#ifdef DEBUG
+#ifdef DEBUG
         Serial.print("###note dur: ");
         Serial.println(currentNote.durationMS);
-//#endif
+#endif
         vb_prep_next_step = true;
         
         if (currentNote.playIt) 
             synth.playNote(currentNote);
 
     }
-    swingCountdown--;
     #ifdef MIDION
         usbMIDI.sendRealTime(usbMIDI.Clock);   
         usbMIDI.send_now();
@@ -358,4 +371,5 @@ void Timebase::resetStepSwingIndex()
 void Timebase::resetSwingCountDown()
 {
     swingCountdown = -1;
+    retrigCountdown = -1;
 }

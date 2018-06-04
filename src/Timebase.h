@@ -69,6 +69,7 @@ class Timebase
       static bool bMidiTimerOn;
       volatile static int midiClickCount;
       volatile static int swingCountdown;
+      volatile static int retrigCountdown;
 
       static retrigDivisions retrigClickDivider;
       static int midiSteps;

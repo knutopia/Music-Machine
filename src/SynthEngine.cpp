@@ -527,6 +527,17 @@ void SynthEngine::activatePatch(int p)
   m_patches[p].copyPatchTo(m_edit_patch);      
 }
 
+
+int SynthEngine::getCurrentPatchNumber()
+{
+  int retVal = m_current_patch;
+  if(m_queue_new_patch >= 0) 
+    retVal = m_queue_new_patch;
+
+  return retVal;
+}
+
+
 void SynthEngine::retrievePatch(int p)
 {      
     

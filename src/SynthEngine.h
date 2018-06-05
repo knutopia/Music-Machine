@@ -32,6 +32,7 @@ class SynthEngine
       void handleButton(int butNum);
       int getButtonPressed();
       void handleEncoder(int encoder, int value);
+      int getCurrentPatchNumber();
       void prepSynPatchForEdit();
       void reportPerformance();
       void saveToPatch(int p);

@@ -42,9 +42,6 @@ class InOutHelper
     void handleEncoderButtons();
     void resetEncoder(encoders enc);
     void handleTrellis();
-    void processTrellisButtonRelease(uint8_t index);
-    void processTrellisButtonPress(uint8_t index);
-    void updateTrellisStepIndicator(long time_now);
     void handleStartStopButton();
     void handleSelectButton();
     void handleModeButtons();
@@ -84,6 +81,9 @@ class InOutHelper
     void SetupSynthEditTrellis();
     void SetupSaveModeTrellis();
     
+    void ProcessTrellisButtonRelease(uint8_t index);
+    void ProcessTrellisButtonPress(uint8_t index);
+    void UpdateTrellisStepIndicator(long time_now);
     void HandleSynthEncoders();
     void HandlePerformanceEncoders();
     unsigned long GetHoldableButtonPressed(holdableButton buttn);
@@ -93,6 +93,7 @@ class InOutHelper
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);
     void PathModeTrellisButtonPressed(int index);
+    void SynthEditModeTrellisButtonPressed(int index);
     void SimpleIndicatorModeTrellisButtonPressed(int index);
     void RepeatButtonPressed(byte repetitions);
     void RetrigButtonPressed(byte retrigs);

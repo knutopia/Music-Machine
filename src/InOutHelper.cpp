@@ -357,8 +357,12 @@ void InOutHelper::SetupPathSelectModeTrellis() {
 
 void InOutHelper::SetupSynthEditTrellis() {
   
+    int patchNum = synth.getCurrentPatchNumber();
+
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
+    helperSteps[patchNum] = true;
+
     LiteUpTrellisSteps(helperSteps);
 }
 
@@ -641,15 +645,15 @@ void InOutHelper::handleTrellis() {
       // Running step LED off when time expired
       // unless the LED is manually latched
       if (step_indicator_led_active) {
-        updateTrellisStepIndicator(now);
+        UpdateTrellisStepIndicator(now);
       }
       if (trellis.readSwitches()) {
         // If a button was just pressed or released...
         // go through every button
         for (uint8_t i = 0; i < numKeys; i++) {
           // if it was pressed, turn it on
-          if ((trellis.justPressed(i)) && (pressProcessed[i] == false)) processTrellisButtonPress(i);
-          if (trellis.justReleased(i)) processTrellisButtonRelease(i);
+          if ((trellis.justPressed(i)) && (pressProcessed[i] == false)) ProcessTrellisButtonPress(i);
+          if (trellis.justReleased(i)) ProcessTrellisButtonRelease(i);
         }
         // tell the trellis to set the LEDs we requested
         trellis_led_dirty = true;
@@ -665,7 +669,7 @@ void InOutHelper::handleTrellis() {
 }
 
 
-void InOutHelper::processTrellisButtonRelease(uint8_t i)
+void InOutHelper::ProcessTrellisButtonRelease(uint8_t i)
 {
     pressProcessed[i] = false;
 
@@ -683,7 +687,11 @@ void InOutHelper::processTrellisButtonRelease(uint8_t i)
           ClearInfoOnLCD();
           handleButtonHoldTiming(SYNTHPATCHBUTTON, false);               
           synth.handleButtonRelease(i % STEPSOFFSET);
-          trellis.clrLED(i);
+
+          // shorthand to light up current patch again
+          // since long press may have saved to different one
+          SetupSynthEditTrellis();
+          
           break;
         case save_to_sd:     
           trellis.clrLED(i);
@@ -693,7 +701,7 @@ void InOutHelper::processTrellisButtonRelease(uint8_t i)
 }
 
 
-void InOutHelper::processTrellisButtonPress(uint8_t i)
+void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
 {
     trellis.setLED(i);
     pressProcessed[i] = true;
@@ -856,7 +864,7 @@ void InOutHelper::processTrellisButtonPress(uint8_t i)
               PathModeTrellisButtonPressed(i);
               break;
             case synth_edit:
-              handleButtonHoldTiming(SYNTHPATCHBUTTON, true);              
+              SynthEditModeTrellisButtonPressed(i);
               break;
             case save_to_sd:
               break;
@@ -871,7 +879,7 @@ void InOutHelper::processTrellisButtonPress(uint8_t i)
 }
 
 
-void InOutHelper::updateTrellisStepIndicator(long time_now)
+void InOutHelper::UpdateTrellisStepIndicator(long time_now)
 {
     step_indicator_led_active = false; // flag off, assuming all active step led's will be turned off
 
@@ -967,6 +975,13 @@ void InOutHelper::PathModeTrellisButtonPressed(int i)
      ShowInfoOnLCD(playpath.getPathName());
      SetLCDinfoTimeout();
      ShowPathNumberOnLCD(i % STEPSOFFSET);
+}
+
+
+void InOutHelper::SynthEditModeTrellisButtonPressed(int i)
+{
+    SimpleIndicatorModeTrellisButtonPressed(i);
+    handleButtonHoldTiming(SYNTHPATCHBUTTON, true);
 }
 
 

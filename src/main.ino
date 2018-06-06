@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -209,6 +209,11 @@ void StartStopCb()
       synth.reportPerformance();
                  
     }else{
+
+#ifdef DEBUG
+      testLinkedNoteList();
+#endif
+
       playbackOn = true;
       Serial.println("  button on: ");
       
@@ -1070,4 +1075,58 @@ void setupSDcard()
       return;
     }
     Serial.println("initialization done.");
+}
+
+
+void testLinkedNoteList() 
+{
+    LinkedNoteList list;
+
+    note noteOne;
+    note noteTwo;
+    note noteThree;
+
+    noteOne.pitchFreq = 110;
+    noteTwo.pitchFreq = 220;
+    noteThree.pitchFreq = 330;
+
+    list.appendNote(1, 1, noteOne);
+    list.appendNote(2, 2, noteTwo);
+    list.appendNote(3, 3, noteThree);
+
+    list.rewind();
+ 
+    while( list.hasValue()){
+            Serial.print("Note: ");
+            Serial.print(list.getNote().pitchFreq);
+            Serial.print("  Step: ");
+            Serial.println(list.getStep());
+            list.next();
+    }
+    
+    list.dropNotesBeforeStepAndRewind(2);
+//  cout << eol << "dropNotesBeforeStepAndRewind 2 " << eol << eol;
+    Serial.println("dropNotesBeforeStepAndRewind 2 ");
+
+    while( list.hasValue()){
+//          cout << "Note: " << list.getNote().pitchFreq;
+//          cout << "  Step: " << list.getStep() << eol;
+            Serial.print("Note: ");
+            Serial.print(list.getNote().pitchFreq);
+            Serial.print("  Step: ");
+            Serial.println(list.getStep());
+            list.next();
+    }
+
+    list.prependNote(1, 1, noteOne);
+//  cout << eol << "prepending 1 back " << eol << eol;
+    Serial.println("prepending 1 back ");
+
+    while( list.hasValue()){
+            Serial.print("Note: ");
+            Serial.print(list.getNote().pitchFreq);
+            Serial.print("  Step: ");
+            Serial.println(list.getStep());
+            list.next();
+    }
 }

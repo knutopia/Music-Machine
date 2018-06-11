@@ -14,6 +14,8 @@
 #include <math.h>
 #include "Enum.h"
 #include "Note.h"
+#include "Track.h"
+#include "TrackList.h"
 #include "InOutHelper.h"
 #include "SynthPatch.h"
 #include "SynthEngine.h"
@@ -212,6 +214,7 @@ void StartStopCb()
 
 #ifdef DEBUG
       testLinkedNoteList();
+      testLinkedTrackList();
 #endif
 
       playbackOn = true;
@@ -450,15 +453,16 @@ void play_first_step()
     inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
-void prepNoteGlobals() // use NOTE
+void prepNoteGlobals()
 {
     nextNote = sequencer.getNoteParams(playbackStep);
     nextNote.swingTicks = metro.getSwingTicks();
     nextNote.durationMS = calcNextNoteDuration();
-//  metro.setRetrigCount(nextNote.retrigs);
+
+    sequencer.updateNoteList(playbackStep);
 }
 
-unsigned long calcNextNoteDuration()
+unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION
 {
     unsigned long retVal;
 
@@ -475,8 +479,6 @@ unsigned long calcNextNoteDuration()
         
     if (nextNote.unmuted) {
       byte hold_count = assembleHolds();
-//    retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
-//    retVal = metro.getStepDurationMS(nextNote.duration, hold_count);
       retVal = metro.getStepDurationMS(nextNote, hold_count);
       
 //    Serial.print("Hold count: ");
@@ -533,7 +535,7 @@ void retimeNextDuration()
 }
 
 
-byte assembleHolds()
+byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -1129,4 +1131,59 @@ void testLinkedNoteList()
             Serial.println(list.getStep());
             list.next();
     }
+}
+
+
+void testLinkedTrackList() 
+{
+    LinkedTrackList list;
+
+    Track trackOne;
+    Track trackTwo;
+    Track trackThree;
+    Track *trackCheck;
+
+    trackOne.begin(1);
+    trackTwo.begin(2);
+    trackThree.begin(3);
+
+    list.appendTrack(1, &trackOne);
+    list.appendTrack(2, &trackTwo);
+    list.appendTrack(3, &trackThree);
+
+    list.rewind();
+    while( list.hasValue()){
+            Serial.print("Track: ");
+            Serial.print(list.getTrackNumber());
+            Serial.print("  Ping: ");
+            trackCheck = list.getTrackRef();
+            trackCheck->activate();
+            list.next();
+    }
+    
+    list.dropTrack(2);
+    Serial.println("dropTrack 2 ");
+
+    list.rewind();
+    while( list.hasValue()){
+            Serial.print("Track: ");
+            Serial.print(list.getTrackNumber());
+            Serial.print("  Ping: ");
+            trackCheck = list.getTrackRef();
+            trackCheck->activate();
+            list.next();
+    }
+    
+    list.appendTrack(1, &trackTwo);
+    Serial.println("appending 2 back ");
+
+    list.rewind();
+    while( list.hasValue()){
+            Serial.print("Track: ");
+            Serial.print(list.getTrackNumber());
+            Serial.print("  Ping: ");
+            trackCheck = list.getTrackRef();
+            trackCheck->activate();
+            list.next();
+    }    
 }

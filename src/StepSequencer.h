@@ -9,6 +9,11 @@
 
 class StepSequencer
 {
+    struct ActiveTrack {
+        byte trackNum;
+        note getNoteCB;
+    };
+
     public:
       //Use enumeration to define a class constant
       enum{max_sequences = 16, max_variations = 15};
@@ -67,6 +72,7 @@ class StepSequencer
       void setVelocity(int _step, byte velocity);
       void setPath(byte path);
       void setCurrentSequence(int index);
+      void updateNoteList(int stepInPattern);
 
       //Helper method
       bool playOrNot(int index);
@@ -78,14 +84,13 @@ class StepSequencer
       bool notesArrayEmpty(boolean notesArray[]);
 
     private:
+      
       //Class data members:
       int m_currentSequence;     // index of currently active sequence
       bool m_recall_buffer_active; // is there something in the recall buffer ?
       //This array stores the sequences
       StepSequence m_sequence[max_sequences];                           // current, edit buffer
       StepSequence m_sequence_root[max_sequences];
-  //  byte m_sequence_variation[max_sequences];
-  //  StepSequence m_sequence_array[max_sequences][max_variations];   // root & variations
-          
+      bool m_active_track[max_sequences];          
 };
 #endif

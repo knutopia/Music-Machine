@@ -1,6 +1,10 @@
 
 #include "StepSequence.h"
+#include "Timebase.h"
+#include "Path.h"
 
+extern Timebase metro;
+extern Path playpath;
 extern int midiTranspose;
 
 
@@ -27,6 +31,54 @@ void StepSequence::reset()
         m_retrig[n] = 0;
         m_velocity[n] = 128;
     }
+}
+
+unsigned long StepSequence::calcNextNoteDuration(note aNote)
+{
+    unsigned long retVal;
+
+    // cases for note duration:
+    // -A if simple note: 
+    //   -note duration as stored
+    //   -if there is a hold: full step plus hold (use legato note's duration ?)
+    // -B if retrig within note:
+    //   -retrig fraction
+    //   -if there is a hold and retrig is last one: retrig fraction plus hold (use legato note's duration ?)
+    // -C if muted: blip (to keep timer going)
+    // -FUTURE: stretch retrigs across holds ?
+    
+        
+    if (aNote.unmuted) {
+        byte hold_count = assembleHolds();
+        retVal = metro.getStepDurationMS(aNote, hold_count);
+        
+//    Serial.print("Hold count: ");
+//    Serial.println(hold_count);
+
+    } else {
+        retVal = BLIP;  // huh ? this is odd
+        Serial.println("BLIP found"); // ...even a muted note needs a duration.
+    }
+    return retVal;
+}
+
+byte StepSequence::assembleHolds()
+{
+    // use getStepPosAfterNext to look ahead for holds. 
+    // count consecutive forward-holds, to pass into getStepDurationMS
+    byte holdStepCount = 0;
+    byte stepOffset = 1;
+    byte seqLength = getLength();
+    bool holdNext = true;
+    
+    while (holdNext) {
+        holdNext = getHold(playpath.getStepPosForward(stepOffset, seqLength));
+        if (holdNext) {
+        holdStepCount++;
+        stepOffset++;
+        }
+    }
+    return holdStepCount;
 }
 
 void StepSequence::copySeqTo(StepSequence &destination) 
@@ -214,7 +266,6 @@ note StepSequence::getNoteParams(int _step)
         thisNote.pitchFreq = (float) 440.0 
                              * (float)(pow(2, ((m_notes[_step] + midiTranspose -57) 
                              / 12.0)));
-        thisNote.durationMS = 0;
         thisNote.hold = m_hold[_step];
         thisNote.retrigs = m_retrig[_step];
 
@@ -222,7 +273,9 @@ note StepSequence::getNoteParams(int _step)
         thisNote.ticks = m_ticks[_step];
         thisNote.accent = m_accent[_step];
         thisNote.velocity = m_velocity[_step];
-        thisNote.swingTicks = 0;
+
+        thisNote.swingTicks = metro.getSwingTicks();
+        thisNote.durationMS = calcNextNoteDuration(thisNote);
     }
     return thisNote;
 }

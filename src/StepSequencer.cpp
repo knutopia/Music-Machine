@@ -1,7 +1,6 @@
 //Arduino for Musicians
 //StepSequencer: A container class for StepSequence objects
 
-//#include "arduino.h"
 #include "StepSequencer.h"
 
     //Public constructor and methods
@@ -9,8 +8,9 @@
     {
         m_currentSequence = 0;
         m_recall_buffer_active = false;
-//      for (int i = 0; i < max_sequences; i++)
-//        m_sequence_variation[i] = ROOT;
+        for (int i = 0; i < max_sequences; i++)
+          m_active_track[i] = false;
+        m_active_track[0] = true;
 
         Serial.print("Size of m_sequence is ");
         Serial.print(sizeof(m_sequence));
@@ -18,6 +18,29 @@
         Serial.print(max_sequences);
         Serial.println(" sequences ");
     }
+
+    void StepSequencer::updateNoteList(int stepInPattern)
+    {
+      // get notes for step, per track
+      // use global step and step in pattern where appropriate
+      // include nextNote = sequencer.getNoteParams(playbackStep);
+      // replace prepNoteGlobals(); in main
+
+/*
+      //step through active tracks
+      //get note, do processing per track type (swingticks, duration)
+      //append the note to the noteList
+      //take earlier steps off the noteList
+
+      //needed for this:
+      //  active track list as linkedList to step through
+      //  per-track getNoteParams();
+      //  per-track calcNextNoteDuration();
+      //  as functions in linkedList of active tracks
+*/
+
+    }
+
 
     bool StepSequencer::playItOrNot(int _step) //make obsolete
     {

@@ -49,6 +49,9 @@ class StepSequence
         void printSequence();
 
     private:
+        unsigned long calcNextNoteDuration(note aNote);
+        byte assembleHolds();
+
         byte m_notes[max_notes];
         float m_duration[max_notes];   // float
         byte m_probability[max_notes];

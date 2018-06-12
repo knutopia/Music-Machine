@@ -2,45 +2,70 @@
 //StepSequencer: A container class for StepSequence objects
 
 #include "StepSequencer.h"
+#include "Track.h"
+
+    LinkedNoteList StepSequencer::activeNotes;
 
     //Public constructor and methods
     StepSequencer::StepSequencer()
     {
         m_currentSequence = 0;
         m_recall_buffer_active = false;
-        for (int i = 0; i < max_sequences; i++)
-          m_active_track[i] = false;
-        m_active_track[0] = true;
+        m_globalStep = 0;
 
+#ifdef DEBUG
         Serial.print("Size of m_sequence is ");
         Serial.print(sizeof(m_sequence));
         Serial.print(" for ");
         Serial.print(max_sequences);
         Serial.println(" sequences ");
+#endif
     }
+
+
+    void StepSequencer::begin()
+    {
+        tmpTrack1.begin(m_sequence, (byte)1);
+        activeEditTrack = &tmpTrack1;
+
+        m_activeTracks.appendTrack(1, &tmpTrack1);
+    }
+
 
     void StepSequencer::updateNoteList(int stepInPattern)
     {
-      // get notes for step, per track
-      // use global step and step in pattern where appropriate
-      // include nextNote = sequencer.getNoteParams(playbackStep);
-      // replace prepNoteGlobals(); in main
+        // get notes for step, per track
+        // use global step and step in pattern where appropriate
+        // include nextNote = sequencer.getNoteParams(playbackStep);
+        // replace prepNoteGlobals(); in main
 
-/*
-      //step through active tracks
-      //get note, do processing per track type (swingticks, duration)
-      //append the note to the noteList
-      //take earlier steps off the noteList
+        //step through active tracks
+        //get note, do processing per track type (swingticks, duration)
+        //append the note to the noteList
+        //take earlier steps off the noteList
 
-      //needed for this:
-      //  active track list as linkedList to step through
-      //  per-track getNoteParams();
-      //  per-track calcNextNoteDuration();
-      //  as functions in linkedList of active tracks
-*/
+        //needed for this:
+        //  active track list as linkedList to step through
+        //  per-track getNoteParams();
+        //  per-track calcNextNoteDuration();
+        //  as functions in linkedList of active tracks
 
+        note cur_note;
+        byte cur_track;
+
+        m_globalStep++;
+        activeNotes.dropNotesBeforeStepAndRewind(m_globalStep);
+
+        m_activeTracks.rewind();
+        while( m_activeTracks.hasValue())
+        {
+            cur_note = m_activeTracks.getTrackRef()->getNoteParams(stepInPattern, (byte)m_currentSequence);
+            cur_track = m_activeTracks.getTrackNumber();
+            activeNotes.appendNote(m_globalStep, cur_track, cur_note);
+
+            m_activeTracks.next();
+        }
     }
-
 
     bool StepSequencer::playItOrNot(int _step) //make obsolete
     {

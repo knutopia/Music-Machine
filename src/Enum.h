@@ -80,7 +80,9 @@ enum {BPMCONSTANT = 60000000};
 
 // enum noteTimingType {Beat, Ticking, Retrig, TickingRetrig};
 
-enum trackTypes {Melody, Drum, Logic};
+// enum trackTypes {Melody, Drum, Logic};
+enum trackTypes {STEPSEQUENCE, SIMPLEBEAT};
+
 enum instruments {Synth, Bassdrum, Snaredrum};
 
 enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS = 6};

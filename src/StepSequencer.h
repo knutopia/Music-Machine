@@ -6,6 +6,8 @@
 
 #include <Arduino.h>
 #include "StepSequence.h"
+#include "Track.h"
+#include "TrackList.h"
 
 class StepSequencer
 {
@@ -20,6 +22,7 @@ class StepSequencer
     
       //Public constructor and methods
       StepSequencer();
+      void begin();
       bool playItOrNot(int _step);
       void prime_edit_buffers();
       void reset_edit_seq(int seqnum);
@@ -83,6 +86,8 @@ class StepSequencer
       void printSequence();
       bool notesArrayEmpty(boolean notesArray[]);
 
+      static LinkedNoteList activeNotes;
+
     private:
       
       //Class data members:
@@ -91,6 +96,12 @@ class StepSequencer
       //This array stores the sequences
       StepSequence m_sequence[max_sequences];                           // current, edit buffer
       StepSequence m_sequence_root[max_sequences];
-      bool m_active_track[max_sequences];          
+      
+      LinkedTrackList m_activeTracks;
+      Track tmpTrack1;
+      Track tmpTrack2;
+      Track *activeEditTrack;
+      int m_globalStep;
 };
+
 #endif

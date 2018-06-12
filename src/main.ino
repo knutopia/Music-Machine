@@ -266,6 +266,7 @@ void setup()
     readSeqFromSDcard();
     
     sequencer.copy_edit_buffers_to_roots();
+    sequencer.begin();
         
     Serial.println("Reading patches from SD");
     readSndFromSDcard();
@@ -880,7 +881,6 @@ void readSeqFromSDcard()
       }
     }
     myFile.close();
-//  sequencer.copy_edit_buffers_to_roots();
     sequencer.setCurrentSequence(seqBuf);
 }
 

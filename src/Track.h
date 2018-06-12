@@ -5,6 +5,7 @@
 #include "Arduino.h"
 #include "Enum.h"
 #include "Note.h"
+#include "StepSequence.h"
 
 // Callback
 typedef note (*NoteGetter) (int step);
@@ -19,6 +20,8 @@ class Track
       Track();
       void begin(byte number);
       void begin(NoteGetter noteGetterRef, byte number);
+      void begin(StepSequence sequencesPtr[], byte number);
+      note getNoteParams(int step, byte curSequence);
       void activate();
       void deactivate();
       void setName(char *namePar);
@@ -32,6 +35,8 @@ class Track
       //Class data members:
       
       trackTypes trackType;
+      StepSequence *sequences;
+      byte currentSequence;
       instruments instrument;
       bool b_IsActive = false;
       byte currentPattern = 0;

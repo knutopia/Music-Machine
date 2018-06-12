@@ -1,10 +1,18 @@
 #include "Track.h"
 #include "InOutHelper.h"
 
+
 Track::Track()
 {
 
 };
+
+void Track::begin(byte number)
+{
+//    trackType;
+//    instrument;
+      trackNumber = number;
+}
 
 void Track::begin(NoteGetter noteGetterRef, byte number)
 {
@@ -14,13 +22,33 @@ void Track::begin(NoteGetter noteGetterRef, byte number)
       trackNumber = number;
 }
 
-void Track::begin(byte number)
+void Track::begin(StepSequence sequencesPtr[], byte number)
 {
-//    trackType;
-//    instrument;
+      trackType = STEPSEQUENCE;
+      sequences = sequencesPtr;
+      b_IsActive = false;
+      currentPattern = 0;  
       trackNumber = number;
 }
+
+
 // Core Methods
+
+note Track::getNoteParams(int step, byte curSequence)
+{
+      note retNote;
+
+      switch (trackType)
+      {
+            case STEPSEQUENCE:
+                  retNote = sequences[curSequence].getNoteParams(step);
+                  break;
+
+//          default:
+//            break;
+      }
+      return retNote;
+}
 
 void Track::activate()
 {
@@ -51,7 +79,7 @@ void Track::setCurrentPattern(byte newPat)
 // Getters
 char* Track::getName()
 {
-  
+  return trackName;
 }
 
 byte Track::getCurrentPattern()

@@ -46,16 +46,19 @@ public:
         if (cur == head)
         {
             cur = head->next;
+            delete head;
             head = cur;
         } else 
         { 
             if (cur == tail)
             {
+                delete tail;
                 tail = prev;
                 prev->next = NULL;
             } else 
             {
                 prev->next = cur->next;
+                delete cur;
                 cur = prev;
             }
         }
@@ -107,6 +110,18 @@ public:
     int hasValue()
     {
             return ( cur != NULL ? true : false );
+    }
+
+    int count()
+    {
+        int retVal = 0;
+        rewind();
+
+        while( hasValue()){
+            retVal++;
+            next();
+        }        
+        return retVal;
     }
 
 private:

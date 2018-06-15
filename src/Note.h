@@ -69,14 +69,11 @@ public:
         if (head != NULL)
         {
             noteNode *newHead = head->next;
-/*            
-            head->masterStep = NULL;
-            head->track = NULL;
-            head->note = NULL;
-            head->next = NULL;
-*/
+
             if (cur == head)
                 cur = newHead;
+
+            delete head;
             head = newHead;
         }
     }
@@ -155,6 +152,17 @@ public:
     int hasValue()
     {
             return ( cur != NULL ? true : false );
+    }
+
+    int count()
+    {
+        int retVal = 0;
+        rewind();
+        while( hasValue()){
+            retVal++;
+            next();
+        }        
+        return retVal;
     }
 
 private:

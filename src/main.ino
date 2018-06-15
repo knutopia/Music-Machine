@@ -456,11 +456,14 @@ void play_first_step()
 
 void prepNoteGlobals()
 {
+  /*
     nextNote = sequencer.getNoteParams(playbackStep);
     nextNote.swingTicks = metro.getSwingTicks();
     nextNote.durationMS = calcNextNoteDuration();
-
+*/
     sequencer.updateNoteList(playbackStep);
+    StepSequencer::activeNotes.rewind();
+    nextNote = StepSequencer::activeNotes.getNote();
 }
 
 unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION

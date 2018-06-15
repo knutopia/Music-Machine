@@ -57,7 +57,7 @@ unsigned long StepSequence::calcNextNoteDuration(note aNote)
 
     } else {
         retVal = BLIP;  // huh ? this is odd
-        Serial.println("BLIP found"); // ...even a muted note needs a duration.
+//      Serial.println("BLIP found"); // ...even a muted note needs a duration.
     }
     return retVal;
 }

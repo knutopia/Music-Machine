@@ -3,7 +3,7 @@
 
 #define uint8_t byte
 //#define MIDION true
-//#define DEBUG true
+#define DEBUG true
 
 // to make SD card work
 #include <Audio.h>
@@ -210,11 +210,13 @@ void StartStopCb()
 
       synth.reportPerformance();
                  
-    }else{
+    } else {
 
 #ifdef DEBUG
       testLinkedNoteList();
       testLinkedTrackList();
+      testPerClickNoteList();
+      testStepClickList();
 #endif
 
       playbackOn = true;
@@ -1070,7 +1072,6 @@ float midiToFrequency(int note)
   return (float) 440.0 * (float)(pow(2, (note-57) / 12.0));
 }
 
-
 void setupSDcard()
 {
     Serial.print("Initializing SD card...");
@@ -1082,9 +1083,10 @@ void setupSDcard()
     Serial.println("initialization done.");
 }
 
-
 void testLinkedNoteList() 
 {
+    Serial.println("Testing LinkedNoteList");
+
     LinkedNoteList list;
 
     note noteOne;
@@ -1136,9 +1138,11 @@ void testLinkedNoteList()
     }
 }
 
-
 void testLinkedTrackList() 
 {
+    Serial.println();
+    Serial.println("Testing LinkedTrackList");
+
     LinkedTrackList list;
 
     Track trackOne;
@@ -1189,4 +1193,137 @@ void testLinkedTrackList()
             trackCheck->activate();
             list.next();
     }    
+}
+
+void printPerClickNoteList(PerClickNoteList *list)
+{
+    while( list->hasValue()){
+        Serial.print("Note: ");
+        note *n = list->getNote();
+        if(n != NULL)
+          Serial.print(n->pitchVal);
+        else
+          Serial.print("NULL");
+        Serial.print("  durMS: ");
+        Serial.println(list->getDurationMS());
+        list->next();
+    }
+}
+
+void printStepClickList(StepClickList *list)
+{
+    while( list->hasValue()){
+            Serial.print(" MasterStep: ");
+            Serial.print(list->getMasterStep());
+            Serial.print("  Click: ");
+            Serial.println(list->getClickStep());
+            Serial.println(" Notes: ");
+            PerClickNoteList *notes = list->getNotes();
+            notes->rewind();
+            printPerClickNoteList(notes);
+            Serial.println();
+            list->next();
+    }
+}
+
+void testPerClickNoteList() 
+{
+    Serial.println();
+    Serial.println("Testing PerClickNoteList");
+    
+    PerClickNoteList list;
+
+    note noteOne;
+    note noteTwo;
+    note noteThree;
+
+    noteOne.pitchVal = 1;
+    noteTwo.pitchVal = 2;
+    noteThree.pitchVal = 3;
+    
+    list.append(&noteOne, 100);
+    list.append(&noteTwo, 200);
+    list.append(&noteThree, 300);
+    
+    printPerClickNoteList(&list);
+    list.rewind();
+ 
+    list.append(&noteThree, 300);
+    Serial.println("Appended 3 again after rewind");
+
+    printPerClickNoteList(&list);
+    
+    list.append(&noteOne, 100);
+    list.append(&noteTwo, 200);
+    list.append(&noteThree, 300);
+    Serial.println("Rebuilt list.");
+
+    printPerClickNoteList(&list);
+
+    Serial.println("Not calling Delete on list.");
+}
+
+void testStepClickList() 
+{
+    Serial.println();
+    Serial.println("Testing StepClickList");
+    
+    StepClickList list;
+
+    note noteOne;
+    note noteTwo;
+    note noteThree;
+
+    noteOne.pitchVal = 1;
+    noteTwo.pitchVal = 2;
+    noteThree.pitchVal = 3;
+    
+    list.addClickNote(&noteOne, 1100, 1, 1);
+    list.addClickNote(&noteTwo, 2100, 1, 1);
+    list.addClickNote(&noteThree, 3100, 1, 1);
+
+    Serial.println("Three notes on masterStep 1 click 1");
+
+    list.rewind();
+    printStepClickList(&list);
+    list.rewind();
+ 
+    list.addClickNote(&noteOne, 1200, 2, 1);
+    list.addClickNote(&noteTwo, 2200, 2, 1);
+    list.addClickNote(&noteThree, 3200, 2, 2);
+    Serial.println("Appended 2 notes on masterStep 2 click 1 and 1 note on masterStep 2 click 2");
+
+    list.rewind();
+    printStepClickList(&list);
+    list.rewind();
+
+    list.addClickNote(&noteOne, 1300, 1, 1);
+    list.addClickNote(&noteTwo, 2300, 2, 1);
+    list.addClickNote(&noteThree, 3300, 2, 2);
+ 
+    Serial.println("Appended another note on each click");
+    
+    list.rewind();
+    printStepClickList(&list);
+
+    list.dropNotesBeforeStepAndRewind(2);
+
+    Serial.println("Dropped notes before masterStep 2");
+    
+    list.rewind();
+    printStepClickList(&list);
+/*
+    delete &list;
+    Serial.println("Deleted list.");
+
+    printStepClickList(&list);
+*/
+    list.addClickNote(&noteOne, 1400, 1, 1);
+    list.addClickNote(&noteTwo, 2400, 2, 1);
+    list.addClickNote(&noteThree, 3400, 2, 2);
+
+    Serial.println("Added 3 more.");
+
+    list.rewind();
+    printStepClickList(&list);
 }

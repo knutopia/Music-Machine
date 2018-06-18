@@ -1083,6 +1083,20 @@ void setupSDcard()
     Serial.println("initialization done.");
 }
 
+
+void printLinkedNoteList(LinkedNoteList *list)
+{
+    while( list->hasValue()){
+            Serial.print("Note: ");
+            Serial.print(list->getNote().pitchFreq);
+            Serial.print("  Step: ");
+            Serial.println(list->getStep());
+            list->next();
+    }
+    Serial.print("Count: ");
+    Serial.println(list->count());
+ }
+
 void testLinkedNoteList() 
 {
     Serial.println("Testing LinkedNoteList");
@@ -1101,41 +1115,46 @@ void testLinkedNoteList()
     list.appendNote(2, 2, noteTwo);
     list.appendNote(3, 3, noteThree);
 
-    list.rewind();
- 
-    while( list.hasValue()){
-            Serial.print("Note: ");
-            Serial.print(list.getNote().pitchFreq);
-            Serial.print("  Step: ");
-            Serial.println(list.getStep());
-            list.next();
-    }
+    list.rewind(); 
+    printLinkedNoteList(&list);
     
     list.dropNotesBeforeStepAndRewind(2);
 //  cout << eol << "dropNotesBeforeStepAndRewind 2 " << eol << eol;
     Serial.println("dropNotesBeforeStepAndRewind 2 ");
 
-    while( list.hasValue()){
-//          cout << "Note: " << list.getNote().pitchFreq;
-//          cout << "  Step: " << list.getStep() << eol;
-            Serial.print("Note: ");
-            Serial.print(list.getNote().pitchFreq);
-            Serial.print("  Step: ");
-            Serial.println(list.getStep());
-            list.next();
-    }
+    list.rewind(); 
+    printLinkedNoteList(&list);
 
     list.prependNote(1, 1, noteOne);
 //  cout << eol << "prepending 1 back " << eol << eol;
     Serial.println("prepending 1 back ");
 
-    while( list.hasValue()){
-            Serial.print("Note: ");
-            Serial.print(list.getNote().pitchFreq);
-            Serial.print("  Step: ");
-            Serial.println(list.getStep());
-            list.next();
-    }
+    list.rewind(); 
+    printLinkedNoteList(&list);
+
+    list.dropNotesBeforeStepAndRewind(4);
+    Serial.println("dropNotesBeforeStepAndRewind 4 ");
+
+    list.rewind(); 
+    printLinkedNoteList(&list);
+
+    list.prependNote(1, 1, noteOne);
+    Serial.println("prepending 1 back to empty list ");
+
+    list.rewind(); 
+    printLinkedNoteList(&list);
+
+    list.dropNotesBeforeStepAndRewind(4);
+    Serial.println("dropNotesBeforeStepAndRewind 4 ");
+
+    list.rewind(); 
+    printLinkedNoteList(&list);
+
+    list.appendNote(1, 1, noteOne);
+    Serial.println("appending 1 back to empty list ");
+
+    list.rewind(); 
+    printLinkedNoteList(&list);
 }
 
 void testLinkedTrackList() 

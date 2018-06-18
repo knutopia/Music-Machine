@@ -317,8 +317,48 @@ public:
 
     void dropNotesBeforeStepAndRewind(int aStep)
     {
+        Serial.print("dropNotesBeforeStepAndRewind before ");
+        Serial.println(aStep);
+
+        bool b = true;
+        while(b)
+        {
+            if (head == NULL)
+            {
+                Serial.print("head == NULL before ");
+                Serial.println(aStep);
+                b = false;
+            } else
+            {
+                if (head->masterStep == NULL)
+                {
+                        Serial.print("head->masterStep == NULL before ");
+                        Serial.println(aStep);
+                        b = false;
+                } else
+                {
+                    if (head->masterStep < aStep)
+                    {
+                        Serial.print("dropping before ");
+                        Serial.println(aStep);
+                        dropHead();
+                    } else
+                    {
+                        Serial.print("head->masterStep NOT < aStep");
+                        Serial.println(aStep);
+                        b = false;
+                    }
+                }
+            }
+        }
+/*        
         while(head != NULL && head->masterStep < aStep)
+        {
+            Serial.print("dropping before ");
+            Serial.println(aStep);
             dropHead();
+        }
+*/
         cur = head;
     }
 
@@ -426,6 +466,7 @@ public:
         n->masterStep = aStep;  // set value
         n->track = aTrack;
         n->trackNote = aNote;
+        n->next = NULL;
 
         if(tail != NULL)
             tail->next = n; // point previously last node to new one
@@ -435,18 +476,73 @@ public:
         if(cur == NULL)
             cur = n;
 
+        Serial.println("Notelist appendNote");
+
         if(head == NULL)
+        {
+            Serial.println(" :head was NULL");
             head = n;
+        } else
+            Serial.println(" :head was Object");
+
+        if (cur == n)
+            Serial.println(" :cur == n");
+        else
+            Serial.println(" :cur != n");
+        if (cur == head)
+            Serial.println(" :cur == head");
+        else
+            Serial.println(" :cur != head");
+        if (cur == head)
+            Serial.println(" :cur == head");
+        else
+            Serial.println(" :cur != head");
+        if (cur == tail)
+            Serial.println(" :cur == tail");
+        else
+            Serial.println(" :cur != tail");
+        if (cur == NULL)
+            Serial.println(" :cur == NULL");
+        else
+            Serial.println(" :cur Object");
+        if (head == NULL)
+            Serial.println(" :head == NULL");
+        else
+            Serial.println(" :head Object");
+        if (n->next == NULL)
+            Serial.println(" :n->next == NULL");
+        else
+            Serial.println(" :n->next Object");
+        if (head->next == NULL)
+            Serial.println(" :head->next == NULL");
+        else
+            Serial.println(" :head->next Object");
+        if (n == n->next)
+            Serial.println(" :n->next circular");
+        else
+            Serial.println(" :n->next OK");
+        if (head == head->next)
+            Serial.println(" :head->next circular");
+        else
+            Serial.println(" :head->next OK");
     }
 
     void rewind()
     {
             cur = head;
+            if(head == NULL)
+                Serial.println("NULL head on Notelist rewind");
     }
     void next()
     {
             if( cur != NULL )
-                    cur = cur->next;
+            {
+                if( cur == cur->next)
+                    Serial.println("cur->next circular on Notelist next");
+                cur = cur->next;
+            }
+            else
+                Serial.println("NULL cur on Notelist next");
     }
 
     int getStep()
@@ -467,9 +563,18 @@ public:
     {
         note retVal;
 
+        Serial.print("Notelist GetNote ");
+
         if( cur != NULL )
+        {
             retVal = cur->trackNote;
+
+            Serial.println(retVal.pitchVal);
+
             // really we should raise exception...
+        } else
+            Serial.println(" NULL cur");
+
         return retVal; 
     }
     
@@ -483,6 +588,9 @@ public:
         int retVal = 0;
         rewind();
         while( hasValue()){
+            Serial.print("Count ");
+            Serial.println(retVal);
+
             retVal++;
             next();
         }        

@@ -56,16 +56,23 @@
         m_globalStep++;
         Serial.print("m_globalStep: ");
         Serial.print(m_globalStep);
+/*       
         Serial.print("  NotesL: ");
         Serial.print(activeNotes.count());
+*/
         Serial.print("  TracksL: ");
         Serial.println(m_activeTracks.count());
-        
+
         activeNotes.dropNotesBeforeStepAndRewind(m_globalStep);
 
         m_activeTracks.rewind();
+
+        if ( !m_activeTracks.hasValue())
+            Serial.println("m_activeTracks.has NO Value");
+
         while( m_activeTracks.hasValue())
         {
+            Serial.println("m_activeTracks.hasValue");
             cur_note = m_activeTracks.getTrackRef()->getNoteParams(stepInPattern, (byte)m_currentSequence);
             cur_track = m_activeTracks.getTrackNumber();
             activeNotes.appendNote(m_globalStep, cur_track, cur_note);

@@ -1,4 +1,4 @@
-#ifndef __NOTE
+ #ifndef __NOTE
 #define __NOTE
 
 #include <Arduino.h>
@@ -468,7 +468,7 @@ public:
         n->trackNote = aNote;
         n->next = NULL;
 
-        if(tail != NULL)
+        if(tail != NULL && tail != n)
             tail->next = n; // point previously last node to new one
 
         tail = n;           // point tail at new node
@@ -476,6 +476,7 @@ public:
         if(cur == NULL)
             cur = n;
 
+/*
         Serial.println("Notelist appendNote");
 
         if(head == NULL)
@@ -525,6 +526,7 @@ public:
             Serial.println(" :head->next circular");
         else
             Serial.println(" :head->next OK");
+*/
     }
 
     void rewind()

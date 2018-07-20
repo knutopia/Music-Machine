@@ -96,6 +96,7 @@ class StepSequencer
       //This array stores the sequences
       StepSequence m_sequence[max_sequences];                           // current, edit buffer
       StepSequence m_sequence_root[max_sequences];
+      StepSequence m_beat_sequence[1];
       
       LinkedTrackList m_activeTracks;
       Track tmpTrack1;

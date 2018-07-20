@@ -28,7 +28,16 @@
         tmpTrack1.begin(m_sequence, (byte)1);
         activeEditTrack = &tmpTrack1;
 
+        int len = m_beat_sequence[0].getLength();
+        for(int n = 0; n < len; n++)
+            m_beat_sequence[0].setDuration(n, 0);
+        for(int n = 0; n < len; n+=4)
+            m_beat_sequence[1].setDuration(n, 0.5);
+
+        tmpTrack2.begin(m_beat_sequence, (byte)2);
+
         m_activeTracks.appendTrack(1, &tmpTrack1);
+        m_activeTracks.appendTrack(2, &tmpTrack2);
     }
 
 

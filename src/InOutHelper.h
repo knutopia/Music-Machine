@@ -57,6 +57,7 @@ class InOutHelper
     void ShowInfoOnLCD(const char info[]);
     void ShowValueInfoOnLCD(const char label[], int value);
     void ShowValueInfoOnLCD(const char label[], float value);
+    void SetLCDinfoTimeout();
     void ShowSynParOnLCD(const char label[], int value);
     void ShowSynParOnLCD(const char label[], float value);
     void ShowErrorOnLCD(char error[]);
@@ -111,7 +112,6 @@ class InOutHelper
     void ShowSwingOnLCD(int swing);
     void ShowStepOnLCD(int step, bool isActive);
     void showStepInfoOnLCD(int step);
-    void SetLCDinfoTimeout();
     void SetLCDinfoLabelTimeout();
 
     ReactToInputBool updateModeCb;

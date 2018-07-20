@@ -1532,7 +1532,11 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
     lcd.print(label);
     lcd.setCursor(strlen(label), 2);
     lcd.print(value);
-    ValueOrButtonOnLCDLength = strlen(label) + 3;
+
+    char foo[10];
+    String str = String(value);
+    str.toCharArray(foo,10);
+    ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
 }
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
@@ -1542,7 +1546,11 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
     lcd.print(label);
     lcd.setCursor(strlen(label), 2);
     lcd.print(value);
-    ValueOrButtonOnLCDLength = strlen(label) + 3;
+
+    char foo[10];
+    String str = String(value);
+    str.toCharArray(foo,10);
+    ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
 }
 
 void InOutHelper::ShowSynParOnLCD(const char label[], int value)

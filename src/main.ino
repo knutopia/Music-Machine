@@ -209,7 +209,8 @@ void StartStopCb()
       Serial.println("  button off: ");
 
       synth.reportPerformance();
-                 
+      inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
+      inout.SetLCDinfoTimeout();
     } else {
 
 #ifdef DEBUG
@@ -469,7 +470,6 @@ void prepNoteGlobals()
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
-    inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
 }
 
 unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION

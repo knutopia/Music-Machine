@@ -477,7 +477,6 @@ public:
             cur = n;
 
         if(head == NULL) // REPEATED in print section below...
-        
             head = n;
 
 /*

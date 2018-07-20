@@ -476,6 +476,10 @@ public:
         if(cur == NULL)
             cur = n;
 
+        if(head == NULL) // REPEATED in print section below...
+        
+            head = n;
+
 /*
         Serial.println("Notelist appendNote");
 

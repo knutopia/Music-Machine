@@ -16,6 +16,7 @@ AudioSynthWaveform       OSC1;           //xy=682.6666259765625,662.999979734420
 AudioSynthWaveform       OSC2;           //xy=683.6666259765625,723.9999797344208
 AudioSynthKarplusStrong  string2;        //xy=684.6666259765625,788.9999797344208
 AudioSynthWaveform       SubOSC;      //xy=685.3333320617676,855.555585861206
+AudioSynthSimpleDrum     Track2drum;          //xy=689.1428031921387,606.4284830093384
 AudioSynthWaveformSine   lfo1;           //xy=848.6666259765625,682.9999797344208
 AudioMixer4              inputMixer;     //xy=850.6666259765625,742.9999797344208
 AudioEffectEnvelope      VCAenvelope;    //xy=853.6666259765625,879
@@ -36,30 +37,31 @@ AudioConnection          patchCord1(OSC1, 0, inputMixer, 0);
 AudioConnection          patchCord2(OSC2, 0, inputMixer, 1);
 AudioConnection          patchCord3(string2, 0, inputMixer, 2);
 AudioConnection          patchCord4(SubOSC, 0, inputMixer, 3);
-AudioConnection          patchCord5(lfo1, 0, LFOedFilter, 1);
-AudioConnection          patchCord6(inputMixer, VCAenvelope2);
-AudioConnection          patchCord7(VCAenvelope, 0, EnvelopedFilter, 0);
-AudioConnection          patchCord8(VCAenvelope, 0, EnvelopedFilter, 1);
-AudioConnection          patchCord9(VCAenvelope, 0, LFOedFilter, 0);
-AudioConnection          patchCord10(VCAenvelope2, VCAenvelope);
-AudioConnection          patchCord11(LFOedFilter, 0, FilterMixer, 0);
-AudioConnection          patchCord12(EnvelopedFilter, 0, FilterMixer, 1);
-AudioConnection          patchCord13(lfo2, 0, delayFilter, 1);
-AudioConnection          patchCord14(lfo2, 0, turboFilter, 1);
-AudioConnection          patchCord15(FilterMixer, 0, turboFilter, 0);
-AudioConnection          patchCord16(turboFilter, 0, mixer1, 0);
-AudioConnection          patchCord17(turboFilter, 0, mixer2, 0);
-AudioConnection          patchCord18(delay1, 0, mixer1, 1);
-AudioConnection          patchCord19(delay1, 0, delayFilter, 0);
-AudioConnection          patchCord20(delay1, 1, reverb1, 0);
-AudioConnection          patchCord21(mixer1, 0, i2s2, 0);
-AudioConnection          patchCord22(mixer1, 0, i2s2, 1);
-//AudioConnection          patchCord23(mixer1, 0, usb1, 0);
-//AudioConnection          patchCord24(mixer1, 0, usb1, 1);
-AudioConnection          patchCord25(reverb1, 0, mixer2, 2);
-AudioConnection          patchCord26(delayFilter, 0, mixer2, 1);
-AudioConnection          patchCord27(mixer2, delay1);
-AudioControlSGTL5000     sgtl5000_1;     //xy=690.6666259765625,599.9999797344208
+AudioConnection          patchCord5(Track2drum, 0, mixer1, 2);
+AudioConnection          patchCord6(lfo1, 0, LFOedFilter, 1);
+AudioConnection          patchCord7(inputMixer, VCAenvelope2);
+AudioConnection          patchCord8(VCAenvelope, 0, EnvelopedFilter, 0);
+AudioConnection          patchCord9(VCAenvelope, 0, EnvelopedFilter, 1);
+AudioConnection          patchCord10(VCAenvelope, 0, LFOedFilter, 0);
+AudioConnection          patchCord11(VCAenvelope2, VCAenvelope);
+AudioConnection          patchCord12(LFOedFilter, 0, FilterMixer, 0);
+AudioConnection          patchCord13(EnvelopedFilter, 0, FilterMixer, 1);
+AudioConnection          patchCord14(lfo2, 0, delayFilter, 1);
+AudioConnection          patchCord15(lfo2, 0, turboFilter, 1);
+AudioConnection          patchCord16(FilterMixer, 0, turboFilter, 0);
+AudioConnection          patchCord17(turboFilter, 0, mixer1, 0);
+AudioConnection          patchCord18(turboFilter, 0, mixer2, 0);
+AudioConnection          patchCord19(delay1, 0, mixer1, 1);
+AudioConnection          patchCord20(delay1, 0, delayFilter, 0);
+AudioConnection          patchCord21(delay1, 1, reverb1, 0);
+AudioConnection          patchCord22(mixer1, 0, i2s2, 0);
+AudioConnection          patchCord23(mixer1, 0, i2s2, 1);
+//AudioConnection          patchCord24(mixer1, 0, usb1, 0);
+//AudioConnection          patchCord25(mixer1, 0, usb1, 1);
+AudioConnection          patchCord26(reverb1, 0, mixer2, 2);
+AudioConnection          patchCord27(delayFilter, 0, mixer2, 1);
+AudioConnection          patchCord28(mixer2, delay1);
+AudioControlSGTL5000     sgtl5000_1;     //xy=689.2380256652832,551.4285535812378
 // GUItool: end automatically generated code
 
 
@@ -118,8 +120,29 @@ bool SynthEngine::playingAnote()
 
 //Helper methods
 
-//void SynthEngine::playNote(int note, float freq, float velocity)
-void SynthEngine::playNote(note aNote)
+void SynthEngine::playNote(byte aTrack, note aNote)
+// will need to track notes for noteOff
+{
+    switch(aTrack)
+    {
+      case 1:
+        playSynthNote(aNote);
+        break;
+      case 2:
+        playPercNote(aNote);
+        break;
+     } 
+}
+
+void SynthEngine::playPercNote(note aNote)
+{
+Track2drum.frequency(aNote.pitchFreq / 2);
+Track2drum.length(aNote.durationMS);
+Track2drum.pitchMod(.5);
+Track2drum.noteOn();
+}
+
+void SynthEngine::playSynthNote(note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
 

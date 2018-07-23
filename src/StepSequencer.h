@@ -9,6 +9,10 @@
 #include "Track.h"
 #include "TrackList.h"
 
+int g_activeGlobalStep;
+LinkedNoteList activeNotes;
+StepClickList activeStepClicks;
+
 class StepSequencer
 {
     struct ActiveTrack {
@@ -76,6 +80,9 @@ class StepSequencer
       void setPath(byte path);
       void setCurrentSequence(int index);
       void updateNoteList(int stepInPattern);
+      void updateStepClickList();
+      StepClickList getClickNoteList(int click);
+
 
       //Helper method
       bool playOrNot(int index);
@@ -86,7 +93,9 @@ class StepSequencer
       void printSequence();
       bool notesArrayEmpty(boolean notesArray[]);
 
-      static LinkedNoteList activeNotes;
+//    static LinkedNoteList activeNotes;
+//    static StepClickList activeStepClicks;
+
 
     private:
       
@@ -102,7 +111,6 @@ class StepSequencer
       Track tmpTrack1;
       Track tmpTrack2;
       Track *activeEditTrack;
-      int m_globalStep;
 };
 
 #endif

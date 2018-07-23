@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "Enum.h"
 #include "Note.h"
+#include "StepSequencer.h"
 
 class Timebase
 {    

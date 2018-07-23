@@ -1,14 +1,19 @@
- #ifndef __NOTE
+#ifndef __NOTE
 #define __NOTE
 
 #include <Arduino.h>
 #include "Enum.h"
+#include "StepSequencer.h"
+
 //#include <cstddef>
 //#include <iostream>
 
 using namespace std;
 
 //#define eol "\n"
+extern int g_activeGlobalStep;
+//extern LinkedNoteList activeNotes;
+//extern StepClickList activeStepClicks;
 
 struct note {
     retrigDivisions retrigClickDivider;
@@ -44,6 +49,7 @@ class PerClickNoteList
    struct notePerClick {
         note *clickNote;
         unsigned long durationMS;
+        byte track;
         notePerClick *next;
     };
 
@@ -75,10 +81,31 @@ public:
         Serial.println();
     }
 
+    void append(note *aNote, byte aTrack, unsigned long aDurationMS)
+    {
+        notePerClick *n = new notePerClick();   // create new Node
+        n->clickNote = aNote;  // set value
+        n->track = aTrack;
+        n->durationMS = aDurationMS;
+
+        if(tail != NULL)
+            tail->next = n; // point previously last node to new one
+
+        tail = n;           // point tail at new node
+
+        if(cur == NULL)
+            cur = n;
+
+        if(head == NULL)
+            head = n;
+    }
+
+    // deprecated: no track !
     void append(note *aNote, unsigned long aDurationMS)
     {
         notePerClick *n = new notePerClick();   // create new Node
         n->clickNote = aNote;  // set value
+        n->track = 1;
         n->durationMS = aDurationMS;
 
         if(tail != NULL)
@@ -95,11 +122,21 @@ public:
 
     note* getNote()
     {
-        note *retVal;
+        note* retVal;
 
         if( cur != NULL )
             retVal = cur->clickNote;
             // really we should raise exception...
+        return retVal; 
+    }
+
+    byte getTrack()
+    {
+        byte retVal;
+
+        if( cur != NULL )
+            retVal = cur->track;
+
         return retVal; 
     }
     
@@ -134,7 +171,6 @@ private:
     notePerClick *cur;
     notePerClick *tail;
 };
-
 
 // List per click in a master step, 
 // holding all notes to play in that click
@@ -175,7 +211,7 @@ public:
         Serial.println();
     }
 
-    void addClickNote(note *aNote, unsigned long aDuration, int aMasterStep, int aClickStep)
+    void addClickNote(note *aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
     {
         // 1) traverse the list to find the right master step
         // 2) find the right click
@@ -194,7 +230,7 @@ public:
                 if (cur->clickStep == aClickStep)
                 {
                     // add new clickNoteNode
-                    cur->notes->append(aNote, aDuration);
+                    cur->notes->append(aNote, aTrack, aDuration);
                     done = true;
                 } else
                 {
@@ -202,7 +238,7 @@ public:
                     {
                         // no matching stepClickNode yet, make it.
                         insertBefore(cur->masterStep, aClickStep);
-                        cur->notes->append(aNote, aDuration);
+                        cur->notes->append(aNote, aTrack, aDuration);
                         done = true;
                     }
                 }
@@ -216,12 +252,12 @@ public:
             { // add stepClickNode at the start
                 rewind();
                 insertBefore(aMasterStep, aClickStep);
-                cur->notes->append(aNote, aDuration);
+                cur->notes->append(aNote, aTrack, aDuration);
             } else 
             { // add stepClickNode at the end
                 append(aMasterStep, aClickStep);
                 cur = tail;
-                cur->notes->append(aNote, aDuration);
+                cur->notes->append(aNote, aTrack, aDuration);
             }
         }
     }
@@ -293,6 +329,24 @@ public:
             retVal = cur->masterStep;
             // really we should raise exception...
         return retVal; 
+    }
+
+    PerClickNoteList* getClickNoteList(byte a_click)
+    {
+        PerClickNoteList *retVal;
+
+        while(hasValue())
+        {
+            if(cur->masterStep == g_activeGlobalStep
+               && a_click == cur->clickStep)
+            {
+                retVal = cur->notes;
+                break;
+            }
+//          StepSequencer::activeStepClicks.next();
+            activeStepClicks.next();
+        }
+        return retVal;
     }
 
     byte getClickStep()
@@ -593,8 +647,8 @@ public:
         int retVal = 0;
         rewind();
         while( hasValue()){
-            Serial.print("Count ");
-            Serial.println(retVal);
+//        Serial.print("Count ");
+//        Serial.println(retVal);
 
             retVal++;
             next();

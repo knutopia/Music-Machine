@@ -5,13 +5,14 @@
 #include "Track.h"
 
     LinkedNoteList StepSequencer::activeNotes;
+    StepClickList StepSequencer::activeStepClicks;
 
     //Public constructor and methods
     StepSequencer::StepSequencer()
     {
         m_currentSequence = 0;
         m_recall_buffer_active = false;
-        m_globalStep = 0;
+        g_activeGlobalStep = 0;
 
 #ifdef DEBUG
         Serial.print("Size of m_sequence is ");
@@ -40,7 +41,6 @@
         m_activeTracks.appendTrack(2, &tmpTrack2);
     }
 
-
     void StepSequencer::updateNoteList(int stepInPattern)
     {
         // get notes for step, per track
@@ -62,17 +62,17 @@
         note cur_note;
         byte cur_track;
 
-        m_globalStep++;
-        Serial.print("m_globalStep: ");
-        Serial.print(m_globalStep);
-/*       
-        Serial.print("  NotesL: ");
-        Serial.print(activeNotes.count());
-*/
+        g_activeGlobalStep++;
+        Serial.print("g_activeGlobalStep: ");
+        Serial.println(g_activeGlobalStep);
+       
+        Serial.print("  #### NotesL: ");
+        Serial.println(activeNotes.count());
+
         Serial.print("  TracksL: ");
         Serial.println(m_activeTracks.count());
 
-        activeNotes.dropNotesBeforeStepAndRewind(m_globalStep);
+        activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 
         m_activeTracks.rewind();
 
@@ -81,13 +81,49 @@
 
         while( m_activeTracks.hasValue())
         {
-            Serial.println("m_activeTracks.hasValue");
+//          Serial.println("m_activeTracks.hasValue");
             cur_note = m_activeTracks.getTrackRef()->getNoteParams(stepInPattern, (byte)m_currentSequence);
             cur_track = m_activeTracks.getTrackNumber();
-            activeNotes.appendNote(m_globalStep, cur_track, cur_note);
+            activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
 
             m_activeTracks.next();
         }
+    }
+
+    void StepSequencer::updateStepClickList()
+    {
+        // prepare notes per click to be used in interrupt
+        //
+        // challenge here or elsewhere: deal with ticks...
+
+        while( activeNotes.hasValue())
+        {
+            note aNote = activeNotes.getNote();
+            uint8_t swingCountdown = aNote.swingTicks;
+            retrigDivisions retrigCountdown = aNote.retrigClickDivider;
+//          uint8_t remainingRetrigs = currentNote.retrigs;
+
+            activeStepClicks.addClickNote( &aNote, 
+                                           activeNotes.getTrack(),
+                                           aNote.durationMS, 
+                                           activeNotes.getStep(),
+                                           aNote.swingTicks);
+
+            if (aNote.retrigClickDivider != NORETRIGS)
+            {
+              for(uint8_t count = 0; count < aNote.retrigs; ++count)
+              {
+                int clickPos = count * aNote.retrigClickDivider 
+                               + aNote.swingTicks;
+                activeStepClicks.addClickNote( &aNote, 
+                                               activeNotes.getTrack(),
+                                               aNote.durationMS, 
+                                               activeNotes.getStep(), 
+                                               clickPos);
+              }
+            }
+        }
+        activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
     }
 
     bool StepSequencer::playItOrNot(int _step) //make obsolete

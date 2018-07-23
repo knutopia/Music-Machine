@@ -24,6 +24,8 @@
 #include "Path.h"
 #include "Timebase.h"
 
+extern LinkedNoteList activeNotes;
+extern StepClickList activeStepClicks;
 
 // Constants for storing and retrieving data from EEPROM 
 const byte EEPROM_ID = 0x99;
@@ -448,9 +450,10 @@ void play_first_step()
     #ifdef MIDION
       usbMIDI.sendRealTime(usbMIDI.Start);
     #endif
-//  if (nextNote.unmuted) synth.playNote(nextNote.pitchVal, nextNote.pitchFreq, NORMAL_VEL); // use NOTE
+    
+    // UNHOLY MESS
     if (nextNote.unmuted) 
-      synth.playNote(nextNote);
+      synth.playNote(1, nextNote);
     #ifdef MIDION
       usbMIDI.send_now();
     #endif
@@ -465,8 +468,11 @@ void prepNoteGlobals()
     nextNote.durationMS = calcNextNoteDuration();
 */
     sequencer.updateNoteList(playbackStep);
-    StepSequencer::activeNotes.rewind();
-    nextNote = StepSequencer::activeNotes.getNote();
+//  StepSequencer::activeNotes.rewind();
+    activeNotes.rewind();
+    sequencer.updateStepClickList();
+//  nextNote = StepSequencer::activeNotes.getNote();
+    nextNote = activeNotes.getNote();
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
@@ -1301,9 +1307,9 @@ void testStepClickList()
     noteTwo.pitchVal = 2;
     noteThree.pitchVal = 3;
     
-    list.addClickNote(&noteOne, 1100, 1, 1);
-    list.addClickNote(&noteTwo, 2100, 1, 1);
-    list.addClickNote(&noteThree, 3100, 1, 1);
+    list.addClickNote(&noteOne, 1, 1100, 1, 1);
+    list.addClickNote(&noteTwo, 2, 2100, 1, 1);
+    list.addClickNote(&noteThree, 3, 3100, 1, 1);
 
     Serial.println("Three notes on masterStep 1 click 1");
 
@@ -1311,18 +1317,18 @@ void testStepClickList()
     printStepClickList(&list);
     list.rewind();
  
-    list.addClickNote(&noteOne, 1200, 2, 1);
-    list.addClickNote(&noteTwo, 2200, 2, 1);
-    list.addClickNote(&noteThree, 3200, 2, 2);
+    list.addClickNote(&noteOne, 1, 1200, 2, 1);
+    list.addClickNote(&noteTwo, 2, 2200, 2, 1);
+    list.addClickNote(&noteThree, 3, 3200, 2, 2);
     Serial.println("Appended 2 notes on masterStep 2 click 1 and 1 note on masterStep 2 click 2");
 
     list.rewind();
     printStepClickList(&list);
     list.rewind();
 
-    list.addClickNote(&noteOne, 1300, 1, 1);
-    list.addClickNote(&noteTwo, 2300, 2, 1);
-    list.addClickNote(&noteThree, 3300, 2, 2);
+    list.addClickNote(&noteOne, 1, 1300, 1, 1);
+    list.addClickNote(&noteTwo, 2, 2300, 2, 1);
+    list.addClickNote(&noteThree, 3, 3300, 2, 2);
  
     Serial.println("Appended another note on each click");
     
@@ -1341,9 +1347,9 @@ void testStepClickList()
 
     printStepClickList(&list);
 */
-    list.addClickNote(&noteOne, 1400, 1, 1);
-    list.addClickNote(&noteTwo, 2400, 2, 1);
-    list.addClickNote(&noteThree, 3400, 2, 2);
+    list.addClickNote(&noteOne, 1, 1400, 1, 1);
+    list.addClickNote(&noteTwo, 2, 2400, 2, 1);
+    list.addClickNote(&noteThree, 3, 3400, 2, 2);
 
     Serial.println("Added 3 more.");
 

@@ -22,7 +22,7 @@ class SynthEngine
       SynthEngine();
       void begin();
       bool playingAnote();
-      void playNote(note aNote);
+      void playNote(byte aTrack, note aNote);
       void endNote(float velocity);
       void allNotesOff();
       void prepAccent(byte empFlag);
@@ -39,6 +39,9 @@ class SynthEngine
       void trackJoystick();
 
     private:
+      void playPercNote(note aNote);
+      void playSynthNote(note aNote);
+
       void handleEncoderA(int value);
       void handleEncoderB(int value);
       void prepSynParEdit(SynthPatch patch, int param);

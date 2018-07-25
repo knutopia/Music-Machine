@@ -1,7 +1,6 @@
 #ifndef __ENUM
 #define __ENUM
 
-
 //Enumeration and a variable to track the current mode
 //Mode enumeration
 enum seqModes {first,

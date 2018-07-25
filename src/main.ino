@@ -14,6 +14,9 @@
 #include <math.h>
 #include "Enum.h"
 #include "Note.h"
+#include "LinkedNoteList.h"
+#include "PerClickNoteList.h"
+#include "StepClickList.h"
 #include "Track.h"
 #include "TrackList.h"
 #include "InOutHelper.h"
@@ -24,8 +27,9 @@
 #include "Path.h"
 #include "Timebase.h"
 
-extern LinkedNoteList activeNotes;
-extern StepClickList activeStepClicks;
+int g_activeGlobalStep;
+LinkedNoteList activeNotes;
+StepClickList activeStepClicks;
 
 // Constants for storing and retrieving data from EEPROM 
 const byte EEPROM_ID = 0x99;

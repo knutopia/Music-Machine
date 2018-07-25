@@ -43,7 +43,8 @@ note Track::getNoteParams(int step, byte curSequence)
             case STEPSEQUENCE:
                   retNote = sequences[curSequence].getNoteParams(step);
                   break;
-
+            case SIMPLEBEAT:
+                  break;
 //          default:
 //            break;
       }

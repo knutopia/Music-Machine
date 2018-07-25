@@ -6,6 +6,7 @@
 
 extern SynthEngine synth;
 extern InOutHelper inout;
+extern StepClickList activeStepClicks;
 
 #ifdef DEBUG
 extern volatile unsigned long timeTracker;
@@ -273,7 +274,7 @@ void Timebase::resetMidiTimer()
 void Timebase::midiClick()
 {
     midiClickCount++;
-    PerClickNoteList* notesToTrig = StepSequencer::activeStepClicks
+    PerClickNoteList* notesToTrig = activeStepClicks
                              .getClickNoteList(midiClickCount);
 
     while(notesToTrig->hasValue())

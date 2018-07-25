@@ -8,10 +8,8 @@
 #include "StepSequence.h"
 #include "Track.h"
 #include "TrackList.h"
-
-int g_activeGlobalStep;
-LinkedNoteList activeNotes;
-StepClickList activeStepClicks;
+#include "LinkedNoteList.h"
+#include "StepClickList.h"
 
 class StepSequencer
 {
@@ -93,8 +91,8 @@ class StepSequencer
       void printSequence();
       bool notesArrayEmpty(boolean notesArray[]);
 
-//    static LinkedNoteList activeNotes;
-//    static StepClickList activeStepClicks;
+// static LinkedNoteList activeNotes;
+// static StepClickList activeStepClicks;
 
 
     private:

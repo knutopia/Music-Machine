@@ -134,12 +134,22 @@ void SynthEngine::playNote(byte aTrack, note aNote)
      } 
 }
 
+
+void SynthEngine::playTestClick()
+{
+    Track2drum.frequency(550);
+    Track2drum.length(50);
+    Track2drum.pitchMod(.5);
+    Track2drum.noteOn();
+}
+
+
 void SynthEngine::playPercNote(note aNote)
 {
-Track2drum.frequency(aNote.pitchFreq / 2);
-Track2drum.length(aNote.durationMS);
-Track2drum.pitchMod(.5);
-Track2drum.noteOn();
+    Track2drum.frequency(aNote.pitchFreq / 2);
+    Track2drum.length(aNote.durationMS);
+    Track2drum.pitchMod(.5);
+    Track2drum.noteOn();
 }
 
 void SynthEngine::playSynthNote(note aNote)

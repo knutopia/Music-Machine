@@ -68,10 +68,10 @@ void StepSequencer::updateNoteList(int stepInPattern)
     byte cur_track;
 
     g_activeGlobalStep++;
-    Serial.print("g_activeGlobalStep: ");
+    Serial.print("updateNoteList g_activeGlobalStep: ");
     Serial.println(g_activeGlobalStep);
     
-    Serial.print("  #### NotesL: ");
+    Serial.print("  NotesL: ");
     Serial.println(activeNotes.count());
 
     Serial.print("  TracksL: ");
@@ -101,8 +101,16 @@ void StepSequencer::updateStepClickList()
     //
     // challenge here or elsewhere: deal with ticks...
 
+    Serial.println("updateStepClickList");
+
     while( activeNotes.hasValue())
     {
+    Serial.print("  track: ");
+    Serial.println(activeNotes.getTrack());
+    Serial.print("  step: ");
+    Serial.println(activeNotes.getStep());
+    Serial.print("  ");
+    
         note aNote = activeNotes.getNote();
         
         activeStepClicks.addClickNote( &aNote, 
@@ -124,7 +132,9 @@ void StepSequencer::updateStepClickList()
                                             clickPos);
           }
         }
+        activeNotes.next();
     }
+
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 }
 

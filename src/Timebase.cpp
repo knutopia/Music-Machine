@@ -274,6 +274,17 @@ void Timebase::resetMidiTimer()
 void Timebase::midiClick()
 {
     midiClickCount++;
+
+    if (midiClickCount >= MIDICLOCKDIVIDER)
+    {
+        midiClickCount = 0;
+        vb_prep_next_step = true;
+
+
+        //Serial.println("midiClick: vb_prep_next_step = true");
+    }    
+    synth.playTestClick();
+
     PerClickNoteList* notesToTrig = activeStepClicks
                              .getClickNoteList(midiClickCount);
 
@@ -281,10 +292,17 @@ void Timebase::midiClick()
     {
         note* trigNote = notesToTrig->getNote();
         byte trigTrack = notesToTrig->getTrack();
-//      unsigned long trigDur = notesToTrig.getDurationMS();
+        unsigned long trigDur = notesToTrig->getDurationMS();
 
+/*
         if(trigNote->playIt)
             synth.playNote(trigTrack, *trigNote);
+
+        // DIRTY
+        if( trigTrack == 1)
+                v_note_off_time = micros() + trigDur;
+*/
+        notesToTrig->next();
     }
 }
 

@@ -221,8 +221,10 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
                     dropHead();
                 } else
                 {
-                    Serial.print("head->masterStep NOT < aStep");
+                    Serial.print("head->masterStep NOT < aStep: ");
                     Serial.println(aStep);
+                    Serial.print("  head->masterStep: ");
+                    Serial.println(head->masterStep);
                     b = false;
                 }
             }

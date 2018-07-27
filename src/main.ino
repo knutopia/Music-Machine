@@ -3,7 +3,7 @@
 
 #define uint8_t byte
 //#define MIDION true
-#define DEBUG true
+//#define DEBUG true
 
 // to make SD card work
 #include <Audio.h>
@@ -28,8 +28,7 @@
 #include "Timebase.h"
 
 int g_activeGlobalStep;
-LinkedNoteList activeNotes;
-StepClickList activeStepClicks;
+
 
 // Constants for storing and retrieving data from EEPROM 
 const byte EEPROM_ID = 0x99;
@@ -260,9 +259,17 @@ void OnNoteOn(byte channel, byte note, byte velocity) {
 
 }
 
+LinkedNoteList activeNotes;
+StepClickList activeStepClicks;
 
 void setup()
 {
+
+    Serial.print("Start1 Mem: ");
+    Serial.println(FreeMem());
+    inout.ShowValueInfoOnLCD("Start1:", (int)FreeMem() );
+    inout.SetLCDinfoTimeout();
+
 
     //Read data from EEPROM
 //    readDataFromEEPROM(); 
@@ -293,9 +300,17 @@ void setup()
                 StartStopCb,
                 SynthButtonCb);
                 
-    prepNoteGlobals();
+//  prepNoteGlobals();
     playpath.setPath(sequencer.getPath());
     synth.prepAccent(sequencer.getAccent(0));
+
+    Serial.print("Start2 Mem: ");
+    Serial.println(FreeMem());
+    inout.ShowValueInfoOnLCD("Start2:", (int)FreeMem() );
+    inout.SetLCDinfoTimeout();
+
+    synth.playTestClick();
+
 }
 
 void loop()
@@ -330,7 +345,6 @@ static bool bTimeslice = true;
 //  inout.showLoopTimer();
 }
 
-
 void prep_next_note()
 {
     static byte currentStepTick = 1;
@@ -339,6 +353,61 @@ void prep_next_note()
                               // started playing the current note                              
       vb_prep_next_step = false; 
       note_off_time = v_note_off_time;
+
+      Serial.println("");
+      Serial.println("prep_next_note");
+
+      // adjust speed if tempo or multiplier have changed
+      metro.updateTimingIfNeeded();
+
+      b_led1_on_state = true;
+      b_note_on = true;
+
+      // show step indicator for just-started note N-1
+      inout.setRunningStepIndicators(playbackStep, note_off_time);      
+
+                              // schedule the next note's start time
+                              // as prepped previously
+      
+      // gather info about the following note N+1
+      byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+      playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+
+      prepNoteGlobals();
+      Serial.print(" Note prepped.");
+  
+      // change synth patch ?
+      synth.prepPatchIfNeeded();
+    }
+
+    if (vb_prep_retrig)
+    {
+      vb_prep_retrig = false;
+      note_off_time = v_note_off_time;
+
+//    b_led1_on_state = true;
+      b_note_on = true;
+
+      // show step indicator for just-started note N-1
+//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
+#ifdef DEBUG
+      Serial.print("#retrig dur: ");
+      Serial.println(note_off_time - micros());
+#endif
+    }
+}
+
+/*
+void prep_next_note()
+{
+    static byte currentStepTick = 1;
+    
+    if(vb_prep_next_step) {    // this is triggered right after the interrupt
+                              // started playing the current note                              
+      vb_prep_next_step = false; 
+      note_off_time = v_note_off_time;
+
+      Serial.println("prep_next_note");
 
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
@@ -409,6 +478,7 @@ void prep_next_note()
 #endif
     }
 }
+*/
 
 void play_first_step()
 {
@@ -475,8 +545,9 @@ void prepNoteGlobals()
 //  StepSequencer::activeNotes.rewind();
     activeNotes.rewind();
     sequencer.updateStepClickList();
+
 //  nextNote = StepSequencer::activeNotes.getNote();
-    nextNote = activeNotes.getNote();
+//  nextNote = activeNotes.getNote();
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
@@ -926,6 +997,10 @@ void parseAndAssignSeqSD(char *buff)
 
               Serial.print("Sequence ");
               Serial.println(valu);
+
+              Serial.print("  Mem: ");
+              Serial.println(FreeMem());
+
           }
           
           else if(strcmp(name, "Length") == 0)

@@ -22,6 +22,7 @@ class SynthEngine
       SynthEngine();
       void begin();
       bool playingAnote();
+      void playTestClick();
       void playNote(byte aTrack, note aNote);
       void endNote(float velocity);
       void allNotesOff();

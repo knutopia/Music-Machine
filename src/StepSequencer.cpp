@@ -109,15 +109,52 @@ void StepSequencer::updateStepClickList()
     Serial.println(activeNotes.getTrack());
     Serial.print("  step: ");
     Serial.println(activeNotes.getStep());
-    Serial.print("  ");
     
         note aNote = activeNotes.getNote();
-        
+
+    Serial.print("  Note pitch before assign: ");
+    Serial.println(aNote.pitchVal);
+    Serial.print("  ");
+
         activeStepClicks.addClickNote( &aNote, 
                                         activeNotes.getTrack(),
                                         aNote.durationMS, 
                                         activeNotes.getStep(),
                                         aNote.swingTicks);
+    Serial.println("  BLIP UNO");
+
+    activeStepClicks.rewind();
+    PerClickNoteList* fooNotesToTrig = activeStepClicks
+                             .getClickNoteList(0);
+    Serial.println("  BLIP DUE");
+
+    if(fooNotesToTrig == NULL)
+        Serial.println("fooNotesToTrig is NULL !");
+
+    if(fooNotesToTrig->hasValue())
+        Serial.println("fooNotesToTrig->hasValue() YES");
+    else
+        Serial.println("fooNotesToTrig->hasValue() NO");
+
+    fooNotesToTrig->rewind();
+    
+    Serial.println("  BLIP TRES");
+
+    Serial.println("  Note pitches after assign: ");
+
+    while(fooNotesToTrig->hasValue())
+    {
+        note* trigNote = fooNotesToTrig->getNote();
+        Serial.print("    fooNotesToTrig trigNote->pitchVal ");
+        Serial.print(trigNote->pitchVal);
+        Serial.print("  fooNotesToTrig->getTrack ");
+        Serial.println(fooNotesToTrig->getTrack());
+        
+        Serial.print("  BLIP");
+        fooNotesToTrig->next();
+    }
+    Serial.println("  BLOP");
+
 
         if (aNote.retrigClickDivider != NORETRIGS)
         {

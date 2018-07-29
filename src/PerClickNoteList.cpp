@@ -44,6 +44,15 @@ void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationM
 
     if(head == NULL)
         head = n;
+
+    Serial.println("PerClickNoteList::append");
+    Serial.print("  head: ");
+    Serial.println((unsigned int)head);
+    Serial.print("  cur:  ");
+    Serial.println((unsigned int)cur);
+    Serial.print("  tail: ");
+    Serial.println((unsigned int)tail);
+
 }
 
 // deprecated: no track !
@@ -103,6 +112,15 @@ unsigned long PerClickNoteList::getDurationMS()
 
 void PerClickNoteList::rewind()
 {
+
+        Serial.println("PerClickNoteList::rewind");
+        Serial.print("  head: ");
+        Serial.println((unsigned int)head);
+        Serial.print("  cur:  ");
+        Serial.println((unsigned int)cur);
+        Serial.print("  tail: ");
+        Serial.println((unsigned int)tail);
+
         cur = head;
 }
 

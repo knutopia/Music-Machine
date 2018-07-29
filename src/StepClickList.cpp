@@ -53,6 +53,7 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
             if (cur->clickStep == aClickStep)
             {
                 // add new clickNoteNode
+                Serial.println("addClickNote: appending to existing node");
                 cur->notes->append(aNote, aTrack, aDuration);
                 done = true;
             } else
@@ -60,6 +61,8 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
                 if (cur->clickStep > aClickStep) 
                 {
                     // no matching stepClickNode yet, make it.
+                    Serial.println("addClickNote: inserting node");
+
                     insertBefore(cur->masterStep, aClickStep);
                     cur->notes->append(aNote, aTrack, aDuration);
                     done = true;
@@ -73,11 +76,14 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
         // not done, so 
         if(head != NULL && head->masterStep > aMasterStep)
         { // add stepClickNode at the start
+            Serial.println("addClickNote: inserting node at the start");
+
             rewind();
             insertBefore(aMasterStep, aClickStep);
             cur->notes->append(aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end
+            Serial.println("addClickNote: inserting node at the end");
             append(aMasterStep, aClickStep);
             cur = tail;
             cur->notes->append(aNote, aTrack, aDuration);
@@ -158,16 +164,30 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click)
 {
     PerClickNoteList *retVal;
 
+    bool found = false;
     while(hasValue())
     {
         if(cur->masterStep == g_activeGlobalStep
             && a_click == cur->clickStep)
         {
             retVal = cur->notes;
+            found = true;
             break;
         }
 //          StepSequencer::activeStepClicks.next();
         activeStepClicks.next();
+    }
+    if(!found) {
+        Serial.print("&&& getClickNoteList: not found, ");
+        Serial.print(g_activeGlobalStep);
+        Serial.print(", ");
+        Serial.println(a_click);
+        retVal = NULL;
+    } else {
+        Serial.print("&&& getClickNoteList: FOUND, ");
+        Serial.print(g_activeGlobalStep);
+        Serial.print(", ");
+        Serial.println(a_click);
     }
     return retVal;
 }

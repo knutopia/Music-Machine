@@ -6,7 +6,7 @@
 #include "Note.h"
 #include "PerClickNoteList.h"
 
-// List per click in a master step, 
+// List of clicks in a master step, 
 // holding all notes to play in that click
 // assembled from the individual tracks in the sequencer
 // to service the playback interrupt in Timebase.cpp

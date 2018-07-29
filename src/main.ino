@@ -551,6 +551,39 @@ void prepNoteGlobals()
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
+    playbackTest();
+}
+
+void playbackTest()
+{
+    PerClickNoteList* notesToTrig = activeStepClicks
+                             .getClickNoteList(0);
+    
+    while(notesToTrig->hasValue())
+    {
+        note* trigNote = notesToTrig->getNote();
+        Serial.print("trigNote->pitchVal ");
+        Serial.print(trigNote->pitchVal);
+        Serial.print("  notesToTrig->getTrack ");
+        Serial.println(notesToTrig->getTrack());
+        notesToTrig->next();
+    }
+/*
+    while(notesToTrig->hasValue())
+    {
+        note* trigNote = notesToTrig->getNote();
+        byte trigTrack = notesToTrig->getTrack();
+        unsigned long trigDur = notesToTrig->getDurationMS();
+
+        if(trigNote->playIt)
+            synth.playNote(trigTrack, *trigNote);
+
+        // DIRTY
+        if( trigTrack == 1)
+                v_note_off_time = micros() + trigDur;
+        notesToTrig->next();
+    }
+*/    
 }
 
 unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION

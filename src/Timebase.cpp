@@ -288,22 +288,28 @@ void Timebase::midiClick()
     PerClickNoteList* notesToTrig = activeStepClicks
                              .getClickNoteList(midiClickCount);
 
+/*
+    note* trigNote = notesToTrig->getNote();
+    Serial.print("trigNote->pitchVal ");
+    Serial.print(trigNote->pitchVal);
+    Serial.print("  notesToTrig->getTrack ");
+    Serial.println(notesToTrig->getTrack());
+
     while(notesToTrig->hasValue())
     {
         note* trigNote = notesToTrig->getNote();
         byte trigTrack = notesToTrig->getTrack();
         unsigned long trigDur = notesToTrig->getDurationMS();
 
-/*
         if(trigNote->playIt)
             synth.playNote(trigTrack, *trigNote);
 
         // DIRTY
         if( trigTrack == 1)
                 v_note_off_time = micros() + trigDur;
-*/
         notesToTrig->next();
     }
+*/
 }
 
 

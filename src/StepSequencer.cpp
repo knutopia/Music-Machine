@@ -6,6 +6,8 @@
 #include "LinkedNoteList.h"
 #include "StepClickList.h"
 
+//#define DEBUG true
+
 // LinkedNoteList StepSequencer::activeNotes;
 // StepClickList StepSequencer::activeStepClicks;
 
@@ -36,7 +38,10 @@ void StepSequencer::begin()
 
     int len = m_beat_sequence[0].getLength();
     for(int n = 0; n < len; n++)
+    {
         m_beat_sequence[0].setDuration(n, 0);
+        m_beat_sequence[0].setNote(n, 20);
+    }
     for(int n = 0; n < len; n+=4)
         m_beat_sequence[1].setDuration(n, 0.5);
 
@@ -64,10 +69,13 @@ void StepSequencer::updateNoteList(int stepInPattern)
     //  per-track calcNextNoteDuration();
     //  as functions in linkedList of active tracks
 
+
     note cur_note;
     byte cur_track;
 
     g_activeGlobalStep++;
+
+#ifdef DEBUG
     Serial.print("updateNoteList g_activeGlobalStep: ");
     Serial.println(g_activeGlobalStep);
     
@@ -76,6 +84,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
 
     Serial.print("  TracksL: ");
     Serial.println(m_activeTracks.count());
+#endif
 
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 
@@ -86,7 +95,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
 
     while( m_activeTracks.hasValue())
     {
-//          Serial.println("m_activeTracks.hasValue");
+
         cur_note = m_activeTracks.getTrackRef()->getNoteParams(stepInPattern, (byte)m_currentSequence);
         cur_track = m_activeTracks.getTrackNumber();
         activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
@@ -101,73 +110,62 @@ void StepSequencer::updateStepClickList()
     //
     // challenge here or elsewhere: deal with ticks...
 
+#ifdef DEBUG
     Serial.println("updateStepClickList");
+#endif
 
     while( activeNotes.hasValue())
     {
-    Serial.print("  track: ");
-    Serial.println(activeNotes.getTrack());
-    Serial.print("  step: ");
-    Serial.println(activeNotes.getStep());
-    
         note aNote = activeNotes.getNote();
 
-    Serial.print("  Note pitch before assign: ");
-    Serial.println(aNote.pitchVal);
-    Serial.print("  ");
+#ifdef DEBUG
+        Serial.print("  track: ");
+        Serial.println(activeNotes.getTrack());
+        Serial.print("  step: ");
+        Serial.println(activeNotes.getStep());
+        Serial.print("  Note pitch before assign: ");
+        Serial.println(aNote.pitchVal);
+        Serial.print("  ");
+#endif
 
-        activeStepClicks.addClickNote( &aNote, 
+        activeStepClicks.addClickNote(  aNote, 
                                         activeNotes.getTrack(),
                                         aNote.durationMS, 
                                         activeNotes.getStep(),
                                         aNote.swingTicks);
-    Serial.println("  BLIP UNO");
 
-    activeStepClicks.rewind();
-    PerClickNoteList* fooNotesToTrig = activeStepClicks
-                             .getClickNoteList(0);
-    Serial.println("  BLIP DUE");
-
-    if(fooNotesToTrig == NULL)
-        Serial.println("fooNotesToTrig is NULL !");
-
-    if(fooNotesToTrig->hasValue())
-        Serial.println("fooNotesToTrig->hasValue() YES");
-    else
-        Serial.println("fooNotesToTrig->hasValue() NO");
-
-    fooNotesToTrig->rewind();
-    
-    Serial.println("  BLIP TRES");
-
-    Serial.println("  Note pitches after assign: ");
-
-    while(fooNotesToTrig->hasValue())
-    {
-        note* trigNote = fooNotesToTrig->getNote();
-        Serial.print("    fooNotesToTrig trigNote->pitchVal ");
-        Serial.print(trigNote->pitchVal);
-        Serial.print("  fooNotesToTrig->getTrack ");
-        Serial.println(fooNotesToTrig->getTrack());
-        
-        Serial.print("  BLIP");
-        fooNotesToTrig->next();
-    }
-    Serial.println("  BLOP");
-
+//#ifdef DEBUG
+        activeStepClicks.rewind();
+        PerClickNoteList* fooNotesToTrig;
+        if((fooNotesToTrig = activeStepClicks.getClickNoteList(0)))
+        {
+            fooNotesToTrig->rewind();
+            Serial.println("  Note pitches after assign: ");
+            while(fooNotesToTrig->hasValue())
+            {
+                note* trigNote = fooNotesToTrig->getNote();
+                Serial.print("    fooNotesToTrig trigNote.pitchVal ");
+                Serial.print(trigNote->pitchVal);
+                Serial.print("  fooNotesToTrig->getTrack ");
+                Serial.println(fooNotesToTrig->getTrack());
+                fooNotesToTrig->next();
+            }
+            Serial.println("  BLOP");
+        }
+//#endif
 
         if (aNote.retrigClickDivider != NORETRIGS)
         {
-          for(uint8_t count = 0; count < aNote.retrigs; ++count)
-          {
-            int clickPos = count * aNote.retrigClickDivider 
-                            + aNote.swingTicks;
-            activeStepClicks.addClickNote( &aNote, 
-                                            activeNotes.getTrack(),
-                                            aNote.durationMS, 
-                                            activeNotes.getStep(), 
-                                            clickPos);
-          }
+            for(uint8_t count = 0; count < aNote.retrigs; ++count)
+            {
+                int clickPos = count * aNote.retrigClickDivider 
+                                + aNote.swingTicks;
+                activeStepClicks.addClickNote(  aNote, 
+                                                activeNotes.getTrack(),
+                                                aNote.durationMS, 
+                                                activeNotes.getStep(), 
+                                                clickPos);
+            }
         }
         activeNotes.next();
     }

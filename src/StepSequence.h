@@ -52,6 +52,7 @@ class StepSequence
         unsigned long calcNextNoteDuration(note aNote);
         byte assembleHolds();
 
+//      note m_noteStruct;
         byte m_notes[max_notes];
         float m_duration[max_notes];   // float
         byte m_probability[max_notes];

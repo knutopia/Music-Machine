@@ -48,6 +48,9 @@ note Track::getNoteParams(int step, byte curSequence)
 //          default:
 //            break;
       }
+//    Serial.print("getNoteParams retNote is ");
+//    Serial.println((unsigned int) &retNote);
+
       return retNote;
 }
 

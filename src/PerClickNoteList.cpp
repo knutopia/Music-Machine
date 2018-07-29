@@ -1,5 +1,7 @@
 #include "PerClickNoteList.h"
 
+//#define DEBUG true
+
 PerClickNoteList::PerClickNoteList()
 {
     head = NULL;
@@ -45,6 +47,7 @@ void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationM
     if(head == NULL)
         head = n;
 
+#ifdef DEBUG
     Serial.println("PerClickNoteList::append");
     Serial.print("  head: ");
     Serial.println((unsigned int)head);
@@ -52,6 +55,7 @@ void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationM
     Serial.println((unsigned int)cur);
     Serial.print("  tail: ");
     Serial.println((unsigned int)tail);
+#endif
 
 }
 
@@ -112,16 +116,17 @@ unsigned long PerClickNoteList::getDurationMS()
 
 void PerClickNoteList::rewind()
 {
+#ifdef DEBUG
+    Serial.println("PerClickNoteList::rewind");
+    Serial.print("  head: ");
+    Serial.println((unsigned int)head);
+    Serial.print("  cur:  ");
+    Serial.println((unsigned int)cur);
+    Serial.print("  tail: ");
+    Serial.println((unsigned int)tail);
+#endif
 
-        Serial.println("PerClickNoteList::rewind");
-        Serial.print("  head: ");
-        Serial.println((unsigned int)head);
-        Serial.print("  cur:  ");
-        Serial.println((unsigned int)cur);
-        Serial.print("  tail: ");
-        Serial.println((unsigned int)tail);
-
-        cur = head;
+    cur = head;
 }
 
 void PerClickNoteList::next()

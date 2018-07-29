@@ -50,6 +50,9 @@ void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
 // add value at the end -kg
 void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
 {
+    Serial.print("appendNote aNote is ");
+    Serial.println((unsigned int) &aNote);
+
     noteNode *n = new noteNode();   // create new Node
     n->masterStep = aStep;  // set value
     n->track = aTrack;
@@ -156,13 +159,15 @@ note LinkedNoteList::getNote()
 {
     note retVal;
 
-    Serial.print("Notelist GetNote ");
+    Serial.print("Notelist getNote ");
 
     if( cur != NULL )
     {
         retVal = cur->trackNote;
 
-        Serial.println(retVal.pitchVal);
+        Serial.print(retVal.pitchVal);
+        Serial.print("  track ");
+        Serial.println(cur->track);
 
         // really we should raise exception...
     } else

@@ -374,7 +374,7 @@ void prep_next_note()
       playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
       prepNoteGlobals();
-      Serial.print(" Note prepped.");
+      Serial.println(" Note prepped.");
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
@@ -556,18 +556,28 @@ void prepNoteGlobals()
 
 void playbackTest()
 {
-    PerClickNoteList* notesToTrig = activeStepClicks
-                             .getClickNoteList(0);
-    
-    while(notesToTrig->hasValue())
+    PerClickNoteList* notesToTrig;
+    activeStepClicks.rewind();
+
+    if((notesToTrig = activeStepClicks.getClickNoteList(0)) != NULL)
     {
-        note* trigNote = notesToTrig->getNote();
-        Serial.print("trigNote->pitchVal ");
-        Serial.print(trigNote->pitchVal);
-        Serial.print("  notesToTrig->getTrack ");
-        Serial.println(notesToTrig->getTrack());
-        notesToTrig->next();
+        notesToTrig->rewind();
+        while(notesToTrig->hasValue())
+        {
+            note* trigNote = notesToTrig->getNote();
+            Serial.print("playbackTest:  ");
+            Serial.print("trigNote->pitchVal ");
+            Serial.print(trigNote->pitchVal);
+            Serial.print("  notesToTrig->getTrack ");
+            Serial.println(notesToTrig->getTrack());
+            notesToTrig->next();
+        }
     }
+    else
+    {
+        Serial.print("playbackTest: notesToTrig is NULL ");
+    }
+    activeStepClicks.rewind();
 /*
     while(notesToTrig->hasValue())
     {
@@ -1419,29 +1429,43 @@ void testStepClickList()
     noteTwo.pitchVal = 2;
     noteThree.pitchVal = 3;
     
+    list.addClickNote(noteOne, 1, 1100, 1, 1);
+    list.addClickNote(noteTwo, 2, 2100, 1, 1);
+    list.addClickNote(noteThree, 3, 3100, 1, 1);
+/*
     list.addClickNote(&noteOne, 1, 1100, 1, 1);
     list.addClickNote(&noteTwo, 2, 2100, 1, 1);
     list.addClickNote(&noteThree, 3, 3100, 1, 1);
-
+*/
     Serial.println("Three notes on masterStep 1 click 1");
 
     list.rewind();
     printStepClickList(&list);
     list.rewind();
  
+    list.addClickNote(noteOne, 1, 1200, 2, 1);
+    list.addClickNote(noteTwo, 2, 2200, 2, 1);
+    list.addClickNote(noteThree, 3, 3200, 2, 2);
+/*
     list.addClickNote(&noteOne, 1, 1200, 2, 1);
     list.addClickNote(&noteTwo, 2, 2200, 2, 1);
     list.addClickNote(&noteThree, 3, 3200, 2, 2);
+*/
     Serial.println("Appended 2 notes on masterStep 2 click 1 and 1 note on masterStep 2 click 2");
 
     list.rewind();
     printStepClickList(&list);
     list.rewind();
 
+    list.addClickNote(noteOne, 1, 1300, 1, 1);
+    list.addClickNote(noteTwo, 2, 2300, 2, 1);
+    list.addClickNote(noteThree, 3, 3300, 2, 2);
+
+/*
     list.addClickNote(&noteOne, 1, 1300, 1, 1);
     list.addClickNote(&noteTwo, 2, 2300, 2, 1);
     list.addClickNote(&noteThree, 3, 3300, 2, 2);
- 
+*/
     Serial.println("Appended another note on each click");
     
     list.rewind();
@@ -1459,10 +1483,15 @@ void testStepClickList()
 
     printStepClickList(&list);
 */
+    list.addClickNote(noteOne, 1, 1400, 1, 1);
+    list.addClickNote(noteTwo, 2, 2400, 2, 1);
+    list.addClickNote(noteThree, 3, 3400, 2, 2);
+
+/*
     list.addClickNote(&noteOne, 1, 1400, 1, 1);
     list.addClickNote(&noteTwo, 2, 2400, 2, 1);
     list.addClickNote(&noteThree, 3, 3400, 2, 2);
-
+*/
     Serial.println("Added 3 more.");
 
     list.rewind();

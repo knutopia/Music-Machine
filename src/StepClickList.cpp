@@ -2,6 +2,8 @@
 #include "PerClickNoteList.h"
 #include "InOutHelper.h"
 
+//#define DEBUG true
+
 extern StepClickList activeStepClicks;
 extern InOutHelper inout;
 
@@ -11,17 +13,20 @@ StepClickList::StepClickList()
     cur = NULL;
     tail = NULL;
 
+#ifdef DEBUG
     inout.ShowInfoOnLCD("StepClickList alive !");
     inout.SetLCDinfoTimeout();
     Serial.println("StepClickList alive !");
-
+#endif
 }
 
 StepClickList::~StepClickList()
 {
     stepClickNode *die;
 
+#ifdef DEBUG
     Serial.print("Destructor StepClickList ");
+#endif
 
     while( hasValue()){
         die = cur;
@@ -34,7 +39,7 @@ StepClickList::~StepClickList()
     Serial.println();
 }
 
-void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
+void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
 {
     // 1) traverse the list to find the right master step
     // 2) find the right click
@@ -45,6 +50,9 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
     // same track on same clickstep on monophonic tracks
     bool done = false;
 
+    Serial.print("addClickNote: aNote is ");
+    Serial.println((unsigned int) &aNote);
+
     rewind();
     while( hasValue() && !done)
     {
@@ -53,18 +61,21 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
             if (cur->clickStep == aClickStep)
             {
                 // add new clickNoteNode
+#ifdef DEBUG
                 Serial.println("addClickNote: appending to existing node");
-                cur->notes->append(aNote, aTrack, aDuration);
+#endif
+                cur->notes->append(&aNote, aTrack, aDuration);
                 done = true;
             } else
             {
                 if (cur->clickStep > aClickStep) 
                 {
                     // no matching stepClickNode yet, make it.
+#ifdef DEBUG
                     Serial.println("addClickNote: inserting node");
-
+#endif
                     insertBefore(cur->masterStep, aClickStep);
-                    cur->notes->append(aNote, aTrack, aDuration);
+                    cur->notes->append(&aNote, aTrack, aDuration);
                     done = true;
                 }
             }
@@ -76,17 +87,20 @@ void StepClickList::addClickNote(note *aNote, byte aTrack, unsigned long aDurati
         // not done, so 
         if(head != NULL && head->masterStep > aMasterStep)
         { // add stepClickNode at the start
+#ifdef DEBUG
             Serial.println("addClickNote: inserting node at the start");
-
+#endif
             rewind();
             insertBefore(aMasterStep, aClickStep);
-            cur->notes->append(aNote, aTrack, aDuration);
+            cur->notes->append(&aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end
+#ifdef DEBUG
             Serial.println("addClickNote: inserting node at the end");
+#endif
             append(aMasterStep, aClickStep);
             cur = tail;
-            cur->notes->append(aNote, aTrack, aDuration);
+            cur->notes->append(&aNote, aTrack, aDuration);
         }
     }
 }
@@ -170,6 +184,7 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click)
         if(cur->masterStep == g_activeGlobalStep
             && a_click == cur->clickStep)
         {
+            cur->notes->rewind();
             retVal = cur->notes;
             found = true;
             break;

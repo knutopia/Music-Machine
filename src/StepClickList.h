@@ -25,7 +25,7 @@ class StepClickList
     StepClickList();
     ~StepClickList();
 
-    void addClickNote(note *aNote, byte aTrack, 
+    void addClickNote(note aNote, byte aTrack, 
                       unsigned long aDuration, 
                       int aMasterStep, 
                       int aClickStep);

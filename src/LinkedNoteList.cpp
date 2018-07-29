@@ -1,5 +1,7 @@
 #include "LinkedNoteList.h"    
 
+//#define DEBUG true
+
 LinkedNoteList::LinkedNoteList()
 {
     head = NULL;
@@ -50,8 +52,10 @@ void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
 // add value at the end -kg
 void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
 {
+#ifdef DEBUG
     Serial.print("appendNote aNote is ");
     Serial.println((unsigned int) &aNote);
+#endif
 
     noteNode *n = new noteNode();   // create new Node
     n->masterStep = aStep;  // set value

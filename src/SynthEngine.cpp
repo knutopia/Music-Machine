@@ -161,7 +161,8 @@ void SynthEngine::playSynthNote(note aNote)
     float subOscAmp = constrain(m_joy_subVCO * .5 + getEditPval(VCO4mix), 0, 1);
 
 #ifdef DEBUG
-    Serial.print("note: ");
+    Serial.println("playSynthNote");
+    Serial.print("  note: ");
     Serial.print(aNote.pitchVal);
     Serial.print("  dur: ");
     Serial.print(aNote.duration);

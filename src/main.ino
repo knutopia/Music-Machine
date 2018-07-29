@@ -556,6 +556,8 @@ void prepNoteGlobals()
 
 void playbackTest()
 {
+    Serial.println("playbackTest:  ");
+
     PerClickNoteList* notesToTrig;
     activeStepClicks.rewind();
 
@@ -566,35 +568,48 @@ void playbackTest()
         {
 //          note* trigNote = notesToTrig->getNote();
             note trigNote = notesToTrig->getNote();
-            Serial.print("playbackTest:  ");
-            Serial.print("trigNote.pitchVal ");
+            unsigned long trigDur = notesToTrig->getDurationMS();
+            Serial.print("  trigNote.pitchVal ");
             Serial.print(trigNote.pitchVal);
             Serial.print("  notesToTrig->getTrack ");
             Serial.println(notesToTrig->getTrack());
+            Serial.print("  notesToTrig->getDurationMS ");
+            Serial.println(notesToTrig->getDurationMS());
+
+            byte trigTrack = notesToTrig->getTrack();
+            if(trigNote.playIt)
+                synth.playNote(trigTrack, trigNote);
+
+            // DIRTY
+            if( trigTrack == 1)
+                    v_note_off_time = micros() + 200;
+//                  v_note_off_time = micros() + trigDur;
+
             notesToTrig->next();
         }
     }
     else
     {
-        Serial.print("playbackTest: notesToTrig is NULL ");
+        Serial.print("  notesToTrig is NULL ");
     }
     activeStepClicks.rewind();
 /*
+    notesToTrig->rewind();
     while(notesToTrig->hasValue())
     {
-        note* trigNote = notesToTrig->getNote();
+        note trigNote = notesToTrig->getNote();
         byte trigTrack = notesToTrig->getTrack();
         unsigned long trigDur = notesToTrig->getDurationMS();
 
-        if(trigNote->playIt)
-            synth.playNote(trigTrack, *trigNote);
+        if(trigNote.playIt)
+            synth.playNote(trigTrack, trigNote);
 
         // DIRTY
         if( trigTrack == 1)
                 v_note_off_time = micros() + trigDur;
         notesToTrig->next();
-    }
-*/    
+    }  
+    */
 }
 
 unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION

@@ -283,7 +283,7 @@ void Timebase::midiClick()
 
         //Serial.println("midiClick: vb_prep_next_step = true");
     }    
-    synth.playTestClick();
+//  synth.playTestClick();
 
     PerClickNoteList* notesToTrig = activeStepClicks
                              .getClickNoteList(midiClickCount);

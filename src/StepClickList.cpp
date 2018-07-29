@@ -49,9 +49,10 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
     // Could use de-duping between notes on 
     // same track on same clickstep on monophonic tracks
     bool done = false;
-
+#ifdef DEBUG
     Serial.print("addClickNote: aNote is ");
     Serial.println((unsigned int) &aNote);
+#endif
 
     rewind();
     while( hasValue() && !done)
@@ -103,7 +104,6 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             append(aMasterStep, aClickStep);
             cur = tail;
-//          cur->notes->append(&aNote, aTrack, aDuration);
             cur->notes->append(aNote, aTrack, aDuration);
         }
     }
@@ -197,10 +197,11 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click)
         activeStepClicks.next();
     }
     if(!found) {
-        Serial.print("&&& getClickNoteList: not found, ");
+        Serial.print("nf");
         Serial.print(g_activeGlobalStep);
-        Serial.print(", ");
-        Serial.println(a_click);
+        Serial.print(",");
+        Serial.print(a_click);
+        Serial.print(" ");
         retVal = NULL;
     } else {
         Serial.print("&&& getClickNoteList: FOUND, ");
@@ -233,8 +234,10 @@ PerClickNoteList* StepClickList::getNotes()
 
 void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 {
+#ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");
     Serial.println(aStep);
+#endif
 
     bool b = true;
     while(b)
@@ -248,22 +251,28 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
         {
             if (head->masterStep == NULL)
             {
+#ifdef DEBUG
                     Serial.print("head->masterStep == NULL before ");
                     Serial.println(aStep);
+#endif
                     b = false;
             } else
             {
                 if (head->masterStep < aStep)
                 {
+#ifdef DEBUG
                     Serial.print("dropping before ");
                     Serial.println(aStep);
+#endif
                     dropHead();
                 } else
                 {
+#ifdef DEBUG
                     Serial.print("head->masterStep NOT < aStep: ");
                     Serial.println(aStep);
                     Serial.print("  head->masterStep: ");
                     Serial.println(head->masterStep);
+#endif
                     b = false;
                 }
             }

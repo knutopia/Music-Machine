@@ -143,11 +143,20 @@ void StepSequencer::updateStepClickList()
             Serial.println("  Note pitches after assign: ");
             while(fooNotesToTrig->hasValue())
             {
+/*
                 note* trigNote = fooNotesToTrig->getNote();
                 Serial.print("    fooNotesToTrig trigNote.pitchVal ");
                 Serial.print(trigNote->pitchVal);
                 Serial.print("  fooNotesToTrig->getTrack ");
                 Serial.println(fooNotesToTrig->getTrack());
+*/
+                note trigNote = fooNotesToTrig->getNote();
+                Serial.print("    fooNotesToTrig trigNote.pitchVal ");
+                Serial.print(trigNote.pitchVal);
+                Serial.print("  fooNotesToTrig->getTrack ");
+                Serial.println(fooNotesToTrig->getTrack());
+
+
                 fooNotesToTrig->next();
             }
             Serial.println("  BLOP");

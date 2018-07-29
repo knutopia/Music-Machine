@@ -64,7 +64,8 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #ifdef DEBUG
                 Serial.println("addClickNote: appending to existing node");
 #endif
-                cur->notes->append(&aNote, aTrack, aDuration);
+//              cur->notes->append(&aNote, aTrack, aDuration);
+                cur->notes->append(aNote, aTrack, aDuration);
                 done = true;
             } else
             {
@@ -75,7 +76,8 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
                     Serial.println("addClickNote: inserting node");
 #endif
                     insertBefore(cur->masterStep, aClickStep);
-                    cur->notes->append(&aNote, aTrack, aDuration);
+//                  cur->notes->append(&aNote, aTrack, aDuration);
+                    cur->notes->append(aNote, aTrack, aDuration);
                     done = true;
                 }
             }
@@ -92,7 +94,8 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             rewind();
             insertBefore(aMasterStep, aClickStep);
-            cur->notes->append(&aNote, aTrack, aDuration);
+//          cur->notes->append(&aNote, aTrack, aDuration);
+            cur->notes->append(aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end
 #ifdef DEBUG
@@ -100,7 +103,8 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             append(aMasterStep, aClickStep);
             cur = tail;
-            cur->notes->append(&aNote, aTrack, aDuration);
+//          cur->notes->append(&aNote, aTrack, aDuration);
+            cur->notes->append(aNote, aTrack, aDuration);
         }
     }
 }

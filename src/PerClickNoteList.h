@@ -10,7 +10,7 @@
 class PerClickNoteList
 {
    struct notePerClick {
-        note *clickNote;
+        note clickNote;
         unsigned long durationMS;
         byte track;
         notePerClick *next;
@@ -19,9 +19,10 @@ class PerClickNoteList
 public:
     PerClickNoteList();
     ~PerClickNoteList();
-    void append(note *aNote, byte aTrack, unsigned long aDurationMS);
-    void append(note *aNote, unsigned long aDurationMS);
-    note* getNote();
+//  void append(note *aNote, byte aTrack, unsigned long aDurationMS);
+    void append(note aNote, byte aTrack, unsigned long aDurationMS);
+//  note* getNote();
+    note getNote();
     byte getTrack();
     int hasValue();
     unsigned long getDurationMS();

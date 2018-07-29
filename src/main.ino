@@ -564,10 +564,11 @@ void playbackTest()
         notesToTrig->rewind();
         while(notesToTrig->hasValue())
         {
-            note* trigNote = notesToTrig->getNote();
+//          note* trigNote = notesToTrig->getNote();
+            note trigNote = notesToTrig->getNote();
             Serial.print("playbackTest:  ");
-            Serial.print("trigNote->pitchVal ");
-            Serial.print(trigNote->pitchVal);
+            Serial.print("trigNote.pitchVal ");
+            Serial.print(trigNote.pitchVal);
             Serial.print("  notesToTrig->getTrack ");
             Serial.println(notesToTrig->getTrack());
             notesToTrig->next();
@@ -1350,11 +1351,12 @@ void printPerClickNoteList(PerClickNoteList *list)
 {
     while( list->hasValue()){
         Serial.print("Note: ");
-        note *n = list->getNote();
-        if(n != NULL)
-          Serial.print(n->pitchVal);
-        else
-          Serial.print("NULL");
+//      note *n = list->getNote();
+        note n = list->getNote();
+//      if(n != NULL)
+          Serial.print(n.pitchVal);
+//      else
+//        Serial.print("NULL");
         Serial.print("  durMS: ");
         Serial.println(list->getDurationMS());
         list->next();
@@ -1392,21 +1394,21 @@ void testPerClickNoteList()
     noteTwo.pitchVal = 2;
     noteThree.pitchVal = 3;
     
-    list.append(&noteOne, 100);
-    list.append(&noteTwo, 200);
-    list.append(&noteThree, 300);
+    list.append(noteOne, 1, 100);
+    list.append(noteTwo, 2, 200);
+    list.append(noteThree, 3, 300);
     
     printPerClickNoteList(&list);
     list.rewind();
  
-    list.append(&noteThree, 300);
+    list.append(noteThree, 3, 300);
     Serial.println("Appended 3 again after rewind");
 
     printPerClickNoteList(&list);
     
-    list.append(&noteOne, 100);
-    list.append(&noteTwo, 200);
-    list.append(&noteThree, 300);
+    list.append(noteOne, 1, 100);
+    list.append(noteTwo, 2, 200);
+    list.append(noteThree, 3, 300);
     Serial.println("Rebuilt list.");
 
     printPerClickNoteList(&list);

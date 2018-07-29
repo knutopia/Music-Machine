@@ -29,7 +29,8 @@ PerClickNoteList::~PerClickNoteList()
     Serial.println();
 }
 
-void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationMS)
+//void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationMS)
+void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS)
 {
     notePerClick *n = new notePerClick();   // create new Node
     n->clickNote = aNote;  // set value
@@ -56,32 +57,22 @@ void PerClickNoteList::append(note *aNote, byte aTrack, unsigned long aDurationM
     Serial.print("  tail: ");
     Serial.println((unsigned int)tail);
 #endif
-
 }
 
-// deprecated: no track !
-void PerClickNoteList::append(note *aNote, unsigned long aDurationMS)
-{
-    notePerClick *n = new notePerClick();   // create new Node
-    n->clickNote = aNote;  // set value
-    n->track = 1;
-    n->durationMS = aDurationMS;
-
-    if(tail != NULL)
-        tail->next = n; // point previously last node to new one
-
-    tail = n;           // point tail at new node
-
-    if(cur == NULL)
-        cur = n;
-
-    if(head == NULL)
-        head = n;
-}
-
+/*
 note* PerClickNoteList::getNote()
 {
     note* retVal;
+
+    if( cur != NULL )
+        retVal = cur->clickNote;
+        // really we should raise exception...
+    return retVal; 
+}
+*/
+note PerClickNoteList::getNote()
+{
+    note retVal;
 
     if( cur != NULL )
         retVal = cur->clickNote;

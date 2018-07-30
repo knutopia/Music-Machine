@@ -146,7 +146,8 @@ void SynthEngine::playTestClick()
 
 void SynthEngine::playPercNote(note aNote)
 {
-    Track2drum.frequency(aNote.pitchFreq / 2);
+//  Track2drum.frequency(aNote.pitchFreq / 2);
+    Track2drum.frequency(aNote.pitchFreq);
     Track2drum.length(aNote.durationMS);
     Track2drum.pitchMod(.5);
     Track2drum.noteOn();

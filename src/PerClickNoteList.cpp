@@ -14,8 +14,9 @@ PerClickNoteList::~PerClickNoteList()
     notePerClick *die;
 
     Serial.print("Destructor PerClickNoteList ");
-
+    rewind();
     while( hasValue()){
+        
         die = cur;
         next();
         delete die;
@@ -58,17 +59,6 @@ void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS
 #endif
 }
 
-/*
-note* PerClickNoteList::getNote()
-{
-    note* retVal;
-
-    if( cur != NULL )
-        retVal = cur->clickNote;
-        // really we should raise exception...
-    return retVal; 
-}
-*/
 note PerClickNoteList::getNote()
 {
     note retVal;

@@ -11,6 +11,29 @@ LinkedNoteList::LinkedNoteList()
     Serial.println("LinkedNoteList alive !");
 }
 
+LinkedNoteList::~LinkedNoteList()
+{
+    noteNode *die;
+
+    Serial.print("Destructor LinkedNoteList ");
+    rewind();
+    while( hasValue()){
+        
+        die = cur;
+
+        next();
+        delete die;
+
+        Serial.print("die ");
+    }
+
+    head = NULL;
+    cur = NULL;
+    tail = NULL;
+
+    Serial.println("LinkedNoteList alive !");
+}
+
 void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
 {
     while(head != NULL && head->masterStep < aStep)
@@ -26,7 +49,7 @@ void LinkedNoteList::dropHeadNote()
 
         if (cur == head)
             cur = newHead;
-
+        
         delete head;
         head = newHead;
     }

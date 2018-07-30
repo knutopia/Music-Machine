@@ -554,15 +554,31 @@ void prepNoteGlobals()
     playbackTest();
 }
 
+void trackListSizes()
+{
+    Serial.print("size activeNotes:      ");
+    Serial.println(sizeof(activeNotes));
+    Serial.print("size activeStepClicks: ");
+    Serial.println(sizeof(activeStepClicks));
+    Serial.print("size sequencer: ");
+    Serial.println(sizeof(sequencer));
+    Serial.print("size synth: ");
+    Serial.println(sizeof(synth));
+}
 void playbackTest()
 {
-    Serial.println("playbackTest:  ");
+    Serial.print("playbackTest:  ");
+    Serial.println(g_activeGlobalStep);
 
     PerClickNoteList* notesToTrig;
     activeStepClicks.rewind();
 
+    trackListSizes();
     if((notesToTrig = activeStepClicks.getClickNoteList(0)) != NULL)
     {
+        Serial.print("size notesToTrig:      ");
+        Serial.println(sizeof(notesToTrig));
+
         notesToTrig->rewind();
         while(notesToTrig->hasValue())
         {

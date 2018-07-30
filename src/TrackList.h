@@ -25,7 +25,28 @@ public:
         cur = NULL;
         tail = NULL;
     }
- 
+
+    ~LinkedTrackList()
+    {
+        trackNode *die;
+
+        Serial.print("Destructor LinkedTrackList ");
+        rewind();
+        while( hasValue()){
+            
+            die = cur;
+            next();
+            delete die;
+
+            Serial.print("die ");
+        }
+        head = NULL;
+        cur = NULL;
+        tail = NULL;
+
+        Serial.println();
+    }
+
     void dropTrack(byte trackNum)
     {
         rewind();

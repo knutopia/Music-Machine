@@ -19,6 +19,7 @@ class LinkedNoteList
  
 public:
     LinkedNoteList();
+    ~LinkedNoteList();
 
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHeadNote();

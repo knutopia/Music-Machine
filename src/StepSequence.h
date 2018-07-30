@@ -57,7 +57,7 @@ class StepSequence
         float m_duration[max_notes];   // float
         byte m_probability[max_notes];
         byte m_ticks[max_notes];
-        bool m_mute[max_notes];        // bool INVERTED: true = unmuted
+        bool m_unmuted[max_notes];     // bool true = unmuted
         bool m_hold[max_notes];        // bool
         byte m_accent[max_notes];
         byte m_retrig[max_notes];

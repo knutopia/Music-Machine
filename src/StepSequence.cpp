@@ -25,7 +25,7 @@ void StepSequence::reset()
         m_duration[n] = .5;
         m_probability[n] = 3;
         m_ticks[n] = 1;
-        m_mute[n] = true;
+        m_unmuted[n] = true;
         m_hold[n] = false;
         m_accent[n] = 0;
         m_retrig[n] = 0;
@@ -89,7 +89,7 @@ void StepSequence::copySeqTo(StepSequence &destination)
         destination.setDuration(n, m_duration[n]);
         destination.setProbability(n, m_probability[n]);
         destination.setTicks(n, m_ticks[n]);
-        destination.setMute(n, m_mute[n]);
+        destination.setMute(n, m_unmuted[n]);
         destination.setHold(n, m_hold[n]);
         destination.setAccent(n, m_accent[n]);
         destination.setRetrig(n, m_retrig[n]);
@@ -155,7 +155,7 @@ bool StepSequence::getMute(int _step)
 {
     if(_step >=0 && _step < max_notes)
     {
-        return m_mute[_step];
+        return m_unmuted[_step];
     } 
     return false;  //error
 }
@@ -204,7 +204,7 @@ bool StepSequence::playItOrNot(int _step)
     bool retVal = false;
     if (_step >=0 && _step < max_notes)
     {
-        if( !m_hold[_step] && m_mute[_step] )
+        if( !m_hold[_step] && m_unmuted[_step] )
         {
             switch ((int)m_probability[_step]) 
             {
@@ -259,7 +259,7 @@ note StepSequence::getNoteParams(int _step)
     if(_step >=0 && _step < max_notes)
     {
         m_noteStruct.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
-        m_noteStruct.unmuted = m_mute[_step];
+        m_noteStruct.unmuted = m_unmuted[_step];
         m_noteStruct.playIt = playItOrNot(_step);
         m_noteStruct.pitchVal = m_notes[_step] + midiTranspose;
         m_noteStruct.pitchFreq = (float) 440.0 
@@ -287,7 +287,7 @@ note StepSequence::getNoteParams(int _step)
     if(_step >=0 && _step < max_notes)
     {
         thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
-        thisNote.unmuted = m_mute[_step];
+        thisNote.unmuted = m_unmuted[_step];
         thisNote.playIt = playItOrNot(_step);
         thisNote.pitchVal = m_notes[_step] + midiTranspose;
         thisNote.pitchFreq = (float) 440.0 
@@ -360,7 +360,7 @@ void StepSequence::setMute(int _step, bool muteFlag)
 {
     if(_step >=0 && _step < max_notes)
     {
-        m_mute[_step] = muteFlag;  
+        m_unmuted[_step] = muteFlag;  
     }
 }
 
@@ -416,7 +416,7 @@ void StepSequence::printSequence()
         Serial.print("\t"); 
         Serial.print(m_ticks[n]);
         Serial.print("\t"); 
-        Serial.print(m_mute[n]);
+        Serial.print(m_unmuted[n]);
         Serial.print("\t"); 
         Serial.print(m_hold[n]);
         Serial.print("\t"); 

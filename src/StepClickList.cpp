@@ -197,17 +197,21 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click)
         activeStepClicks.next();
     }
     if(!found) {
+#ifdef DEBUG
         Serial.print("nf");
         Serial.print(g_activeGlobalStep);
         Serial.print(",");
         Serial.print(a_click);
         Serial.print(" ");
+#endif
         retVal = NULL;
     } else {
+#ifdef DEBUG
         Serial.print("&&& getClickNoteList: FOUND, ");
         Serial.print(g_activeGlobalStep);
         Serial.print(", ");
         Serial.println(a_click);
+#endif
     }
     return retVal;
 }

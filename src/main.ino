@@ -566,7 +566,6 @@ void playbackTest()
         notesToTrig->rewind();
         while(notesToTrig->hasValue())
         {
-//          note* trigNote = notesToTrig->getNote();
             note trigNote = notesToTrig->getNote();
             unsigned long trigDur = notesToTrig->getDurationMS();
             Serial.print("  trigNote.pitchVal ");
@@ -575,6 +574,8 @@ void playbackTest()
             Serial.println(notesToTrig->getTrack());
             Serial.print("  notesToTrig->getDurationMS ");
             Serial.println(notesToTrig->getDurationMS());
+            Serial.print("  trigNote.playIt ");
+            Serial.println(trigNote.playIt);
 
             byte trigTrack = notesToTrig->getTrack();
             if(trigNote.playIt)
@@ -582,9 +583,9 @@ void playbackTest()
 
             // DIRTY
             if( trigTrack == 1)
-                    v_note_off_time = micros() + 200;
-//                  v_note_off_time = micros() + trigDur;
-
+            {
+                    note_off_time = micros() + trigDur;
+            }
             notesToTrig->next();
         }
     }

@@ -158,21 +158,26 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
     //
     // This is not taking ticks into account, but they are handled higher up.
 
-    if (aNote.retrigs == 0) {               // cases A
+    Serial.print("getStepDurationMS ");
+
+    if (aNote.retrigs == 0) {             // cases A
         retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
-//      inout.ShowInfoOnLCD("no              ");
+   
+        Serial.print(" case A  ");
+        Serial.println(retVal);
+
     } else 
     {                                     // case B
-//      inout.ShowValueInfoOnLCD("Retrigs:", aNote.retrigs);
-
         unsigned long retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1)*.9;      
 
         retVal = aNote.duration * referenceStepDuration;
         if (retVal > retrigStepDuration)
         {
             retVal = retrigStepDuration;
-//          inout.ShowInfoOnLCD("##Duration");
         }
+
+        Serial.print(" case B  ");
+        Serial.println(retVal);
     }
     return retVal;
 }

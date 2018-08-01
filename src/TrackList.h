@@ -118,6 +118,9 @@ public:
             Track *retVal;
             if( cur != NULL )
                     retVal = cur->trackRef;
+            else
+                Serial.println("NULL TRACKREF");
+
             return retVal; // really we should raise exception
     }
 

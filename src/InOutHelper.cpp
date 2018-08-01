@@ -915,14 +915,16 @@ void InOutHelper::UpdateTrellisStepIndicator(long time_now)
           step_indicator_led_active = true; // leave the led on, keep flag going
         } else {
           stepLedOffTimes[i] = 0;           // deal with this one - it's time has passed
-    
+
+#ifdef DEBUG
           Serial.print("UpdateTrellisStepIndicator offing ");
           Serial.println(i);
-Serial.print("  Late by ");
-Serial.print((stepLedOffTime-time_now)/1000);
-Serial.print(" millis or ");
-Serial.print(stepLedOffTime-time_now);
-Serial.println(" micros");
+          Serial.print("  Late by ");
+          Serial.print((stepLedOffTime-time_now)/1000);
+          Serial.print(" millis or ");
+          Serial.print(stepLedOffTime-time_now);
+          Serial.println(" micros");
+#endif
 
           // manually latched to on ?
           if (stepsToCheck[i] == false)       // should be off after step indication

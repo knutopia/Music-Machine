@@ -148,7 +148,8 @@ void SynthEngine::playPercNote(note aNote)
 {
 //  Track2drum.frequency(aNote.pitchFreq / 2);
     Track2drum.frequency(aNote.pitchFreq);
-    Track2drum.length(aNote.durationMS);
+//  Track2drum.length(100);
+    Track2drum.length(aNote.durationMS / 1000);
     Track2drum.pitchMod(.5);
     Track2drum.noteOn();
 }
@@ -216,6 +217,7 @@ void SynthEngine::endNote(float velocity)
     //      OSC2.amplitude(0);
     VCAenvelope2.noteOff();
     VCAenvelope.noteOff();
+
     AudioInterrupts();
 
     m_b_playing_a_note = false;

@@ -158,13 +158,17 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
     //
     // This is not taking ticks into account, but they are handled higher up.
 
+#ifdef DEBUG
     Serial.print("getStepDurationMS ");
+#endif
 
     if (aNote.retrigs == 0) {             // cases A
         retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
    
+#ifdef DEBUG
         Serial.print(" case A  ");
         Serial.println(retVal);
+#endif
 
     } else 
     {                                     // case B
@@ -176,8 +180,11 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
             retVal = retrigStepDuration;
         }
 
+#ifdef DEBUG
         Serial.print(" case B  ");
         Serial.println(retVal);
+#endif
+
     }
     return retVal;
 }
@@ -284,37 +291,31 @@ void Timebase::midiClick()
     {
         midiClickCount = 0;
         vb_prep_next_step = true;
-
-
-        //Serial.println("midiClick: vb_prep_next_step = true");
     }    
-//  synth.playTestClick();
-
-    PerClickNoteList* notesToTrig = activeStepClicks
-                             .getClickNoteList(midiClickCount);
-
-/*
-    note* trigNote = notesToTrig->getNote();
-    Serial.print("trigNote->pitchVal ");
-    Serial.print(trigNote->pitchVal);
-    Serial.print("  notesToTrig->getTrack ");
-    Serial.println(notesToTrig->getTrack());
-
-    while(notesToTrig->hasValue())
+    PerClickNoteList* notesToTrig;
+    if((notesToTrig = activeStepClicks
+                      .getClickNoteList(midiClickCount))
+                      != NULL)
     {
-        note* trigNote = notesToTrig->getNote();
-        byte trigTrack = notesToTrig->getTrack();
-        unsigned long trigDur = notesToTrig->getDurationMS();
+        while(notesToTrig->hasValue())
+        {
+            note trigNote = notesToTrig->getNote();
+            unsigned long trigDur = notesToTrig->getDurationMS();
+            byte trigTrack = notesToTrig->getTrack();
+        
+            if(trigNote.playIt)
+                synth.playNote(trigTrack, trigNote);
 
-        if(trigNote->playIt)
-            synth.playNote(trigTrack, *trigNote);
-
-        // DIRTY
-        if( trigTrack == 1)
-                v_note_off_time = micros() + trigDur;
-        notesToTrig->next();
+            // DIRTY
+            if( trigTrack == 1)
+            {            
+                unsigned long now = micros();
+                v_note_off_time = now + trigDur;
+            }
+            notesToTrig->next();
+        }
     }
-*/
+    activeStepClicks.rewind();
 }
 
 

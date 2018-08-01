@@ -16,6 +16,11 @@ StepSequence::StepSequence()
     reset();
 };
 
+void StepSequence::begin()
+{
+    reset();
+}
+
 void StepSequence::reset()
 {
         //Initialize sequence flat

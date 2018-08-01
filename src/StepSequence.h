@@ -12,6 +12,7 @@ class StepSequence
     
         StepSequence();
 
+        void begin();
         void reset();
         void copySeqTo(StepSequence &destination);
         byte getNote(int _step);

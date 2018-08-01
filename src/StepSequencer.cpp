@@ -30,25 +30,27 @@ StepSequencer::StepSequencer()
 #endif
 }
 
-
 void StepSequencer::begin()
 {
-    tmpTrack1.begin(m_sequence, (byte)1);
-    activeEditTrack = &tmpTrack1;
+
+    int forceInitForSequence = m_sequence[0].getLength();
 
     int len = m_beat_sequence[0].getLength();
     for(int n = 0; n < len; n++)
     {
-        m_beat_sequence[0].setDuration(n, 0);
+        m_beat_sequence[0].setDuration(n, 0.1);
         m_beat_sequence[0].setNote(n, 20);
     }
     for(int n = 0; n < len; n+=4)
-        m_beat_sequence[1].setDuration(n, 0.5);
+        m_beat_sequence[0].setDuration(n, 0.5);
 
+    tmpTrack1.begin(m_sequence, (byte)1);
     tmpTrack2.begin(m_beat_sequence, (byte)2);
 
     m_activeTracks.appendTrack(1, &tmpTrack1);
     m_activeTracks.appendTrack(2, &tmpTrack2);
+
+    activeEditTrack = &tmpTrack1;
 }
 
 void StepSequencer::updateNoteList(int stepInPattern)
@@ -95,10 +97,24 @@ void StepSequencer::updateNoteList(int stepInPattern)
 
     while( m_activeTracks.hasValue())
     {
-
-        cur_note = m_activeTracks.getTrackRef()->getNoteParams(stepInPattern, (byte)m_currentSequence);
+        Track *cur_trackRef = m_activeTracks.getTrackRef();
+        cur_note = cur_trackRef->getNoteParams(stepInPattern, (byte)m_currentSequence);
         cur_track = m_activeTracks.getTrackNumber();
         activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
+
+        if (cur_trackRef == NULL)
+            Serial.println("NULL cur_trackRef");
+
+#ifdef DEBUG
+        Serial.print("updateNoteList note ");
+        Serial.print(cur_note.pitchVal);
+        Serial.print(" on track ");
+        Serial.print(cur_track);
+        Serial.print(" for step ");
+        Serial.print(g_activeGlobalStep);
+        Serial.print(" from sequence ");
+        Serial.println(m_currentSequence);
+#endif
 
         m_activeTracks.next();
     }
@@ -170,7 +186,6 @@ void StepSequencer::updateStepClickList()
         }
         activeNotes.next();
     }
-
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 }
 

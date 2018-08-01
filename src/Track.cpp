@@ -45,11 +45,19 @@ note Track::getNoteParams(int step, byte curSequence)
                   break;
             case SIMPLEBEAT:
                   break;
-//          default:
-//            break;
+            default:
+                  Serial.println("trackType DEFAULTED");
+                  break;
       }
-//    Serial.print("getNoteParams retNote is ");
-//    Serial.println((unsigned int) &retNote);
+#ifdef DEBUG
+      Serial.print("Track::getNoteParams retNote pitch is ");
+//    Serial.print((unsigned int) &retNote);
+      Serial.print(retNote.pitchVal);
+      Serial.print(" for step ");
+      Serial.print(step);
+      Serial.print(" of sequence ");
+      Serial.println(curSequence);
+#endif
 
       return retNote;
 }

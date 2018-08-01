@@ -186,15 +186,21 @@ note LinkedNoteList::getNote()
 {
     note retVal;
 
+#ifdef DEBUG
     Serial.print("Notelist getNote ");
+#endif
 
     if( cur != NULL )
     {
         retVal = cur->trackNote;
 
+#ifdef DEBUG
         Serial.print(retVal.pitchVal);
         Serial.print("  track ");
         Serial.println(cur->track);
+//      Serial.print("  dur ");
+//      Serial.println(cur->trackNote.duration);
+#endif
 
         // really we should raise exception...
     } else

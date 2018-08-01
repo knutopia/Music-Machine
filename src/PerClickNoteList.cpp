@@ -7,13 +7,20 @@ PerClickNoteList::PerClickNoteList()
     head = NULL;
     cur = NULL;
     tail = NULL;
+
+#ifdef DEBUG
+    Serial.println("Constructor PerClickNoteList ");
+#endif
 }
 
 PerClickNoteList::~PerClickNoteList()
 {
     notePerClick *die;
 
+#ifdef DEBUG
     Serial.print("Destructor PerClickNoteList ");
+#endif
+
     rewind();
     while( hasValue()){
         
@@ -21,7 +28,10 @@ PerClickNoteList::~PerClickNoteList()
         next();
         delete die;
 
+#ifdef DEBUG
         Serial.print("die ");
+#endif
+
     }
     head = NULL;
     cur = NULL;

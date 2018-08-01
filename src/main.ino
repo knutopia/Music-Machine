@@ -351,7 +351,7 @@ void prep_next_note()
     if(vb_prep_next_step) {    // this is triggered right after the interrupt
                               // started playing the current note                              
       vb_prep_next_step = false; 
-//    note_off_time = v_note_off_time;
+      note_off_time = v_note_off_time;
 
       Serial.println("");
       Serial.println("prep_next_note");
@@ -363,7 +363,7 @@ void prep_next_note()
 
       // show step indicator for just-started note N-1
 
-//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
+      inout.setRunningStepIndicators(playbackStep, note_off_time);      
 
                               // schedule the next note's start time
                               // as prepped previously
@@ -374,7 +374,7 @@ void prep_next_note()
 
       prepNoteGlobals();
       Serial.println(" Note prepped.");
-      inout.setRunningStepIndicators(playbackStep, note_off_time);      
+//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
@@ -544,7 +544,7 @@ void prepNoteGlobals()
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
-    playbackTest();
+//  playbackTest();
 }
 
 void trackListSizes()
@@ -607,25 +607,6 @@ void playbackTest()
         Serial.print("  notesToTrig is NULL ");
     }
     activeStepClicks.rewind();
-//  vb_prep_next_step = true;
-
-/*
-    notesToTrig->rewind();
-    while(notesToTrig->hasValue())
-    {
-        note trigNote = notesToTrig->getNote();
-        byte trigTrack = notesToTrig->getTrack();
-        unsigned long trigDur = notesToTrig->getDurationMS();
-
-        if(trigNote.playIt)
-            synth.playNote(trigTrack, trigNote);
-
-        // DIRTY
-        if( trigTrack == 1)
-                v_note_off_time = micros() + trigDur;
-        notesToTrig->next();
-    }  
-    */
 }
 
 unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION

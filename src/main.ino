@@ -42,7 +42,6 @@ File myFile;
 // kg
 const float NORMAL_VEL = 0.7;
                                                  // TO DO: make this the play button LED
-boolean b_led1_on_state = false;                 // remembers what we want the state of the LED to be.
 boolean b_note_on = false;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
@@ -352,7 +351,7 @@ void prep_next_note()
     if(vb_prep_next_step) {    // this is triggered right after the interrupt
                               // started playing the current note                              
       vb_prep_next_step = false; 
-      note_off_time = v_note_off_time;
+//    note_off_time = v_note_off_time;
 
       Serial.println("");
       Serial.println("prep_next_note");
@@ -360,11 +359,11 @@ void prep_next_note()
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
 
-      b_led1_on_state = true;
       b_note_on = true;
 
       // show step indicator for just-started note N-1
-      inout.setRunningStepIndicators(playbackStep, note_off_time);      
+
+//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
 
                               // schedule the next note's start time
                               // as prepped previously
@@ -375,6 +374,7 @@ void prep_next_note()
 
       prepNoteGlobals();
       Serial.println(" Note prepped.");
+      inout.setRunningStepIndicators(playbackStep, note_off_time);      
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
@@ -385,7 +385,6 @@ void prep_next_note()
       vb_prep_retrig = false;
       note_off_time = v_note_off_time;
 
-//    b_led1_on_state = true;
       b_note_on = true;
 
       // show step indicator for just-started note N-1
@@ -417,7 +416,6 @@ void prep_next_note()
       // swing index tracking;
       metro.advanceStepSwingIndex();
       // two state flags referring to the just-started note
-      b_led1_on_state = true;
       b_note_on = true;
 
       // show step indicator for just-started note N-1
@@ -518,7 +516,6 @@ void play_first_step()
     // change synth patch ?
     synth.prepPatchIfNeeded();
 
-    b_led1_on_state = true;
     b_note_on = true;
 
     #ifdef MIDION
@@ -542,12 +539,8 @@ void prepNoteGlobals()
     nextNote.durationMS = calcNextNoteDuration();
 */
     sequencer.updateNoteList(playbackStep);
-//  StepSequencer::activeNotes.rewind();
     activeNotes.rewind();
     sequencer.updateStepClickList();
-
-//  nextNote = StepSequencer::activeNotes.getNote();
-//  nextNote = activeNotes.getNote();
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
@@ -565,6 +558,7 @@ void trackListSizes()
     Serial.print("size synth: ");
     Serial.println(sizeof(synth));
 }
+
 void playbackTest()
 {
     Serial.print("playbackTest:  ");
@@ -572,8 +566,9 @@ void playbackTest()
 
     PerClickNoteList* notesToTrig;
     activeStepClicks.rewind();
-
+#ifdef DEBUG
     trackListSizes();
+#endif
     if((notesToTrig = activeStepClicks.getClickNoteList(0)) != NULL)
     {
         Serial.print("size notesToTrig:      ");
@@ -599,8 +594,10 @@ void playbackTest()
 
             // DIRTY
             if( trigTrack == 1)
-            {
-                    note_off_time = micros() + trigDur;
+            {            
+                unsigned long now = micros();
+                v_note_off_time = now + trigDur;
+                note_off_time = v_note_off_time;
             }
             notesToTrig->next();
         }
@@ -610,6 +607,8 @@ void playbackTest()
         Serial.print("  notesToTrig is NULL ");
     }
     activeStepClicks.rewind();
+//  vb_prep_next_step = true;
+
 /*
     notesToTrig->rewind();
     while(notesToTrig->hasValue())

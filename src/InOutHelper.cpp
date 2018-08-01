@@ -255,8 +255,30 @@ void InOutHelper::setupNewMode() {
 }
 
 
-void InOutHelper::ResetSelection() {
+void InOutHelper::ResetTrellis() {
 
+    trellis.begin(0x70, 0x71);
+
+/*
+    //supposedly a faster i2c bus
+    TWBR = 12; 
+
+    for (uint8_t i = 0; i < numKeys; i++) {
+      trellis.setLED(i);
+      trellis.writeDisplay();
+      delay(10);
+    }
+    for (uint8_t i = 0; i < numKeys; i++) {
+      trellis.clrLED(i);
+      trellis.writeDisplay();
+      delay(10);
+    }
+    delay(20);
+    setupNewMode();
+    ShowModeOnLCD();
+    ShowBPMOnLCD(metro.getBPM());
+    ShowSwingOnLCD(metro.getSwing());
+*/
     for (uint8_t i = 0; i < numKeys; i++) {
       trellis.clrLED(i);
     }
@@ -278,7 +300,9 @@ void InOutHelper::ResetSelection() {
 
     currentMode = step_edit;
     setupNewMode();
-    ShowModeOnLCD();                  
+    ShowModeOnLCD();         
+    ShowBPMOnLCD(metro.getBPM());
+    ShowSwingOnLCD(metro.getSwing());
 }
 
 
@@ -892,6 +916,14 @@ void InOutHelper::UpdateTrellisStepIndicator(long time_now)
         } else {
           stepLedOffTimes[i] = 0;           // deal with this one - it's time has passed
     
+          Serial.print("UpdateTrellisStepIndicator offing ");
+          Serial.println(i);
+Serial.print("  Late by ");
+Serial.print((stepLedOffTime-time_now)/1000);
+Serial.print(" millis or ");
+Serial.print(stepLedOffTime-time_now);
+Serial.println(" micros");
+
           // manually latched to on ?
           if (stepsToCheck[i] == false)       // should be off after step indication
           {                                   // so turn it off
@@ -1306,12 +1338,12 @@ void InOutHelper::handleButtonHolds()
           synth.saveToPatch(synth.getButtonPressed());
     } else {
 
-      // track step edit button to celan up trellis tracking fail
+      // track step edit button to clean up trellis tracking fail
       held = GetHoldableButtonPressed(STEPEDITMODEBUTTON);
       if (held > 0) {
           currentHoldAction = TRESET;
           if (trackActionHoldTime(held, TRESET))
-              ResetSelection();
+              ResetTrellis();
       }
     }
   }
@@ -1412,10 +1444,10 @@ bool InOutHelper::checkRewindButton()
 // Setters
 void InOutHelper::setRunningStepIndicators(int step, long led_off_time)
 {
-    static int prev_step;
+//  static int prev_step;
     latestPlaybackStep = step;
     
-    if (stepsToCheck[latestPlaybackStep] == false) {//it's not on manually, so turn it on to show the step.
+    if (stepsToCheck[latestPlaybackStep] == false) {//it's not on manually, so turn it on to show the step.        
         trellis.setLED(latestPlaybackStep + STEPSOFFSET);
         ShowStepOnLCD(latestPlaybackStep, false);
     }
@@ -1425,12 +1457,14 @@ void InOutHelper::setRunningStepIndicators(int step, long led_off_time)
         ShowStepOnLCD(latestPlaybackStep, true); // LCD with modifier
     }
     
-    prev_step = latestPlaybackStep;
+//  prev_step = latestPlaybackStep;
 
-//  Serial.print("step ");
-//  Serial.print(step);
-//  Serial.print("  offtime ");
-//  Serial.println(led_off_time);
+#ifdef DEBUG
+    Serial.print("step ");
+    Serial.print(step);
+    Serial.print("  offtime ");
+    Serial.println(led_off_time);
+#endif
     
     stepLedOffTimes[latestPlaybackStep] = led_off_time;
     step_indicator_led_active = true;
@@ -1737,15 +1771,15 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
           case SHOWNOTHING:
             break;
           case ANNOUNCE:
-            ShowInfoOnLCD("Hold to reset sel");
+            ShowInfoOnLCD("Hold: reset keys");
             SetLCDinfoTimeout();
             break;
           case ACTION:
-            ShowInfoOnLCD("Resetting selection ");
+            ShowInfoOnLCD("Resetting keys ");
             SetLCDinfoTimeout();
             break;
           case DONE:
-            ShowInfoOnLCD("Selection reset.");
+            ShowInfoOnLCD("Keys reset.");
             SetLCDinfoTimeout();
             break;
           case INACTIVE:

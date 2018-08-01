@@ -71,7 +71,7 @@ class InOutHelper
     void showLoopTimer();
 
   private:
-    void ResetSelection();            
+    void ResetTrellis();            
     void SetupMuteOrHoldModeTrellis();
     void SetupSelectEditTrellis();
     void SetupAccentModeTrellis();

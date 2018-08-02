@@ -17,6 +17,7 @@
 #include "LinkedNoteList.h"
 #include "PerClickNoteList.h"
 #include "StepClickList.h"
+#include "NoteOffList.h"
 #include "Track.h"
 #include "TrackList.h"
 #include "InOutHelper.h"
@@ -42,7 +43,7 @@ File myFile;
 // kg
 const float NORMAL_VEL = 0.7;
                                                  // TO DO: make this the play button LED
-boolean b_note_on = false;
+//boolean b_note_on = false;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
@@ -175,13 +176,13 @@ void ChangeSaveSequenceDestinationCb(int seqNum) {
 
 void ChangeTempoCb(int newTempo) {
     metro.updateTempo(newTempo);
-    retimeNextDuration();
+//  retimeNextDuration();
 }
 
 
 void ChangeSpeedMultiplierCb(speedFactor mult) {
-  metro.updateSpeedMultiplier(mult);
-  retimeNextDuration();
+    metro.updateSpeedMultiplier(mult);
+//  retimeNextDuration();
 }
 
 
@@ -258,6 +259,7 @@ void OnNoteOn(byte channel, byte note, byte velocity) {
 
 LinkedNoteList activeNotes;
 StepClickList activeStepClicks;
+NoteOffList playingNotes;
 
 void setup()
 {
@@ -344,8 +346,6 @@ static bool bTimeslice = true;
 
 void prep_next_note()
 {
-    static byte currentStepTick = 1;
-    
     if(vb_prep_next_step) {    // this is triggered right after the interrupt
                               // started playing the current note                              
       vb_prep_next_step = false; 
@@ -357,7 +357,7 @@ void prep_next_note()
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
 
-      b_note_on = true;
+//    b_note_on = true;
 
       // show step indicator for just-started note N-1
 
@@ -383,7 +383,7 @@ void prep_next_note()
       vb_prep_retrig = false;
       note_off_time = v_note_off_time;
 
-      b_note_on = true;
+//    b_note_on = true;
 
       // show step indicator for just-started note N-1
 //    inout.setRunningStepIndicators(playbackStep, note_off_time);      
@@ -481,7 +481,7 @@ void prep_first_step()
     if(startFromZero)
     {
         startFromZero = false;
-        
+
         if(playbackStep >= sequencer.getLength())
         {
         inout.ShowErrorOnLCD("YOWZA prep_first_step");
@@ -515,6 +515,10 @@ void prepNoteGlobals()
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
+
+    Serial.print("###### playingNotes count: ");
+    Serial.println(playingNotes.count());
+
 //  playbackTest();
 }
 
@@ -633,7 +637,7 @@ unsigned long calcNextNoteDurationAfterRetrigs()
 }
 */
 
-
+/*
 void retimeNextDuration()
 {
 
@@ -651,7 +655,7 @@ void retimeNextDuration()
       Serial.println(" nope");
 //    nextNote.durationMS = calcNextNoteDuration();
 }
-
+*/
 
 byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 {
@@ -675,6 +679,20 @@ byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 
 void followNoteOff()
 {
+    int foo = 0;
+    playingNotes.rewind();
+    while(playingNotes.hasValue())
+    {
+        if(playingNotes.getNoteOffTime() < micros())
+        {
+            synth.endNote(playingNotes.getTrack(), 
+                            playingNotes.getMidiNote());
+            playingNotes.dropNode();
+        }
+        playingNotes.next();
+        foo++;
+    }
+/*
     if((b_note_on == true) && (note_off_time < micros()))
     {
       b_note_on = false;
@@ -684,6 +702,7 @@ void followNoteOff()
       Serial.println(micros() - note_off_time);
 #endif
     }
+*/
 }
 
 

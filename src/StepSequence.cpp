@@ -294,6 +294,7 @@ note StepSequence::getNoteParams(int _step)
         thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
         thisNote.unmuted = m_unmuted[_step];
         thisNote.playIt = playItOrNot(_step);
+
         thisNote.pitchVal = m_notes[_step] + midiTranspose;
         thisNote.pitchFreq = (float) 440.0 
                              * (float)(pow(2, ((m_notes[_step] + midiTranspose -57) 
@@ -305,7 +306,6 @@ note StepSequence::getNoteParams(int _step)
         thisNote.ticks = m_ticks[_step];
         thisNote.accent = m_accent[_step];
         thisNote.velocity = m_velocity[_step];
-
         thisNote.swingTicks = metro.getSwingTicks();
         thisNote.durationMS = calcNextNoteDuration(thisNote);
     }

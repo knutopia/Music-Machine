@@ -1,5 +1,6 @@
 #include "SynthEngine.h"
 #include "InOutHelper.h"
+#include "NoteOffList.h"
 
 #include <Audio.h>
 #include <Wire.h>
@@ -68,6 +69,7 @@ AudioControlSGTL5000     sgtl5000_1;     //xy=689.2380256652832,551.428553581237
 extern long g_step_duration;
 extern bool playbackOn;
 extern InOutHelper inout;
+extern NoteOffList playingNotes;
 
 
 SynthEngine::SynthEngine()
@@ -209,7 +211,26 @@ void SynthEngine::playSynthNote(note aNote)
     m_Midi_NoteforOff = aNote.pitchVal;
 }
 
-void SynthEngine::endNote(float velocity)
+void SynthEngine::endNote(byte aTrack, byte aMidiNote)
+{
+    switch (aTrack)
+    {
+      case 1:
+        endSynthNote(1.0);
+        break;
+
+      case 2:
+
+        break;
+
+      default:
+        Serial.print("endNote: track choice defaulted ");
+        Serial.println(aTrack);
+    }
+    endMidiNote(aTrack, aMidiNote);
+}
+
+void SynthEngine::endSynthNote(float velocity)
 {
     AudioNoInterrupts();
     string2.noteOff(velocity);
@@ -222,6 +243,7 @@ void SynthEngine::endNote(float velocity)
 
     m_b_playing_a_note = false;
 
+/*
     // dirty midi send
     if (m_Midi_NoteforOff < 255) {
 #ifdef MIDION
@@ -230,13 +252,35 @@ void SynthEngine::endNote(float velocity)
 #endif
       m_Midi_NoteforOff = 255;
     }
+*/
+}
+
+void SynthEngine::endMidiNote(byte aMidiChannel, byte aMidiNote)
+{
+#ifdef MIDION
+        usbMIDI.sendNoteOff(aMidiNote, 0, aMidiChannel);
+//      usbMIDI.send_now();
+#endif
 }
 
 void SynthEngine::allNotesOff()
 {
-  endNote(1);
-  m_Midi_NoteforOff = 255;
-  m_b_playing_a_note = false;
+    int foo = 0;
+    playingNotes.rewind();
+    while(playingNotes.hasValue())
+    {
+        endNote(playingNotes.getTrack(), 
+                playingNotes.getMidiNote());
+        playingNotes.dropNode();
+        playingNotes.next();
+        foo++;
+    }
+
+/*
+    endSynthNote(1);
+    m_Midi_NoteforOff = 255;
+    m_b_playing_a_note = false;
+*/
 }
 
 void SynthEngine::prepAccent(byte empFlag)

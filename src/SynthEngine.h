@@ -11,6 +11,7 @@
 extern long g_step_duration;
 extern bool playbackOn;
 
+
 class SynthEngine
 {
     public:
@@ -24,7 +25,9 @@ class SynthEngine
       bool playingAnote();
       void playTestClick();
       void playNote(byte aTrack, note aNote);
-      void endNote(float velocity);
+      void endNote(byte aTrack, byte aMidiNote);
+      void endSynthNote(float velocity);
+      void endMidiNote(byte aMidiChannel, byte aMidiNote);
       void allNotesOff();
       void prepAccent(byte empFlag);
       void prepPatchIfNeeded();

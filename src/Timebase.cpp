@@ -1,12 +1,14 @@
 #include "Timebase.h"
 #include "InOutHelper.h"
 #include "SynthEngine.h"
+#include "NoteOffList.h"
 
 //#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
 extern StepClickList activeStepClicks;
+extern NoteOffList playingNotes;
 
 #ifdef DEBUG
 extern volatile unsigned long timeTracker;
@@ -307,15 +309,24 @@ void Timebase::midiClick()
             unsigned long trigDur = notesToTrig->getDurationMS();
             byte trigTrack = notesToTrig->getTrack();
         
+                unsigned long now = micros();
+                //for the step indicators...
+                if(trigTrack ==1)
+                    v_note_off_time = now + trigDur;
+
+
             if(trigNote.playIt)
+            {
                 synth.playNote(trigTrack, trigNote);
 
-            // DIRTY
-            if( trigTrack == 1)
-            {            
-                unsigned long now = micros();
-                v_note_off_time = now + trigDur;
+                playingNotes.append(trigTrack, 
+                                    trigNote.pitchVal, 
+                                    (now + trigDur));
+            } else 
+            {
+                Serial.println("Don't play it ! ");
             }
+
             notesToTrig->next();
         }
     }

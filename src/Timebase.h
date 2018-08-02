@@ -31,15 +31,18 @@ class Timebase
 //    long getStepDurationRetrigHoldMS(note aNote, byte holdStepCount);
       u_int8_t getSwingTicks();
 
+      void startPlayingRightNow();
       void runMidiTimer();
       void stopMidiTimer();
 
       //"Setters"
       void updateMidiTimer();
       void resetMidiTimer();
+/*      
       void advanceStepSwingIndex();
       void resetStepSwingIndex();
       void resetSwingCountDown();
+*/
 
     private:
 

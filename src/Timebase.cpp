@@ -44,7 +44,7 @@ void Timebase::reset()
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     resetMidiTimer();
-    resetSwingCountDown();
+//  resetSwingCountDown();
 }
 
 // React to input ("Setters")
@@ -82,9 +82,6 @@ void Timebase::updateSwing(int swingPercentage)
     swingValue = swingPercentage;
     // calculate the intervals when tempo changes
     // max swing is 1/3 step duration offset
-
-//  float scaledSwing = round((float) swingPercentage / (100.0 / 9.0) - .5);
-//  swingMidiClicks = uint8_t(scaledSwing);
 
     swingMidiClicks = (swingValue-2) / 12;
 
@@ -229,6 +226,13 @@ void Timebase::recalcTimings()
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
 }
 
+void Timebase::startPlayingRightNow()
+{
+    midiClickCount = MIDICLOCKDIVIDER;
+    midiClick();
+    runMidiTimer();
+}
+
 void Timebase::runMidiTimer()
 {
     stopMidiTimer();
@@ -239,8 +243,8 @@ void Timebase::runMidiTimer()
     Serial.println(midiClickInterval);
 #endif
 
-    midiClickCount = 0;
-    resetSwingCountDown();
+//    midiClickCount = 0;
+//    resetSwingCountDown();
     midiTimer.begin(Timebase::midiClick, midiClickInterval);
 }
 
@@ -318,97 +322,12 @@ void Timebase::midiClick()
     activeStepClicks.rewind();
 }
 
-
-/*
-void Timebase::midiClick()
-{
-    static note currentNote;
-    static uint8_t remainingRetrigs; 
-
-    midiClickCount++;
-    if (midiClickCount >= MIDICLOCKDIVIDER)
-    {
-#ifdef DEBUG
-        Serial.print("1 mCC: ");
-        Serial.print(midiClickCount);
-        Serial.print("  ");
-#endif
-        midiClickCount = 0;
-        currentNote = nextNote;
-        swingCountdown = currentNote.swingTicks;
-        retrigCountdown = currentNote.retrigClickDivider;
-        remainingRetrigs = currentNote.retrigs;
-        vb_prep_retrig = false;
-
-    } else {
-        // handle retrigs
-        if (currentNote.retrigClickDivider != NORETRIGS
-            && remainingRetrigs > 0
-            && swingCountdown < 0)
-        {
-#ifdef DEBUG
-            Serial.print("retrigCountdown: ");
-            Serial.println(retrigCountdown);
-#endif
-            if (--retrigCountdown == 0)
-            {
-                retrigCountdown = currentNote.retrigClickDivider;
-
-                Serial.print(">Retrig< ");
-                Serial.println(remainingRetrigs);
-
-#ifdef DEBUG
-                Serial.print("2 mCC: ");
-                Serial.print(midiClickCount);
-                Serial.print("  ");
-#endif
-                remainingRetrigs--;
-                v_note_off_time = micros() + currentNote.durationMS; 
-                
-                vb_prep_retrig = true;
-#ifdef DEBUG
-                Serial.print("###retrig dur: ");
-                Serial.println(currentNote.durationMS);
-#endif
-                if (currentNote.playIt) 
-                    synth.playNote(currentNote);
-            }
-        }
-    }
-    if(swingCountdown-- == 0)
-    {
-#ifdef DEBUG
-                Serial.print(">Note< ");
-#endif
-#ifdef DEBUG
-            unsigned long now = millis();
-            Serial.print("############## time: ");
-            Serial.println(now-timeTracker);
-            timeTracker = now;
-#endif 
-        v_note_off_time = micros() + currentNote.durationMS;
-            
-#ifdef DEBUG
-        Serial.print("###note dur: ");
-        Serial.println(currentNote.durationMS);
-#endif
-        vb_prep_next_step = true;
-        
-        if (currentNote.playIt) 
-            synth.playNote(currentNote);
-
-    }
-    #ifdef MIDION
-        usbMIDI.sendRealTime(usbMIDI.Clock);   
-        usbMIDI.send_now();
-    #endif
-}
-*/
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23
 // *                 *                  *                 *              
 // *                       *                        *
 // *                                    *
 
+/*
 void Timebase::advanceStepSwingIndex()
 {
     stepSwingIndex++;
@@ -424,3 +343,4 @@ void Timebase::resetSwingCountDown()
     swingCountdown = -1;
     retrigCountdown = -1;
 }
+*/

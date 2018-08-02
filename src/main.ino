@@ -93,6 +93,7 @@ const unsigned long SAMPLE_RATE = 16384;
 int currentEditStep = 0;                //The current sequence edit position
 bool playbackOn = false;                //true when sequencer is running
 int playbackStep = 0;                   //The current playback step
+bool startFromZero = true;              //Has reset been pressed ?
 
 //Global Time Management object:
 Timebase metro;
@@ -231,11 +232,8 @@ void StartStopCb()
 #ifdef DEBUG
       timeTracker = millis();
 #endif
-      metro.runMidiTimer();
-
-      //get first note out immediately
-      play_first_step();
-      vb_prep_next_step = true;
+      prep_first_step();
+      metro.startPlayingRightNow();
     }  
 }
 
@@ -478,66 +476,39 @@ void prep_next_note()
 }
 */
 
-void play_first_step()
+void prep_first_step()
 {
-    if(playbackStep >= sequencer.getLength())
+    if(startFromZero)
     {
-       inout.ShowErrorOnLCD("YOWZA play_first_step");
-       Serial.print("step:");
-       Serial.print(playbackStep);
-       Serial.print(" len:");
-       Serial.print(sequencer.getLength());
-       Serial.print(" >> ");
+        startFromZero = false;
+        
+        if(playbackStep >= sequencer.getLength())
+        {
+        inout.ShowErrorOnLCD("YOWZA prep_first_step");
+        Serial.print("step:");
+        Serial.print(playbackStep);
+        Serial.print(" len:");
+        Serial.print(sequencer.getLength());
+        Serial.print(" >> ");
 
-       playbackStep = 0;
+        playbackStep = 0;
+        }
+
+        // gather info about the first note
+        byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+
+        if (playbackStep == 0) {
+        playbackStep = playpath.getDontAdvanceStepPos(seqLength);
+        } else {
+        playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+        }
+
+        prepNoteGlobals();
     }
-
-    // gather info about the first note
-    byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-
-    if (playbackStep == 0) {
-      playbackStep = playpath.getDontAdvanceStepPos(seqLength);
-    } else {
-      playbackStep = playpath.getAndAdvanceStepPos(seqLength);
-    }
-
-    // new here
-    metro.updateTimingIfNeeded();
-    if (playpath.checkForSequenceStart()) 
-      metro.resetStepSwingIndex();
-
-    prepNoteGlobals();
-    v_note_off_time = micros() + nextNote.durationMS;
-    note_off_time = v_note_off_time;
-
-    // make next note an accent ?
-    synth.prepAccent(nextNote.accent);
-
-    // change synth patch ?
-    synth.prepPatchIfNeeded();
-
-    b_note_on = true;
-
-    #ifdef MIDION
-      usbMIDI.sendRealTime(usbMIDI.Start);
-    #endif
-    
-    // UNHOLY MESS
-    if (nextNote.unmuted) 
-      synth.playNote(1, nextNote);
-    #ifdef MIDION
-      usbMIDI.send_now();
-    #endif
-    inout.setRunningStepIndicators(playbackStep, note_off_time);
 }
 
 void prepNoteGlobals()
 {
-  /*
-    nextNote = sequencer.getNoteParams(playbackStep);
-    nextNote.swingTicks = metro.getSwingTicks();
-    nextNote.durationMS = calcNextNoteDuration();
-*/
     sequencer.updateNoteList(playbackStep);
     activeNotes.rewind();
     sequencer.updateStepClickList();
@@ -723,6 +694,7 @@ void handleRewindButton()
       if(playbackOn == true) stopPlayback();
       synth.allNotesOff();
       playbackStep = 0;
+      startFromZero = true;
       inout.RemoveStepIndicatorOnLCD();
       playpath.resetStep();
     }

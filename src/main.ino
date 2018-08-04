@@ -352,7 +352,8 @@ void prep_next_note()
       note_off_time = v_note_off_time;
 
       Serial.println("");
-      Serial.println("prep_next_note");
+      Serial.print("prep_next_note after ");
+      Serial.println(g_activeGlobalStep);
 
       // adjust speed if tempo or multiplier have changed
       metro.updateTimingIfNeeded();
@@ -494,6 +495,8 @@ void prep_first_step()
 
 void prepNoteGlobals()
 {
+    activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+    g_activeGlobalStep++;
     sequencer.updateNoteList(playbackStep);
     activeNotes.rewind();
     sequencer.updateStepClickList();
@@ -531,7 +534,7 @@ void playbackTest()
 #ifdef DEBUG
     trackListSizes();
 #endif
-    if((notesToTrig = activeStepClicks.getClickNoteList(0)) != NULL)
+    if((notesToTrig = activeStepClicks.getClickNoteList(0, g_activeGlobalStep)) != NULL)
     {
         Serial.print("size notesToTrig:      ");
         Serial.println(sizeof(notesToTrig));
@@ -673,8 +676,8 @@ void followNoteOff()
     {        
         if(playingNotes.getNoteOffTime() < micros())
         {
-//            playingNotes.printList();
-//            playingNotes.rewind();
+//          playingNotes.printList();
+//          playingNotes.rewind();
 #ifdef DEBUG
             Serial.print("followNoteOff on track ");
             Serial.print(playingNotes.getTrack());

@@ -75,8 +75,6 @@ void StepSequencer::updateNoteList(int stepInPattern)
     note cur_note;
     byte cur_track;
 
-    g_activeGlobalStep++;
-
 #ifdef DEBUG
     Serial.print("updateNoteList g_activeGlobalStep: ");
     Serial.println(g_activeGlobalStep);
@@ -88,7 +86,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
     Serial.println(m_activeTracks.count());
 #endif
 
-    activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+//  activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 
     m_activeTracks.rewind();
 
@@ -149,6 +147,15 @@ void StepSequencer::updateStepClickList()
                                         aNote.durationMS, 
                                         activeNotes.getStep(),
                                         aNote.swingTicks);
+        Serial.print("Beat adds- ");
+        Serial.print("Step: ");
+        Serial.print(activeNotes.getStep());
+        Serial.print(" Pos: ");
+        Serial.print("0");
+        Serial.print(" from retrigClickDivider: ");
+        Serial.print(aNote.retrigClickDivider);
+        Serial.print(" with swingTicks: ");
+        Serial.println(aNote.swingTicks);
 
 #ifdef DEBUG
         activeStepClicks.rewind();
@@ -173,15 +180,24 @@ void StepSequencer::updateStepClickList()
 
         if (aNote.retrigClickDivider != NORETRIGS)
         {
-            for(uint8_t count = 0; count < aNote.retrigs; ++count)
+            for(uint8_t count = 0; count < aNote.retrigs; count++)
             {
-                int clickPos = count * aNote.retrigClickDivider 
+                int clickPos = (count + 1) * aNote.retrigClickDivider 
                                 + aNote.swingTicks;
                 activeStepClicks.addClickNote(  aNote, 
                                                 activeNotes.getTrack(),
                                                 aNote.durationMS, 
                                                 activeNotes.getStep(), 
                                                 clickPos);
+                Serial.print("Retrig adds- ");
+                Serial.print("Step: ");
+                Serial.print(activeNotes.getStep());
+                Serial.print(" Pos: ");
+                Serial.print(clickPos);
+                Serial.print(" from retrigClickDivider: ");
+                Serial.print(aNote.retrigClickDivider);
+                Serial.print(" with swingTicks: ");
+                Serial.println(aNote.swingTicks);
             }
         }
         activeNotes.next();

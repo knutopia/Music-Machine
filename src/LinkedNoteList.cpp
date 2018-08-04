@@ -34,11 +34,24 @@ LinkedNoteList::~LinkedNoteList()
     Serial.println("LinkedNoteList alive !");
 }
 
+void LinkedNoteList::checkIntegrity(char caller[])
+{
+    if(cur != NULL)
+    {
+        if(cur == cur->next)
+        {
+            Serial.print("LinkedNoteList next error called from ");
+            Serial.println(caller);
+        }
+    }
+}
+
 void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
 {
     while(head != NULL && head->masterStep < aStep)
         dropHeadNote();
     cur = head;
+    checkIntegrity("dropNotesBeforeStepAndRewind");
 }
 
 void LinkedNoteList::dropHeadNote()
@@ -53,6 +66,7 @@ void LinkedNoteList::dropHeadNote()
         delete head;
         head = newHead;
     }
+    checkIntegrity("dropHeadNote");
 }
 
 // This prepends a new value at the beginning of the list
@@ -70,6 +84,7 @@ void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
 
     if(tail == NULL)
             tail = n;
+    checkIntegrity("prependNote");
 }
 
 // add value at the end -kg
@@ -148,6 +163,7 @@ void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
     else
         Serial.println(" :head->next OK");
 */
+    checkIntegrity("appendNote");
 }
 
 void LinkedNoteList::rewind()
@@ -158,14 +174,16 @@ void LinkedNoteList::rewind()
 }
 void LinkedNoteList::next()
 {
-        if( cur != NULL )
-        {
-            if( cur == cur->next)
-                Serial.println("cur->next circular on Notelist next");
-            cur = cur->next;
-        }
-        else
-            Serial.println("NULL cur on Notelist next");
+    if( cur != NULL )
+    {
+        if( cur == cur->next)
+            Serial.println("cur->next circular on Notelist next");
+        cur = cur->next;
+    }
+    else
+        Serial.println("NULL cur on Notelist next");
+        
+    checkIntegrity("next");
 }
 
 int LinkedNoteList::getStep()
@@ -223,6 +241,7 @@ int LinkedNoteList::count()
 //        Serial.println(retVal);
 
         retVal++;
+        checkIntegrity("count");
         next();
     }        
     return retVal;

@@ -48,6 +48,23 @@ public:
         Serial.println();
     }
 
+    void checkIntegrity(char caller[])
+    {
+        if(cur != NULL)
+        {
+            if(cur == cur->next)
+            {
+                Serial.print("NoteOffList next error called from ");
+                Serial.println(caller);
+            }
+            if(cur == cur->prev)
+            {
+                Serial.println("NoteOffList prev loop !");
+                Serial.print(caller);
+            }
+        }
+    }
+
     void printList()
     {
         Serial.println("");
@@ -69,7 +86,7 @@ public:
             Serial.println((int)cur->next);
             if(cur==cur->next)
             {
-                Serial.println("LOOP REFERENCE");
+                Serial.println("NoteOffList LOOP REFERENCE");
                 break;
             }
             next();
@@ -88,7 +105,7 @@ public:
                 cur->prev = NULL;
             else
             {
-//              Serial.println("tail nulled");
+//              Serial.println("NoteOffList tail nulled");
                 tail = NULL;
             }
             delete head;
@@ -118,6 +135,7 @@ public:
         Serial.println("dropNode done");
         printList();
 #endif
+        checkIntegrity("dropnode");
     }
 
     // add value at the end -kg
@@ -145,6 +163,7 @@ public:
         Serial.println("Append done");
         printList();
 #endif
+        checkIntegrity("append");
     }
 
     void rewind()
@@ -155,6 +174,7 @@ public:
     
     void next()
     {
+            checkIntegrity("next");
             if( cur != NULL )
                     cur = cur->next;
     }
@@ -186,6 +206,7 @@ public:
 
         while( hasValue()){
             retVal++;
+            checkIntegrity("count");
             next();
         }        
         return retVal;

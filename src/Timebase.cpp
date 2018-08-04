@@ -290,17 +290,21 @@ void Timebase::resetMidiTimer()
 
 void Timebase::midiClick()
 {
+    static int currentPlayingStep = 0;
+
     midiClickCount++;
 
     if (midiClickCount >= MIDICLOCKDIVIDER)
     {
         midiClickCount = 0;
+        currentPlayingStep = g_activeGlobalStep;
         vb_prep_next_step = true;
-        Serial.println("vb_prep_next_step set");
+        Serial.print("vb_prep_next_step set, g_activeGlobalStep is ");
+        Serial.println(g_activeGlobalStep);
     }    
     PerClickNoteList* notesToTrig;
     if((notesToTrig = activeStepClicks
-                      .getClickNoteList(midiClickCount))
+                      .getClickNoteList(midiClickCount, currentPlayingStep))
                       != NULL)
     {
         while(notesToTrig->hasValue())
@@ -322,19 +326,23 @@ void Timebase::midiClick()
                 playingNotes.append(trigTrack, 
                                     trigNote.pitchVal, 
                                     (now + trigDur));
+//#ifdef DEBUG                                    
                 Serial.print("Playing ");
                 Serial.print(g_activeGlobalStep);
+                Serial.print(" or ");
+                Serial.print(currentPlayingStep);
                 Serial.print(" on track ");
                 Serial.println(trigTrack);
-
+//#endif
             } else 
             {
+#ifdef DEBUG
                 Serial.print("Don't play it ! ");
                 Serial.print(g_activeGlobalStep);
                 Serial.print(" on track ");
                 Serial.println(trigTrack);
+#endif
             }
-
             notesToTrig->next();
         }
     } else 

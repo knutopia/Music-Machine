@@ -39,6 +39,23 @@ StepClickList::~StepClickList()
     Serial.println();
 }
 
+void StepClickList::checkIntegrity(char caller[])
+{
+    if(cur != NULL)
+    {
+        if(cur == cur->next)
+        {
+            Serial.print("StepClickList next error called from ");
+            Serial.println(caller);
+        }
+        if(cur == cur->prev)
+        {
+            Serial.print("StepClickList prev error called from ");
+            Serial.println(caller);
+        }
+    }
+}
+
 void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
 {
     // 1) traverse the list to find the right master step
@@ -107,6 +124,7 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
             cur->notes->append(aNote, aTrack, aDuration);
         }
     }
+    checkIntegrity("addClickNote");
 }
 
 void StepClickList::append(int aMasterStep, byte aClickStep)
@@ -126,6 +144,8 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
     if(head == NULL)
         head = n;
+
+    checkIntegrity("append");
 }
 
 void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
@@ -166,11 +186,14 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
             cur = n;
         }
     }
+    checkIntegrity("insertBefore");
 }
 
 int StepClickList::getMasterStep()
 {
     int retVal;
+
+    checkIntegrity("getMasterStep");
 
     if( cur != NULL )
         retVal = cur->masterStep;
@@ -178,22 +201,31 @@ int StepClickList::getMasterStep()
     return retVal; 
 }
 
-PerClickNoteList* StepClickList::getClickNoteList(byte a_click)
+PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
 {
     PerClickNoteList *retVal;
 
+    checkIntegrity("getClickNoteList");
+
     bool found = false;
+    rewind();
     while(hasValue())
     {
-        if(cur->masterStep == g_activeGlobalStep
+//      if(cur->masterStep == g_activeGlobalStep
+        if(cur->masterStep == a_step
             && a_click == cur->clickStep)
         {
+
+            Serial.print("Matching ");
+            Serial.print(g_activeGlobalStep);
+            Serial.print(" or ");
+            Serial.println(a_step);
+
             cur->notes->rewind();
             retVal = cur->notes;
             found = true;
             break;
         }
-//          StepSequencer::activeStepClicks.next();
         activeStepClicks.next();
     }
     if(!found) {
@@ -220,6 +252,8 @@ byte StepClickList::getClickStep()
 {
     byte retVal;
 
+    checkIntegrity("getClickStep");
+
     if( cur != NULL )
         retVal = cur->clickStep;
         // really we should raise exception...
@@ -229,6 +263,8 @@ byte StepClickList::getClickStep()
 PerClickNoteList* StepClickList::getNotes()
 {
     PerClickNoteList *retVal;
+
+    checkIntegrity("getNotes");
 
     if( cur != NULL )
         retVal = cur->notes;
@@ -291,6 +327,8 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
     }
 */
     cur = head;
+
+    checkIntegrity("dropNotesBeforeStepAndRewind");
 }
 
 void StepClickList::dropHead()
@@ -306,15 +344,20 @@ void StepClickList::dropHead()
         delete head;
         head = newHead;
     }
+    checkIntegrity("dropHead");
 }
 
 void StepClickList::rewind()
 {
         cur = head;
+        
+        checkIntegrity("rewind");
 }
 
 void StepClickList::next()
 {
+        checkIntegrity("next");
+        
         if( cur != NULL )
                 cur = cur->next;
 }

@@ -40,6 +40,18 @@ PerClickNoteList::~PerClickNoteList()
     Serial.println();
 }
 
+void PerClickNoteList::checkIntegrity(char caller[])
+{
+    if(cur != NULL)
+    {
+        if(cur == cur->next)
+        {
+            Serial.print("PerClickNoteList next error called from ");
+            Serial.println(caller);
+        }
+    }
+}
+
 void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS)
 {
     notePerClick *n = new notePerClick();   // create new Node
@@ -67,6 +79,8 @@ void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS
     Serial.print("  tail: ");
     Serial.println((unsigned int)tail);
 #endif
+
+    checkIntegrity("append");
 }
 
 note PerClickNoteList::getNote()
@@ -121,6 +135,7 @@ void PerClickNoteList::rewind()
 
 void PerClickNoteList::next()
 {
+        checkIntegrity("next");
         if( cur != NULL )
                 cur = cur->next;
 }

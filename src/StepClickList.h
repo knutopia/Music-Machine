@@ -24,7 +24,8 @@ class StepClickList
    public:
     StepClickList();
     ~StepClickList();
-
+    
+    void checkIntegrity(char caller[]);
     void addClickNote(note aNote, byte aTrack, 
                       unsigned long aDuration, 
                       int aMasterStep, 
@@ -32,7 +33,7 @@ class StepClickList
     void append(int aMasterStep, byte aClickStep);
     void insertBefore(int aMasterStep, byte aClickStep);
     int getMasterStep();
-    PerClickNoteList* getClickNoteList(byte a_click);
+    PerClickNoteList* getClickNoteList(byte a_click, int a_step);
     byte getClickStep();
     PerClickNoteList* getNotes();
     void dropNotesBeforeStepAndRewind(int aStep);

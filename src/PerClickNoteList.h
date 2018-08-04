@@ -19,9 +19,9 @@ class PerClickNoteList
 public:
     PerClickNoteList();
     ~PerClickNoteList();
-//  void append(note *aNote, byte aTrack, unsigned long aDurationMS);
+    
+    void checkIntegrity(char caller[]);
     void append(note aNote, byte aTrack, unsigned long aDurationMS);
-//  note* getNote();
     note getNote();
     byte getTrack();
     int hasValue();

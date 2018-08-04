@@ -21,6 +21,7 @@ public:
     LinkedNoteList();
     ~LinkedNoteList();
 
+    void printActiveNote();
     void checkIntegrity(char caller[]);
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHeadNote();

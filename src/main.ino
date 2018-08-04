@@ -495,8 +495,10 @@ void prep_first_step()
 
 void prepNoteGlobals()
 {
-    activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+    // TRY THIS>>>
+    activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
     g_activeGlobalStep++;
+    activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
     sequencer.updateNoteList(playbackStep);
     activeNotes.rewind();
     sequencer.updateStepClickList();

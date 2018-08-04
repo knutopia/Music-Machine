@@ -44,8 +44,8 @@ void StepSequencer::begin()
     for(int n = 0; n < len; n+=4)
         m_beat_sequence[0].setDuration(n, 0.5);
 
-    tmpTrack1.begin(m_sequence, (byte)1);
-    tmpTrack2.begin(m_beat_sequence, (byte)2);
+    tmpTrack1.begin(m_sequence, max_sequences, (byte)1);
+    tmpTrack2.begin(m_beat_sequence, 1, (byte)2);
 
     m_activeTracks.appendTrack(1, &tmpTrack1);
     m_activeTracks.appendTrack(2, &tmpTrack2);
@@ -133,6 +133,10 @@ void StepSequencer::updateStepClickList()
         note aNote = activeNotes.getNote();
 
 #ifdef DEBUG
+        activeNotes.printActiveNote();
+#endif
+
+#ifdef DEBUG
         Serial.print("  track: ");
         Serial.println(activeNotes.getTrack());
         Serial.print("  step: ");
@@ -141,12 +145,25 @@ void StepSequencer::updateStepClickList()
         Serial.println(aNote.pitchVal);
         Serial.print("  ");
 #endif
+        int swingOffset = 0;
+        if(activeNotes.getStep() % 2 == 0)
+        {
+            swingOffset = aNote.swingTicks;
+        } 
 
         activeStepClicks.addClickNote(  aNote, 
                                         activeNotes.getTrack(),
                                         aNote.durationMS, 
                                         activeNotes.getStep(),
+                                        swingOffset);
+/*
+        activeStepClicks.addClickNote(  aNote, 
+                                        activeNotes.getTrack(),
+                                        aNote.durationMS, 
+                                        activeNotes.getStep(),
                                         aNote.swingTicks);
+*/                                        
+#ifdef DEBUG
         Serial.print("Beat adds- ");
         Serial.print("Step: ");
         Serial.print(activeNotes.getStep());
@@ -156,6 +173,7 @@ void StepSequencer::updateStepClickList()
         Serial.print(aNote.retrigClickDivider);
         Serial.print(" with swingTicks: ");
         Serial.println(aNote.swingTicks);
+#endif
 
 #ifdef DEBUG
         activeStepClicks.rewind();
@@ -182,13 +200,18 @@ void StepSequencer::updateStepClickList()
         {
             for(uint8_t count = 0; count < aNote.retrigs; count++)
             {
+//              int clickPos = (count + 1) * aNote.retrigClickDivider 
+//                              + aNote.swingTicks;
                 int clickPos = (count + 1) * aNote.retrigClickDivider 
-                                + aNote.swingTicks;
+                                + swingOffset;
+                if(clickPos > 24)
+                    Serial.print("updateStepClickList: clickPos out of bounds !");                                
                 activeStepClicks.addClickNote(  aNote, 
                                                 activeNotes.getTrack(),
                                                 aNote.durationMS, 
                                                 activeNotes.getStep(), 
                                                 clickPos);
+#ifdef DEBUG
                 Serial.print("Retrig adds- ");
                 Serial.print("Step: ");
                 Serial.print(activeNotes.getStep());
@@ -198,11 +221,12 @@ void StepSequencer::updateStepClickList()
                 Serial.print(aNote.retrigClickDivider);
                 Serial.print(" with swingTicks: ");
                 Serial.println(aNote.swingTicks);
+#endif
             }
         }
         activeNotes.next();
     }
-    activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+//  activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 }
 
 bool StepSequencer::playItOrNot(int _step) //make obsolete

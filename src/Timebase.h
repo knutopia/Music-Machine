@@ -30,6 +30,7 @@ class Timebase
       long getStepDurationMS(note aNote, byte holdStepCount);
 //    long getStepDurationRetrigHoldMS(note aNote, byte holdStepCount);
       u_int8_t getSwingTicks();
+//    u_int8_t getSwingTicks(int step);
 
       void startPlayingRightNow();
       void runMidiTimer();

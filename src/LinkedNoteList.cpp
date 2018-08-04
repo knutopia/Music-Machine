@@ -34,6 +34,25 @@ LinkedNoteList::~LinkedNoteList()
     Serial.println("LinkedNoteList alive !");
 }
 
+void LinkedNoteList::printActiveNote()
+{
+    Serial.println("NoteNode: ");
+    Serial.print("  MasterStep: ");
+    Serial.print(cur->masterStep);
+    Serial.print(" on track: ");
+    Serial.println(cur->track);
+    Serial.print("  Note: ");
+    Serial.print(cur->trackNote.pitchVal);
+    Serial.print("  dur: ");
+    Serial.print(cur->trackNote.duration);
+    Serial.print("  retrigs: ");
+    Serial.print(cur->trackNote.retrigs);
+    Serial.print("  retrigClickDivider: ");
+    Serial.print(cur->trackNote.retrigClickDivider);
+    Serial.print("  swingTicks: ");
+    Serial.println(cur->trackNote.swingTicks);
+}
+
 void LinkedNoteList::checkIntegrity(char caller[])
 {
     if(cur != NULL)

@@ -205,16 +205,23 @@ long Timebase::getStepDurationRetrigHoldMS(note aNote, byte holdStepCount)
 }
 */
 
+
 u_int8_t Timebase::getSwingTicks()
 {
+    return swingMidiClicks;
+}
+
+/*
+u_int8_t Timebase::getSwingTicks(int step)
+{
     u_int8_t retVal = 0;
-    if(swingSteps[stepSwingIndex])
+    if(swingSteps[step])
     {
         retVal = swingMidiClicks;
     } 
     return retVal;
 }
-
+*/
 
 // private:
 
@@ -328,9 +335,11 @@ void Timebase::midiClick()
                                     (now + trigDur));
 //#ifdef DEBUG                                    
                 Serial.print("Playing ");
-                Serial.print(g_activeGlobalStep);
-                Serial.print(" or ");
+//              Serial.print(g_activeGlobalStep);
+//              Serial.print(" or ");
                 Serial.print(currentPlayingStep);
+                Serial.print(" at click ");
+                Serial.print(midiClickCount);
                 Serial.print(" on track ");
                 Serial.println(trigTrack);
 //#endif

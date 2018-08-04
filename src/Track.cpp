@@ -17,17 +17,18 @@ void Track::begin(byte number)
 void Track::begin(NoteGetter noteGetterRef, byte number)
 {
       b_IsActive = false;
-      currentPattern = 0;  
+//    currentPattern = 0;  
       getNoteCb = noteGetterRef;
       trackNumber = number;
 }
 
-void Track::begin(StepSequence sequencesPtr[], byte number)
+void Track::begin(StepSequence sequencesPtr[], byte sequencesCount, byte number)
 {
       trackType = STEPSEQUENCE;
       sequences = sequencesPtr;
+      maxSequences = sequencesCount - 1;
       b_IsActive = false;
-      currentPattern = 0;  
+//    currentPattern = 0;  
       trackNumber = number;
 }
 
@@ -41,7 +42,10 @@ note Track::getNoteParams(int step, byte curSequence)
       switch (trackType)
       {
             case STEPSEQUENCE:
-                  retNote = sequences[curSequence].getNoteParams(step);
+                  if(curSequence < maxSequences)
+                        retNote = sequences[curSequence].getNoteParams(step);
+                  else
+                        retNote = sequences[maxSequences].getNoteParams(step);
                   break;
             case SIMPLEBEAT:
                   break;
@@ -49,15 +53,17 @@ note Track::getNoteParams(int step, byte curSequence)
                   Serial.println("trackType DEFAULTED");
                   break;
       }
-#ifdef DEBUG
+//#ifdef DEBUG
       Serial.print("Track::getNoteParams retNote pitch is ");
 //    Serial.print((unsigned int) &retNote);
       Serial.print(retNote.pitchVal);
+      Serial.print(" swingTicks ");
+      Serial.print(retNote.swingTicks);
       Serial.print(" for step ");
       Serial.print(step);
       Serial.print(" of sequence ");
       Serial.println(curSequence);
-#endif
+//#endif
 
       return retNote;
 }
@@ -83,10 +89,12 @@ void Track::setName(char *namePar)
   
 }
 
+/*
 void Track::setCurrentPattern(byte newPat)
 {
   
 }
+*/
 
 // Getters
 char* Track::getName()
@@ -94,8 +102,9 @@ char* Track::getName()
   return trackName;
 }
 
+/*
 byte Track::getCurrentPattern()
 {
   
 }
-
+*/

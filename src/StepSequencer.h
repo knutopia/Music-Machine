@@ -20,7 +20,7 @@ class StepSequencer
 
     public:
       //Use enumeration to define a class constant
-      enum{max_sequences = 16, max_variations = 15};
+      enum{max_sequences = 16};
     
       //Public constructor and methods
       StepSequencer();

@@ -217,8 +217,8 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
         {
 
             Serial.print("Matching ");
-            Serial.print(g_activeGlobalStep);
-            Serial.print(" or ");
+//          Serial.print(g_activeGlobalStep);
+//          Serial.print(" or ");
             Serial.println(a_step);
 
             cur->notes->rewind();

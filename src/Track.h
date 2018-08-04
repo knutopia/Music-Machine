@@ -20,14 +20,14 @@ class Track
       Track();
       void begin(byte number);
       void begin(NoteGetter noteGetterRef, byte number);
-      void begin(StepSequence sequencesPtr[], byte number);
+      void begin(StepSequence sequencesPtr[], byte sequencesCount, byte number);
       note getNoteParams(int step, byte curSequence);
       void activate();
       void deactivate();
       void setName(char *namePar);
-      void setCurrentPattern(byte newPat);
+//    void setCurrentPattern(byte newPat);
       char* getName();
-      byte getCurrentPattern();
+//    byte getCurrentPattern();
       NoteGetter getNoteCb;
 
     private:
@@ -37,9 +37,10 @@ class Track
       trackTypes trackType;
       StepSequence *sequences;
       byte currentSequence;
+      byte maxSequences;
       instruments instrument;
       bool b_IsActive = false;
-      byte currentPattern = 0;
+//    byte currentPattern = 0;
       char *trackName;
       byte trackNumber;
 };

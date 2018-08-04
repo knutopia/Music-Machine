@@ -47,7 +47,7 @@ const float NORMAL_VEL = 0.7;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
-volatile bool vb_prep_retrig = false;         // set note end for a retrig
+//volatile bool vb_prep_retrig = false;         // set note end for a retrig
 
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
@@ -346,7 +346,7 @@ static bool bTimeslice = true;
 
 void prep_next_note()
 {
-    if(vb_prep_next_step) {    // this is triggered right after the interrupt
+      if(vb_prep_next_step) {    // this is triggered right after the interrupt
                               // started playing the current note                              
       vb_prep_next_step = false; 
       note_off_time = v_note_off_time;
@@ -376,21 +376,6 @@ void prep_next_note()
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
-    }
-
-    if (vb_prep_retrig)
-    {
-      vb_prep_retrig = false;
-      note_off_time = v_note_off_time;
-
-//    b_note_on = true;
-
-      // show step indicator for just-started note N-1
-//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
-#ifdef DEBUG
-      Serial.print("#retrig dur: ");
-      Serial.println(note_off_time - micros());
-#endif
     }
 }
 
@@ -516,8 +501,10 @@ void prepNoteGlobals()
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
 
+#ifdef DEBUG
     Serial.print("###### playingNotes count: ");
     Serial.println(playingNotes.count());
+#endif
 
 //  playbackTest();
 }
@@ -681,17 +668,29 @@ void followNoteOff()
 {
     int foo = 0;
     playingNotes.rewind();
+    
     while(playingNotes.hasValue())
-    {
+    {        
         if(playingNotes.getNoteOffTime() < micros())
         {
+//            playingNotes.printList();
+//            playingNotes.rewind();
+#ifdef DEBUG
+            Serial.print("followNoteOff on track ");
+            Serial.print(playingNotes.getTrack());
+            Serial.print(" at count ");
+            Serial.println(foo);
+#endif
+
             synth.endNote(playingNotes.getTrack(), 
                             playingNotes.getMidiNote());
             playingNotes.dropNode();
         }
         playingNotes.next();
         foo++;
+
     }
+
 /*
     if((b_note_on == true) && (note_off_time < micros()))
     {
@@ -725,7 +724,6 @@ void stopPlayback()
      metro.stopMidiTimer();
      playbackOn = false;
      vb_prep_next_step = false;
-     vb_prep_retrig = false;
 }
 
 

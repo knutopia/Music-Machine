@@ -48,21 +48,56 @@ public:
         Serial.println();
     }
 
+    void printList()
+    {
+        Serial.println("");
+        Serial.println("NoteOffList: ");
+
+        noteOffNode *n = cur;
+
+        rewind();
+        while( hasValue())
+        {
+            Serial.print(cur->noteOffTime);
+            Serial.print(" ");
+            Serial.print(cur->trackNumber);
+            Serial.print(" ");
+            Serial.print(cur->midiNote);
+            Serial.print(" ");
+            Serial.print((int)cur);
+            Serial.print(" ");
+            Serial.println((int)cur->next);
+            if(cur==cur->next)
+            {
+                Serial.println("LOOP REFERENCE");
+                break;
+            }
+            next();
+        }
+        Serial.println("");
+        cur = n;
+    }
+
     void dropNode()
     {
         if (cur == head)
         {
-            Serial.println("dropNode 1");
+//          Serial.println("dropNode 1");
             cur = head->next;
             if(cur != NULL)
                 cur->prev = NULL;
+            else
+            {
+//              Serial.println("tail nulled");
+                tail = NULL;
+            }
             delete head;
             head = cur;
         } else 
         { 
             if (cur == tail)
             {
-                Serial.println("dropNode 2");
+//              Serial.println("dropNode 2");
                 noteOffNode *prevNode = tail->prev;
                 cur = prevNode;
                 if(cur != NULL)
@@ -71,7 +106,7 @@ public:
                 tail = cur;
             } else 
             {
-                Serial.println("dropNode 3");
+//              Serial.println("dropNode 3");
                 noteOffNode *prevNode = cur->prev;
                 prevNode->next = cur->next;
                 cur->next->prev = cur->prev;
@@ -79,7 +114,10 @@ public:
                 cur = prevNode;
             }
         }
+#ifdef DEBUG
         Serial.println("dropNode done");
+        printList();
+#endif
     }
 
     // add value at the end -kg
@@ -103,6 +141,10 @@ public:
 
         if(head == NULL)
             head = n;
+#ifdef DEBUG
+        Serial.println("Append done");
+        printList();
+#endif
     }
 
     void rewind()

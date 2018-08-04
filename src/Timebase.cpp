@@ -16,7 +16,6 @@ extern volatile unsigned long timeTracker;
 
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
-extern volatile bool vb_prep_retrig;
 
 extern note nextNote;
 
@@ -297,6 +296,7 @@ void Timebase::midiClick()
     {
         midiClickCount = 0;
         vb_prep_next_step = true;
+        Serial.println("vb_prep_next_step set");
     }    
     PerClickNoteList* notesToTrig;
     if((notesToTrig = activeStepClicks
@@ -322,13 +322,24 @@ void Timebase::midiClick()
                 playingNotes.append(trigTrack, 
                                     trigNote.pitchVal, 
                                     (now + trigDur));
+                Serial.print("Playing ");
+                Serial.print(g_activeGlobalStep);
+                Serial.print(" on track ");
+                Serial.println(trigTrack);
+
             } else 
             {
-                Serial.println("Don't play it ! ");
+                Serial.print("Don't play it ! ");
+                Serial.print(g_activeGlobalStep);
+                Serial.print(" on track ");
+                Serial.println(trigTrack);
             }
 
             notesToTrig->next();
         }
+    } else 
+    {
+//      Serial.print("n");
     }
     activeStepClicks.rewind();
 }
@@ -337,21 +348,3 @@ void Timebase::midiClick()
 // *                 *                  *                 *              
 // *                       *                        *
 // *                                    *
-
-/*
-void Timebase::advanceStepSwingIndex()
-{
-    stepSwingIndex++;
-}
-
-void Timebase::resetStepSwingIndex()
-{
-    stepSwingIndex = 0;
-}
-
-void Timebase::resetSwingCountDown()
-{
-    swingCountdown = -1;
-    retrigCountdown = -1;
-}
-*/

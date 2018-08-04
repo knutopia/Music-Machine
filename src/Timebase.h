@@ -38,11 +38,6 @@ class Timebase
       //"Setters"
       void updateMidiTimer();
       void resetMidiTimer();
-/*      
-      void advanceStepSwingIndex();
-      void resetStepSwingIndex();
-      void resetSwingCountDown();
-*/
 
     private:
 

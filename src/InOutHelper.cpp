@@ -703,6 +703,9 @@ void InOutHelper::ProcessTrellisButtonRelease(uint8_t i)
     } else {                           // for step button (right pad LED): update LCD step indicator
       ShowStepStateOnLCD(i % STEPSOFFSET, pressProcessed[i]);
 
+      Serial.print("Trellis released: ");
+      Serial.println(i % STEPSOFFSET);
+
       if (i == heldTrellisStep)
         heldTrellisStep = 255;
 

@@ -40,12 +40,14 @@ class StepClickList
     void dropHead();
     void rewind();
     void next();
+    volatile void readNext();
     int hasValue();
+    volatile int hasReadValue();
 
 private:
     stepClickNode *head;
     stepClickNode *cur;
     stepClickNode *tail;
-
+    volatile stepClickNode *readCur;
 };
 #endif

@@ -298,6 +298,7 @@ void Timebase::resetMidiTimer()
 void Timebase::midiClick()
 {
     static int currentPlayingStep = 0;
+    bool prep_next = false;
 
     midiClickCount++;
 
@@ -305,8 +306,8 @@ void Timebase::midiClick()
     {
         midiClickCount = 0;
         currentPlayingStep = g_activeGlobalStep;
-        vb_prep_next_step = true;
-        Serial.print("vb_prep_next_step set, g_activeGlobalStep is ");
+        prep_next = true;
+        Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
         Serial.println(g_activeGlobalStep);
     }    
     PerClickNoteList* notesToTrig;
@@ -359,6 +360,11 @@ void Timebase::midiClick()
 //      Serial.print("n");
     }
     activeStepClicks.rewind();
+
+    if(prep_next)
+    {
+        vb_prep_next_step = true;
+    }
 }
 
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23

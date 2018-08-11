@@ -37,7 +37,9 @@ PerClickNoteList::~PerClickNoteList()
     cur = NULL;
     tail = NULL;
 
-    Serial.println();
+#ifdef DEBUG
+    Serial.println(" ");
+#endif
 }
 
 void PerClickNoteList::checkIntegrity(char caller[])

@@ -377,6 +377,7 @@ void prep_next_note()
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
+      Serial.println(" prepPatchIfNeeded done.");
     }
 }
 
@@ -496,10 +497,15 @@ void prep_first_step()
 void prepNoteGlobals()
 {
     // TRY THIS>>>
+    Serial.print("before activeStepClicks drop");
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+    Serial.print(", activeStepClicks drop done ");
+
     g_activeGlobalStep++;
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+    Serial.print(", activeNotes drop done ");
     sequencer.updateNoteList(playbackStep);
+    Serial.print(", updateNoteList done ");
     activeNotes.rewind();
     sequencer.updateStepClickList();
 

@@ -12,6 +12,7 @@ StepClickList::StepClickList()
     head = NULL;
     cur = NULL;
     tail = NULL;
+    readCur = NULL;
 
 #ifdef DEBUG
     inout.ShowInfoOnLCD("StepClickList alive !");
@@ -208,12 +209,12 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
     checkIntegrity("getClickNoteList");
 
     bool found = false;
-    rewind();
-    while(hasValue())
+
+    readCur = head;
+    while(hasReadValue())
     {
-//      if(cur->masterStep == g_activeGlobalStep
-        if(cur->masterStep == a_step
-            && a_click == cur->clickStep)
+        if(readCur->masterStep == a_step
+            && a_click == readCur->clickStep)
         {
 
             Serial.print("Matching ");
@@ -221,12 +222,12 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
 //          Serial.print(" or ");
             Serial.println(a_step);
 
-            cur->notes->rewind();
-            retVal = cur->notes;
+            readCur->notes->rewind();
+            retVal = readCur->notes;
             found = true;
             break;
         }
-        activeStepClicks.next();
+        readNext();
     }
     if(!found) {
 #ifdef DEBUG
@@ -274,10 +275,10 @@ PerClickNoteList* StepClickList::getNotes()
 
 void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 {
-#ifdef DEBUG    
+//#ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");
     Serial.println(aStep);
-#endif
+//#endif
 
     bool b = true;
     while(b)
@@ -291,28 +292,29 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
         {
             if (head->masterStep == NULL)
             {
-#ifdef DEBUG
+//#ifdef DEBUG
                     Serial.print("head->masterStep == NULL before ");
                     Serial.println(aStep);
-#endif
+//#endif
                     b = false;
             } else
             {
                 if (head->masterStep < aStep)
                 {
-#ifdef DEBUG
+//#ifdef DEBUG
                     Serial.print("dropping before ");
                     Serial.println(aStep);
-#endif
+//#endif
                     dropHead();
+                    Serial.print(", dropped head !");
                 } else
                 {
-#ifdef DEBUG
+//#ifdef DEBUG
                     Serial.print("head->masterStep NOT < aStep: ");
                     Serial.println(aStep);
                     Serial.print("  head->masterStep: ");
                     Serial.println(head->masterStep);
-#endif
+//#endif
                     b = false;
                 }
             }
@@ -336,15 +338,24 @@ void StepClickList::dropHead()
     if (head != NULL)
     {
         stepClickNode *newHead = head->next;
+        if(head->next == NULL)
+            Serial.print("dropHead head->next == NULL");
 
         if (cur == head)
             cur = newHead;
 
+        Serial.print("  @#$ dropHead deleting head->notes");
         delete head->notes;
+        Serial.print("  @#$ dropHead head->notes deleted");
         delete head;
+        Serial.print("  @#$ dropHead head deleted");
         head = newHead;
-    }
+    } else
+        Serial.print("@#$ head == NULL");
+
     checkIntegrity("dropHead");
+
+    Serial.print("  @#$ dropHead done");
 }
 
 void StepClickList::rewind()
@@ -362,7 +373,20 @@ void StepClickList::next()
                 cur = cur->next;
 }
 
+volatile void StepClickList::readNext()
+{
+        checkIntegrity("next");
+        
+        if( readCur != NULL )
+                readCur = readCur->next;
+}
+
 int StepClickList::hasValue()
 {
         return ( cur != NULL ? true : false );
+}
+
+volatile int StepClickList::hasReadValue()
+{
+        return ( readCur != NULL ? true : false );
 }

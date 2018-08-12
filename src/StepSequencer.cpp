@@ -6,6 +6,7 @@
 #include "LinkedNoteList.h"
 #include "StepClickList.h"
 #include "Timebase.h"
+#include "InOutHelper.h"
 
 //#define DEBUG true
 
@@ -15,6 +16,7 @@
 extern LinkedNoteList activeNotes;
 extern StepClickList activeStepClicks;
 extern Timebase metro;
+extern InOutHelper inout;
 
 //Public constructor and methods
 StepSequencer::StepSequencer()
@@ -151,7 +153,10 @@ void StepSequencer::updateStepClickList()
         if(activeNotes.getStep() % 2 == 0)
         {
             swingOffset = aNote.swingTicks;
-        } 
+
+            // truncate the note duration if there is another one behind
+            aNote.durationMS = metro.truncateSwingStepDuration(aNote);
+        }
 
         activeStepClicks.addClickNote(  aNote, 
                                         activeNotes.getTrack(),

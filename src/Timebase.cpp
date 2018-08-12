@@ -138,6 +138,23 @@ void Timebase::updateTimingIfNeeded()
     }      
 }
 
+long Timebase::truncateSwingStepDuration(note aNote)
+{
+    long retval = aNote.durationMS;
+
+    if(aNote.holdsAfter == 0 && aNote.swingTicks > 0)
+    {
+        float factor = ((float)(MIDICLOCKDIVIDER - aNote.swingTicks - 1.0) / (float)MIDICLOCKDIVIDER);
+        long durAvail = referenceStepDuration * factor;
+        if(durAvail < retval)
+            retval = durAvail;
+
+        inout.ShowValueInfoOnLCD("factor ", factor);
+
+    }
+    return retval;
+}
+
 long Timebase::getStepDurationMS(note aNote) // USE NOTE
 {
     // Using microseconds (not milliseconds)

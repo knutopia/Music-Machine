@@ -299,9 +299,7 @@ void setup()
                 StartStopCb,
                 SynthButtonCb);
                 
-//  prepNoteGlobals();
     playpath.setPath(sequencer.getPath());
-    synth.prepAccent(sequencer.getAccent(0));
 
     Serial.print("Start2 Mem: ");
     Serial.println(FreeMem());

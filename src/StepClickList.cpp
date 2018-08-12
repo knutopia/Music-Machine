@@ -275,10 +275,10 @@ PerClickNoteList* StepClickList::getNotes()
 
 void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 {
-//#ifdef DEBUG    
+#ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");
     Serial.println(aStep);
-//#endif
+#endif
 
     bool b = true;
     while(b)
@@ -292,29 +292,29 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
         {
             if (head->masterStep == NULL)
             {
-//#ifdef DEBUG
+#ifdef DEBUG
                     Serial.print("head->masterStep == NULL before ");
                     Serial.println(aStep);
-//#endif
+#endif
                     b = false;
             } else
             {
                 if (head->masterStep < aStep)
                 {
-//#ifdef DEBUG
+#ifdef DEBUG
                     Serial.print("dropping before ");
                     Serial.println(aStep);
-//#endif
+#endif
                     dropHead();
                     Serial.print(", dropped head !");
                 } else
                 {
-//#ifdef DEBUG
+#ifdef DEBUG
                     Serial.print("head->masterStep NOT < aStep: ");
                     Serial.println(aStep);
                     Serial.print("  head->masterStep: ");
                     Serial.println(head->masterStep);
-//#endif
+#endif
                     b = false;
                 }
             }

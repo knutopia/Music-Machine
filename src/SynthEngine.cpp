@@ -175,6 +175,7 @@ void SynthEngine::playSynthNote(note aNote)
 #endif
 
 //  trackJoystick();
+    prepSynthAccent(aNote.accent);
     AudioNoInterrupts();
     turboFilter.resonance(filterQEmphasis);
     delayFilter.resonance(delayFilterQEmphasis);
@@ -192,6 +193,7 @@ void SynthEngine::playSynthNote(note aNote)
     m_b_playing_a_note = true;
 
     // dirty midi send
+/*
     if (m_Midi_NoteforOff < 255)
     {
 #ifdef MIDION
@@ -201,12 +203,14 @@ void SynthEngine::playSynthNote(note aNote)
       Serial.print(" offing: ");
       Serial.println(m_Midi_NoteforOff);
 #endif
+    }    
+*/
 
-//    inout.ShowValueInfoOnLCD("#OFFINGONSTART ", m_Midi_NoteforOff);
-    }
-//  usbMIDI.sendNoteOn(aNote.pitchVal, aNote.velocity, MIDISENDCHANNEL);  // 60 = C4
 #ifdef MIDION
+    if(!aNote.accent)
       usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
+    else
+      usbMIDI.sendNoteOn(aNote.pitchVal, 127, MIDISENDCHANNEL);
 #endif
     m_Midi_NoteforOff = aNote.pitchVal;
 }
@@ -283,7 +287,7 @@ void SynthEngine::allNotesOff()
 */
 }
 
-void SynthEngine::prepAccent(byte empFlag)
+void SynthEngine::prepSynthAccent(byte empFlag)
 {
   if (empFlag == 0) {
 //      filterQEmphasis = normalQ;
@@ -292,7 +296,7 @@ void SynthEngine::prepAccent(byte empFlag)
   }
   else {
 //      filterQEmphasis = emphasizedQ;
-    filterQEmphasis = constrain(m_joy_reso + 3, 0.7, 5.0);
+    filterQEmphasis = constrain(m_joy_reso + 4, 0.7, 5.0);
     delayFilterQEmphasis = 7.0;
   }
 }    

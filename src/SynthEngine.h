@@ -29,7 +29,7 @@ class SynthEngine
       void endSynthNote(float velocity);
       void endMidiNote(byte aMidiChannel, byte aMidiNote);
       void allNotesOff();
-      void prepAccent(byte empFlag);
+      void prepSynthAccent(byte empFlag);
       void prepPatchIfNeeded();
 //    void trackSafeHoldTime();
       void handleButtonRelease(int butNum);

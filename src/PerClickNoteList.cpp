@@ -7,6 +7,7 @@ PerClickNoteList::PerClickNoteList()
     head = NULL;
     cur = NULL;
     tail = NULL;
+    readCur = NULL;
 
 #ifdef DEBUG
     Serial.println("Constructor PerClickNoteList ");
@@ -95,6 +96,16 @@ note PerClickNoteList::getNote()
     return retVal; 
 }
 
+note PerClickNoteList::readNote()
+{
+    note retVal;
+
+    if( readCur != NULL )
+        retVal = readCur->clickNote;
+        // really we should raise exception...
+    return retVal; 
+}
+
 byte PerClickNoteList::getTrack()
 {
     byte retVal;
@@ -105,7 +116,17 @@ byte PerClickNoteList::getTrack()
     return retVal; 
 }
 
-int PerClickNoteList::hasValue()
+byte PerClickNoteList::readTrack()
+{
+    byte retVal;
+
+    if( readCur != NULL )
+        retVal = readCur->track;
+
+    return retVal; 
+}
+
+bool PerClickNoteList::hasValue()
 {
     return ( cur != NULL ? true : false );
 }
@@ -116,6 +137,16 @@ unsigned long PerClickNoteList::getDurationMS()
 
     if( cur != NULL )
         retVal = cur->durationMS;
+        // really we should raise exception...
+    return retVal; 
+}
+
+unsigned long PerClickNoteList::readDurationMS()
+{
+    unsigned long retVal;
+
+    if( readCur != NULL )
+        retVal = readCur->durationMS;
         // really we should raise exception...
     return retVal; 
 }
@@ -140,4 +171,21 @@ void PerClickNoteList::next()
         checkIntegrity("next");
         if( cur != NULL )
                 cur = cur->next;
+}
+
+volatile bool PerClickNoteList::hasReadValue()
+{
+    return ( readCur != NULL ? true : false );
+}
+
+volatile void PerClickNoteList::readRewind()
+{
+    readCur = head;
+}
+
+volatile void PerClickNoteList::readNext()
+{
+    checkIntegrity("readNext");
+    if( readCur != NULL )
+            readCur = readCur->next;
 }

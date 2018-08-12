@@ -9,7 +9,7 @@
 // used per step by ClickNodeList below
 class PerClickNoteList
 {
-   struct notePerClick {
+    struct notePerClick {
         note clickNote;
         unsigned long durationMS;
         byte track;
@@ -23,15 +23,21 @@ public:
     void checkIntegrity(char caller[]);
     void append(note aNote, byte aTrack, unsigned long aDurationMS);
     note getNote();
+    note readNote();
     byte getTrack();
-    int hasValue();
+    byte readTrack();
+    bool hasValue();
     unsigned long getDurationMS();
+    unsigned long readDurationMS();
     void rewind();
     void next();
-
+    volatile bool hasReadValue();
+    volatile void readRewind();
+    volatile void readNext();
 private:
     notePerClick *head;
     notePerClick *cur;
     notePerClick *tail;
+    notePerClick *readCur;
 };
 #endif

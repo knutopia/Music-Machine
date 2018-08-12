@@ -39,6 +39,7 @@ class StepClickList
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHead();
     void rewind();
+    volatile void readRewind();
     void next();
     volatile void readNext();
     int hasValue();

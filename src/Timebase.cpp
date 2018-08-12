@@ -315,11 +315,12 @@ void Timebase::midiClick()
                       .getClickNoteList(midiClickCount, currentPlayingStep))
                       != NULL)
     {
-        while(notesToTrig->hasValue())
+        notesToTrig->readRewind();
+        while(notesToTrig->hasReadValue())
         {
-            note trigNote = notesToTrig->getNote();
-            unsigned long trigDur = notesToTrig->getDurationMS();
-            byte trigTrack = notesToTrig->getTrack();
+            note trigNote = notesToTrig->readNote();
+            unsigned long trigDur = notesToTrig->readDurationMS();
+            byte trigTrack = notesToTrig->readTrack();
         
                 unsigned long now = micros();
                 //for the step indicators...
@@ -353,13 +354,13 @@ void Timebase::midiClick()
                 Serial.println(trigTrack);
 #endif
             }
-            notesToTrig->next();
+            notesToTrig->readNext();
         }
     } else 
     {
 //      Serial.print("n");
     }
-    activeStepClicks.rewind();
+    activeStepClicks.readRewind();
 
     if(prep_next)
     {

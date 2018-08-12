@@ -210,7 +210,7 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
 
     bool found = false;
 
-    readCur = head;
+    readRewind();
     while(hasReadValue())
     {
         if(readCur->masterStep == a_step
@@ -361,6 +361,13 @@ void StepClickList::dropHead()
 void StepClickList::rewind()
 {
         cur = head;
+        
+        checkIntegrity("rewind");
+}
+
+volatile void StepClickList::readRewind()
+{
+        readCur = head;
         
         checkIntegrity("rewind");
 }

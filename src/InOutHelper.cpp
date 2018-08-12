@@ -496,7 +496,7 @@ void InOutHelper::HandlePerformanceEncoders() {
     static int prevBeatsPerMinute;
     static int transposition = 0;  // static or not ?
     static int prevTransposition;
-    static int swingTiming = metro.getSwing();
+    static int swingClicks = metro.getSwing();
 
     static int prevSwingTiming;
     static float durationChange;
@@ -579,17 +579,32 @@ void InOutHelper::HandlePerformanceEncoders() {
     newPosition = EncC.read();
     if ((newPosition <= oldPositionC - 4) || (newPosition >= oldPositionC + 4)) {
       
-      swingTiming = constrain(swingTiming + (newPosition - oldPositionC) /4, 0, 100);
-      if (swingTiming != prevSwingTiming)
+      swingClicks = constrain(swingClicks + (newPosition - oldPositionC) /4, 0, 8);
+      if (swingClicks != prevSwingTiming)
       {
-        metro.updateSwing(swingTiming);
-        prevSwingTiming = swingTiming;
+        metro.updateSwing(swingClicks);
+        prevSwingTiming = swingClicks;
       }
       
-      ShowSwingOnLCD(swingTiming);
+      ShowSwingOnLCD(swingClicks);
       oldPositionC = newPosition;
     }
-  
+
+/*
+    newPosition = EncC.read();
+    if ((newPosition <= oldPositionC - 4) || (newPosition >= oldPositionC + 4)) {
+      
+      swingClicks = constrain(swingClicks + (newPosition - oldPositionC) /4, 0, 100);
+      if (swingClicks != prevSwingTiming)
+      {
+        metro.updateSwing(swingClicks);
+        prevSwingTiming = swingClicks;
+      }
+      
+      ShowSwingOnLCD(swingClicks);
+      oldPositionC = newPosition;
+    }
+  */
     // Encoder D for BPM - a global setting
     newPosition = EncD.read();
     if ((newPosition <= oldPositionD - 4) || (newPosition >= oldPositionD + 4)) {

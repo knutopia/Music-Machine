@@ -38,7 +38,7 @@ Timebase::Timebase()
 
 void Timebase::reset()
 {
-    swingValue = 0;
+//  swingValue = 0;
     swingMidiClicks = 0;
     remainingRetrigCount = 0;
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
@@ -78,13 +78,17 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
 }
 
 
-void Timebase::updateSwing(int swingPercentage) 
+//void Timebase::updateSwing(int swingPercentage) 
+void Timebase::updateSwing(int newClicks) 
 {
+/*
     swingValue = swingPercentage;
     // calculate the intervals when tempo changes
     // max swing is 1/3 step duration offset
 
     swingMidiClicks = (swingValue-2) / 12;
+*/
+    swingMidiClicks = newClicks;
 
 #ifdef DEBUG
     Serial.print("swingPercentage: ");
@@ -93,17 +97,6 @@ void Timebase::updateSwing(int swingPercentage)
     Serial.println(swingMidiClicks);
 #endif
 }
-
-/*
-void Timebase::updateSwing(int swing0to8) 
-{
-    swingValue = swing0to8;
-    // calculate the intervals when tempo changes
-    // max swing is 1/3 step duration offset
-
-    swingMidiClicks = swing0to8
-}
-*/
 
 
 //"Getters"
@@ -115,7 +108,7 @@ int Timebase::getBPM()
 
 int Timebase::getSwing()
 {
-    return swingValue;
+    return swingMidiClicks;
 }
 
 u_int8_t Timebase::getSwingMidiClicks()
@@ -149,7 +142,7 @@ long Timebase::truncateSwingStepDuration(note aNote)
         if(durAvail < retval)
             retval = durAvail;
 
-        inout.ShowValueInfoOnLCD("factor ", factor);
+//      inout.ShowValueInfoOnLCD("factor ", factor);
 
     }
     return retval;

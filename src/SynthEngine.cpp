@@ -9,7 +9,7 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-//#define MIDION true
+#define MIDION true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
@@ -154,6 +154,17 @@ void SynthEngine::playPercNote(note aNote)
     Track2drum.length(aNote.durationMS / 1000);
     Track2drum.pitchMod(.5);
     Track2drum.noteOn();
+
+#ifdef MIDION
+    if(!aNote.accent)
+      usbMIDI.sendNoteOn(aNote.pitchVal, 99, 2);  // 60 = C4
+    else
+    {
+      usbMIDI.sendNoteOn(aNote.pitchVal, 127, 2);
+      Serial.println("Midi accent");
+    }
+#endif
+
 }
 
 void SynthEngine::playSynthNote(note aNote)
@@ -210,7 +221,10 @@ void SynthEngine::playSynthNote(note aNote)
     if(!aNote.accent)
       usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
     else
+    {
       usbMIDI.sendNoteOn(aNote.pitchVal, 127, MIDISENDCHANNEL);
+      Serial.println("Midi accent");
+    }
 #endif
     m_Midi_NoteforOff = aNote.pitchVal;
 }

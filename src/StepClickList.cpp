@@ -113,7 +113,6 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             rewind();
             insertBefore(aMasterStep, aClickStep);
-//          cur->notes->append(&aNote, aTrack, aDuration);
             cur->notes->append(aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end

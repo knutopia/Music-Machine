@@ -38,14 +38,15 @@ void Track::begin(StepSequence sequencesPtr[], byte sequencesCount, byte number)
 note Track::getNoteParams(int step, byte curSequence)
 {
       note retNote;
+      note retrievedNote;
 
       switch (trackType)
       {
             case STEPSEQUENCE:
                   if(curSequence < maxSequences)
-                        retNote = sequences[curSequence].getNoteParams(step);
+                        retrievedNote = sequences[curSequence].getNoteParams(step);
                   else
-                        retNote = sequences[maxSequences].getNoteParams(step);
+                        retrievedNote = sequences[maxSequences].getNoteParams(step);
                   break;
             case SIMPLEBEAT:
                   break;
@@ -65,6 +66,8 @@ note Track::getNoteParams(int step, byte curSequence)
       Serial.println(curSequence);
 #endif
 
+      // this may be completely redundant ?
+      memcpy(&retNote, &retrievedNote, sizeof(note));
       return retNote;
 }
 

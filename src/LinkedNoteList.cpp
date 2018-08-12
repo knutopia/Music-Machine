@@ -117,7 +117,8 @@ void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
     noteNode *n = new noteNode();   // create new Node
     n->masterStep = aStep;  // set value
     n->track = aTrack;
-    n->trackNote = aNote;
+//  n->trackNote = aNote;
+    memcpy(&n->trackNote, &aNote, sizeof(note));
     n->next = NULL;
 
     if(tail != NULL && tail != n)

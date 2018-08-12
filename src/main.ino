@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -669,18 +669,6 @@ void followNoteOff()
         foo++;
 
     }
-
-/*
-    if((b_note_on == true) && (note_off_time < micros()))
-    {
-      b_note_on = false;
-      synth.endNote(NORMAL_VEL);
-#ifdef DEBUG
-      Serial.print("end ");
-      Serial.println(micros() - note_off_time);
-#endif
-    }
-*/
 }
 
 

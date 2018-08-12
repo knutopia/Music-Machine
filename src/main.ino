@@ -344,37 +344,44 @@ static bool bTimeslice = true;
 
 void prep_next_note()
 {
-      if(vb_prep_next_step) {    // this is triggered right after the interrupt
-                              // started playing the current note                              
-      vb_prep_next_step = false; 
-      note_off_time = v_note_off_time;
+    bool prepNextStep;
+    noInterrupts();
+    prepNextStep = vb_prep_next_step;
+    interrupts();
 
-      Serial.println("");
-      Serial.print("prep_next_note after ");
-      Serial.println(g_activeGlobalStep);
+    if(prepNextStep) {    // this is triggered right after the interrupt
+                            // started playing the current note
+        noInterrupts();            
+        vb_prep_next_step = false; 
+        note_off_time = v_note_off_time;
+        interrupts();
 
-      // adjust speed if tempo or multiplier have changed
-      metro.updateTimingIfNeeded();
+        Serial.println("");
+        Serial.print("prep_next_note after ");
+        Serial.println(g_activeGlobalStep);
 
-//    b_note_on = true;
+        // adjust speed if tempo or multiplier have changed
+        metro.updateTimingIfNeeded();
 
-      // show step indicator for just-started note N-1
+    //    b_note_on = true;
 
-      inout.setRunningStepIndicators(playbackStep, note_off_time);      
+        // show step indicator for just-started note N-1
 
-                              // schedule the next note's start time
-                              // as prepped previously
-      
-      // gather info about the following note N+1
-      byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-      playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+        inout.setRunningStepIndicators(playbackStep, note_off_time);      
 
-      prepNoteGlobals();
-      Serial.println(" Note prepped.");
-//    inout.setRunningStepIndicators(playbackStep, note_off_time);      
-  
-      // change synth patch ?
-      synth.prepPatchIfNeeded();
+                                // schedule the next note's start time
+                                // as prepped previously
+        
+        // gather info about the following note N+1
+        byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+        playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+
+        prepNoteGlobals();
+        Serial.println(" Note prepped.");
+    //    inout.setRunningStepIndicators(playbackStep, note_off_time);      
+
+        // change synth patch ?
+        synth.prepPatchIfNeeded();
     }
 }
 

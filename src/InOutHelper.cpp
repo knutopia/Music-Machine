@@ -1412,28 +1412,31 @@ bool InOutHelper::trackActionHoldTime(unsigned long pressDuration, holdActionMod
 
 int InOutHelper::checkJoystickX()
 {
-  static int recentX = 0;
+    static int recentX = 0;
+    int retval = -1;
 
-  int readingX = 1024-analogRead(JoystickX_PIN);
+//  int readingX = 1024-analogRead(JoystickX_PIN);
+    int readingX = FOURTEENBIT-analogRead(JoystickX_PIN);
 
-  if (readingX < recentX - 3 || readingX > recentX + 3 ) {
-    recentX = readingX;
-    return readingX;
-  }
-  return -1;
+    if (readingX < recentX - 100 || readingX > recentX + 100 ) {
+        recentX = readingX;
+        retval = readingX;
+    }
+    return retval;
 }
 
 int InOutHelper::checkJoystickY()
 {
-  static int recentY = 0;
+    static int recentY = 0;
+    int retval = -1;
 
-  int readingY = analogRead(JoystickY_PIN);
+    int readingY = analogRead(JoystickY_PIN);
 
-  if (readingY < recentY - 3 || readingY > recentY + 3 ) {
-    recentY = readingY;
-    return readingY;
-  }
-  return -1;
+    if (readingY < recentY - 100 || readingY > recentY + 100 ) {
+        recentY = readingY;
+        retval = readingY;
+    }
+    return retval;
 }
 
 // Checkers

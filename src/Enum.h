@@ -88,4 +88,8 @@ enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS 
 
 enum midiChannels {MIDISENDCHANNEL = 1};
 
+enum {FOURTEENBIT = 16384};
+
+enum {JOYSTICKINTERVAL = 50};
+
 #endif

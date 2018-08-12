@@ -842,16 +842,50 @@ void SynthEngine::reportPerformance()
 
 void SynthEngine::trackJoystick()
 {
-    float joyX = (float)inout.checkJoystickX();    
-    float joyY = (float)inout.checkJoystickY();
+    static elapsedMillis timeTracker = 0;
+    static int prevX = 0;
+    static int prevY = 0;
+    
+    if(timeTracker > JOYSTICKINTERVAL)
+    {
+        timeTracker = timeTracker - JOYSTICKINTERVAL;
 
-    if (joyX > -1) {
-        turboFilter.frequency(getEditPval(TurboFilterFreq) * joyX / 1024);   
-    }
-    if (joyY > -1) {
-//          turboFilter.resonance(joyY / 1024.0 * 4.3 + 0.7);
-        m_joy_reso = constrain(joyY / 1024.0 * 4.3 + 0.7, .7, 5);
-        m_joy_subVCO = constrain(joyY / 1024.0, 0, 1);
+        int joyX = inout.checkJoystickX();    
+        int joyY = inout.checkJoystickY();
+
+        if (joyX > -1) {
+            float freq = getEditPval(TurboFilterFreq) * (float)joyX / (float)FOURTEENBIT;
+            turboFilter.frequency(freq);   
+
+#ifdef MIDION
+            if( joyX != prevX)
+            {
+                usbMIDI.sendControlChange(6, ((unsigned int)joyX >> 7) & 127, 1);
+                usbMIDI.sendControlChange(38, (unsigned int)joyX & 127, 1);
+                
+//              inout.ShowValueInfoOnLCD("delta ", joyX-prevX);
+
+                prevX = joyX;
+//              inout.ShowValueInfoOnLCD("joyX ", joyX);
+            }
+#endif
+        }
+        if (joyY > -1) {
+    //          turboFilter.resonance((float)joyY / 1024.0 * 4.3 + 0.7);
+    //      m_joy_reso = constrain((float)joyY / 1024.0 * 4.3 + 0.7, .7, 5);
+    //      m_joy_subVCO = constrain((float)joyY / 1024.0, 0, 1);
+            m_joy_reso = constrain((float)joyY / (float)FOURTEENBIT * 4.3 + 0.7, .7, 5);
+            m_joy_subVCO = constrain((float)joyY / (float)FOURTEENBIT, 0, 1);
+
+#ifdef MIDION
+            if( joyY != prevY)
+            {
+                usbMIDI.sendControlChange(7, ((unsigned int)joyY >> 7) & 127, 1);
+                usbMIDI.sendControlChange(39, (unsigned int)joyY & 127, 1);
+                prevY = joyY;
+            }
+#endif  
+        }
     }
 }    
 

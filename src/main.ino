@@ -276,6 +276,10 @@ void setup()
       usbMIDI.setHandleNoteOn(OnNoteOn);
     #endif
 
+    // Joystick reading
+    analogReadAveraging(32);
+    analogReadResolution(14);
+
     setupSDcard();
     Serial.println("Reading sequences from SD");
     readSeqFromSDcard();

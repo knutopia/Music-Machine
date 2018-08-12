@@ -375,7 +375,6 @@ void prep_next_note()
   
       // change synth patch ?
       synth.prepPatchIfNeeded();
-      Serial.println(" prepPatchIfNeeded done.");
     }
 }
 
@@ -495,15 +494,15 @@ void prep_first_step()
 void prepNoteGlobals()
 {
     // TRY THIS>>>
-    Serial.print("before activeStepClicks drop");
+//  Serial.print("before activeStepClicks drop");
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
-    Serial.print(", activeStepClicks drop done ");
+//  Serial.print(", activeStepClicks drop done ");
 
     g_activeGlobalStep++;
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
-    Serial.print(", activeNotes drop done ");
+//  Serial.print(", activeNotes drop done ");
     sequencer.updateNoteList(playbackStep);
-    Serial.print(", updateNoteList done ");
+//  Serial.print(", updateNoteList done ");
     activeNotes.rewind();
     sequencer.updateStepClickList();
 
@@ -578,35 +577,6 @@ void playbackTest()
         Serial.print("  notesToTrig is NULL ");
     }
     activeStepClicks.rewind();
-}
-
-unsigned long calcNextNoteDuration() // REPLACE WITH SEQUENCER FUNCTION
-{
-    unsigned long retVal;
-
-    // cases for note duration:
-    // -A if simple note: 
-    //   -note duration as stored
-    //   -if there is a hold: full step plus hold (use legato note's duration ?)
-    // -B if retrig within note:
-    //   -retrig fraction
-    //   -if there is a hold and retrig is last one: retrig fraction plus hold (use legato note's duration ?)
-    // -C if muted: blip (to keep timer going)
-    // -FUTURE: stretch retrigs across holds ?
-    
-        
-    if (nextNote.unmuted) {
-      byte hold_count = assembleHolds();
-      retVal = metro.getStepDurationMS(nextNote, hold_count);
-      
-//    Serial.print("Hold count: ");
-//    Serial.println(hold_count);
-
-    } else {
-      retVal = BLIP;  // huh ? this is odd
-      Serial.println("BLIP found"); // ...even a muted note needs a duration.
-    }
-    return retVal;
 }
 
 /*

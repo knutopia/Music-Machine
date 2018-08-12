@@ -54,8 +54,7 @@ unsigned long StepSequence::calcNextNoteDuration(note aNote)
     
         
     if (aNote.unmuted) {
-        byte hold_count = assembleHolds();
-        retVal = metro.getStepDurationMS(aNote, hold_count);
+        retVal = metro.getStepDurationMS(aNote);
         
 //    Serial.print("Hold count: ");
 //    Serial.println(hold_count);
@@ -67,20 +66,23 @@ unsigned long StepSequence::calcNextNoteDuration(note aNote)
     return retVal;
 }
 
-byte StepSequence::assembleHolds()
+byte StepSequence::assembleHolds(note aNote)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
     byte holdStepCount = 0;
-    byte stepOffset = 1;
-    byte seqLength = getLength();
-    bool holdNext = true;
-    
-    while (holdNext) {
-        holdNext = getHold(playpath.getStepPosForward(stepOffset, seqLength));
-        if (holdNext) {
-        holdStepCount++;
-        stepOffset++;
+    if(aNote.unmuted)
+    {
+        byte stepOffset = 1;
+        byte seqLength = getLength();
+        bool holdNext = true;
+        
+        while (holdNext) {
+            holdNext = getHold(playpath.getStepPosForward(stepOffset, seqLength));
+            if (holdNext) {
+            holdStepCount++;
+            stepOffset++;
+            }
         }
     }
     return holdStepCount;
@@ -307,6 +309,7 @@ note StepSequence::getNoteParams(int _step)
         thisNote.accent = m_accent[_step];
         thisNote.velocity = m_velocity[_step];
         thisNote.swingTicks = metro.getSwingTicks();
+        thisNote.holdsAfter = assembleHolds(thisNote);
         thisNote.durationMS = calcNextNoteDuration(thisNote);
     }
     return thisNote;

@@ -30,6 +30,7 @@ struct note {
     uint8_t accent; //??
     uint8_t velocity;
     uint8_t swingTicks;
+    uint8_t holdsAfter;
 
 //      byte m_probability[max_notes];
 //      byte m_retrig[max_notes];

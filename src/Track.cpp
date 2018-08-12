@@ -53,7 +53,7 @@ note Track::getNoteParams(int step, byte curSequence)
                   Serial.println("trackType DEFAULTED");
                   break;
       }
-//#ifdef DEBUG
+#ifdef DEBUG
       Serial.print("Track::getNoteParams retNote pitch is ");
 //    Serial.print((unsigned int) &retNote);
       Serial.print(retNote.pitchVal);
@@ -63,7 +63,7 @@ note Track::getNoteParams(int step, byte curSequence)
       Serial.print(step);
       Serial.print(" of sequence ");
       Serial.println(curSequence);
-//#endif
+#endif
 
       return retNote;
 }

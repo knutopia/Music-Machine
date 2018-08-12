@@ -27,7 +27,8 @@ class Timebase
       int getSwing();
       u_int8_t getSwingMidiClicks();
       void updateTimingIfNeeded();
-      long getStepDurationMS(note aNote, byte holdStepCount);
+      long getStepDurationMS(note aNote);
+      long getReferenceStepDurationMS();
 //    long getStepDurationRetrigHoldMS(note aNote, byte holdStepCount);
       u_int8_t getSwingTicks();
 //    u_int8_t getSwingTicks(int step);

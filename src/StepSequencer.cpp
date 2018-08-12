@@ -5,6 +5,7 @@
 #include "Track.h"
 #include "LinkedNoteList.h"
 #include "StepClickList.h"
+#include "Timebase.h"
 
 //#define DEBUG true
 
@@ -13,6 +14,7 @@
 
 extern LinkedNoteList activeNotes;
 extern StepClickList activeStepClicks;
+extern Timebase metro;
 
 //Public constructor and methods
 StepSequencer::StepSequencer()
@@ -156,13 +158,7 @@ void StepSequencer::updateStepClickList()
                                         aNote.durationMS, 
                                         activeNotes.getStep(),
                                         swingOffset);
-/*
-        activeStepClicks.addClickNote(  aNote, 
-                                        activeNotes.getTrack(),
-                                        aNote.durationMS, 
-                                        activeNotes.getStep(),
-                                        aNote.swingTicks);
-*/                                        
+
 #ifdef DEBUG
         Serial.print("Beat adds- ");
         Serial.print("Step: ");
@@ -198,17 +194,23 @@ void StepSequencer::updateStepClickList()
 
         if (aNote.retrigClickDivider != NORETRIGS)
         {
+            bool retrigLegato = false;
+            if(aNote.holdsAfter > 0)
+                retrigLegato = true;
+
             for(uint8_t count = 0; count < aNote.retrigs; count++)
             {
-//              int clickPos = (count + 1) * aNote.retrigClickDivider 
-//                              + aNote.swingTicks;
                 int clickPos = (count + 1) * aNote.retrigClickDivider 
                                 + swingOffset;
+                long duration = aNote.durationMS;
+                if(retrigLegato && (count+1 == aNote.retrigs))
+                    duration += aNote.duration * metro.getReferenceStepDurationMS();
+
                 if(clickPos > 24)
                     Serial.print("updateStepClickList: clickPos out of bounds !");                                
                 activeStepClicks.addClickNote(  aNote, 
                                                 activeNotes.getTrack(),
-                                                aNote.durationMS, 
+                                                duration, 
                                                 activeNotes.getStep(), 
                                                 clickPos);
 #ifdef DEBUG

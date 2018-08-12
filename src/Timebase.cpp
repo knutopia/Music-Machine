@@ -138,7 +138,7 @@ void Timebase::updateTimingIfNeeded()
     }      
 }
 
-long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
+long Timebase::getStepDurationMS(note aNote) // USE NOTE
 {
     // Using microseconds (not milliseconds)
     unsigned long retVal;
@@ -161,7 +161,7 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
 #endif
 
     if (aNote.retrigs == 0) {             // cases A
-        retVal = (aNote.duration * referenceStepDuration) + holdStepCount * referenceStepDuration;
+        retVal = (aNote.duration * referenceStepDuration) + aNote.holdsAfter * referenceStepDuration;
    
 #ifdef DEBUG
         Serial.print(" case A  ");
@@ -187,24 +187,10 @@ long Timebase::getStepDurationMS(note aNote, byte holdStepCount) // USE NOTE
     return retVal;
 }
 
-/*
-long Timebase::getStepDurationRetrigHoldMS(note aNote, byte holdStepCount)
+long Timebase::getReferenceStepDurationMS()
 {
-    // called if note is last retrig and there are holds coming up
-
-    // Using microseconds (not milliseconds)
-    unsigned long retVal;
-
-    retrigStepDuration = referenceStepDuration / (aNote.retrigs + 1);      
-
-    retVal = aNote.duration * referenceStepDuration;
-    if (retVal > retrigStepDuration) retVal = retrigStepDuration;
-    retVal += holdStepCount * referenceStepDuration;
-
-    return retVal;
+    return referenceStepDuration;
 }
-*/
-
 
 u_int8_t Timebase::getSwingTicks()
 {
@@ -307,8 +293,10 @@ void Timebase::midiClick()
         midiClickCount = 0;
         currentPlayingStep = g_activeGlobalStep;
         prep_next = true;
+#ifdef DEBUG                                    
         Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
         Serial.println(g_activeGlobalStep);
+#endif
     }    
     PerClickNoteList* notesToTrig;
     if((notesToTrig = activeStepClicks
@@ -335,7 +323,7 @@ void Timebase::midiClick()
                 playingNotes.append(trigTrack, 
                                     trigNote.pitchVal, 
                                     (now + trigDur));
-//#ifdef DEBUG                                    
+#ifdef DEBUG                                    
                 Serial.print("Playing ");
 //              Serial.print(g_activeGlobalStep);
 //              Serial.print(" or ");
@@ -344,7 +332,7 @@ void Timebase::midiClick()
                 Serial.print(midiClickCount);
                 Serial.print(" on track ");
                 Serial.println(trigTrack);
-//#endif
+#endif
             } else 
             {
 #ifdef DEBUG
@@ -356,10 +344,7 @@ void Timebase::midiClick()
             }
             notesToTrig->readNext();
         }
-    } else 
-    {
-//      Serial.print("n");
-    }
+    } 
     activeStepClicks.readRewind();
 
     if(prep_next)

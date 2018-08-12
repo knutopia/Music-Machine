@@ -216,12 +216,10 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
         if(readCur->masterStep == a_step
             && a_click == readCur->clickStep)
         {
-
+#ifdef DEBUG
             Serial.print("Matching ");
-//          Serial.print(g_activeGlobalStep);
-//          Serial.print(" or ");
             Serial.println(a_step);
-
+#endif
             readCur->notes->rewind();
             retVal = readCur->notes;
             found = true;
@@ -306,7 +304,9 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
                     Serial.println(aStep);
 #endif
                     dropHead();
+#ifdef DEBUG
                     Serial.print(", dropped head !");
+#endif
                 } else
                 {
 #ifdef DEBUG
@@ -344,18 +344,18 @@ void StepClickList::dropHead()
         if (cur == head)
             cur = newHead;
 
-        Serial.print("  @#$ dropHead deleting head->notes");
+//      Serial.print("  @#$ dropHead deleting head->notes");
         delete head->notes;
-        Serial.print("  @#$ dropHead head->notes deleted");
+//      Serial.print("  @#$ dropHead head->notes deleted");
         delete head;
-        Serial.print("  @#$ dropHead head deleted");
+//      Serial.print("  @#$ dropHead head deleted");
         head = newHead;
     } else
-        Serial.print("@#$ head == NULL");
+//      Serial.print("@#$ head == NULL");
 
     checkIntegrity("dropHead");
 
-    Serial.print("  @#$ dropHead done");
+//  Serial.print("  @#$ dropHead done");
 }
 
 void StepClickList::rewind()

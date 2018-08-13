@@ -112,14 +112,14 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
             Serial.println("addClickNote: inserting node at the start");
 #endif
             rewind();
-            insertBefore(aMasterStep, aClickStep);
-            cur->notes->append(aNote, aTrack, aDuration);
+            insertBefore(aMasterStep, aClickStep); //ADD NOINTERRUPT
+            cur->notes->append(aNote, aTrack, aDuration); //ADD NOINTERRUPT
         } else 
         { // add stepClickNode at the end
 #ifdef DEBUG
             Serial.println("addClickNote: inserting node at the end");
 #endif
-            append(aMasterStep, aClickStep);
+            append(aMasterStep, aClickStep); //ADD NOINTERRUPT
             cur = tail;
             cur->notes->append(aNote, aTrack, aDuration);
         }
@@ -144,7 +144,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
     if(head == NULL)
         head = n;
-
+    
     checkIntegrity("append");
 }
 
@@ -270,7 +270,7 @@ PerClickNoteList* StepClickList::getNotes()
     return retVal; 
 }
 
-void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
+void StepClickList::dropNotesBeforeStepAndRewind(int aStep)  //ADD NOINTERRUPT
 {
 #ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");

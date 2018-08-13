@@ -151,7 +151,6 @@ void NoteOffList::rewind()
         cur = head;
 }
 
-
 void NoteOffList::next()
 {
         checkIntegrity("next");
@@ -159,24 +158,41 @@ void NoteOffList::next()
                 cur = cur->next;
 }
 
-byte NoteOffList::getTrack()
+byte NoteOffList::readTrack()
 {
-    return cur->trackNumber;
+    return readCur->trackNumber;
 }
 
-byte NoteOffList::getMidiNote()
+byte NoteOffList::readMidiNote()
 {
-    return cur->midiNote;
+    return readCur->midiNote;
 }
 
-unsigned long NoteOffList::getNoteOffTime()
+unsigned long NoteOffList::readNoteOffTime()
 {
-    return cur->noteOffTime;
+    return readCur->noteOffTime;
 }
 
 int NoteOffList::hasValue()
 {
         return ( cur != NULL ? true : false );
+}
+
+int NoteOffList::hasReadValue()
+{
+        return ( readCur != NULL ? true : false );
+}
+
+void NoteOffList::readRewind()
+{
+        readCur = head;
+}
+
+void NoteOffList::readNext()
+{
+        checkIntegrity("next");
+        if( readCur != NULL )
+                readCur = cur->next;
 }
 
 int NoteOffList::count()

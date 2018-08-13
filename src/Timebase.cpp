@@ -81,21 +81,7 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
 //void Timebase::updateSwing(int swingPercentage) 
 void Timebase::updateSwing(int newClicks) 
 {
-/*
-    swingValue = swingPercentage;
-    // calculate the intervals when tempo changes
-    // max swing is 1/3 step duration offset
-
-    swingMidiClicks = (swingValue-2) / 12;
-*/
     swingMidiClicks = newClicks;
-
-#ifdef DEBUG
-    Serial.print("swingPercentage: ");
-    Serial.print(swingPercentage);
-    Serial.print("  swingMidiClicks: ");
-    Serial.println(swingMidiClicks);
-#endif
 }
 
 

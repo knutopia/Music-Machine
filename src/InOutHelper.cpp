@@ -590,21 +590,6 @@ void InOutHelper::HandlePerformanceEncoders() {
       oldPositionC = newPosition;
     }
 
-/*
-    newPosition = EncC.read();
-    if ((newPosition <= oldPositionC - 4) || (newPosition >= oldPositionC + 4)) {
-      
-      swingClicks = constrain(swingClicks + (newPosition - oldPositionC) /4, 0, 100);
-      if (swingClicks != prevSwingTiming)
-      {
-        metro.updateSwing(swingClicks);
-        prevSwingTiming = swingClicks;
-      }
-      
-      ShowSwingOnLCD(swingClicks);
-      oldPositionC = newPosition;
-    }
-  */
     // Encoder D for BPM - a global setting
     newPosition = EncD.read();
     if ((newPosition <= oldPositionD - 4) || (newPosition >= oldPositionD + 4)) {

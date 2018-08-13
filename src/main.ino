@@ -590,49 +590,6 @@ void playbackTest()
     activeStepClicks.rewind();
 }
 
-/*
-unsigned long calcNextNoteDurationAfterRetrigs()
-{
-    unsigned long retVal;
-
-    // -if there is a hold and retrig is last one: retrig fraction plus hold (use legato note's duration ?)
-    // -otherwise, just retrig fraction
-    // -FUTURE: stretch retrigs across holds ?
-
-    if (nextNote.unmuted) {
-      byte hold_count = assembleHolds();
-      if (hold_count > 0)
-        retVal = metro.getStepDurationRetrigHoldMS(sequencer.getDuration(playbackStep), hold_count);
-      else
-        retVal = metro.getStepDurationMS(sequencer.getDuration(playbackStep), hold_count);
-      
-    } else {
-      retVal = BLIP;  // huh ? this is odd
-      Serial.println("BLIP found"); // ...even a muted note needs a duration.
-    }
-    return retVal;
-}
-*/
-
-/*
-void retimeNextDuration()
-{
-
-    Serial.print("rND");
-
-    // no note playing, next note prepped, next note is first or only retrig
-    if (!synth.playingAnote()
-        && !vb_prep_next_step)
-//      && metro.getRetrigs() == sequencer.getRetrig(playbackStep)) 
-    {
-      // reschedule next note duration
-      nextNote.durationMS = calcNextNoteDuration(); // ### TO BE BRANCHED...
-      Serial.println(" yep");
-    } else 
-      Serial.println(" nope");
-//    nextNote.durationMS = calcNextNoteDuration();
-}
-*/
 
 byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 {
@@ -657,28 +614,26 @@ byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 void followNoteOff()
 {
     int foo = 0;
-    playingNotes.rewind();
-    
-    while(playingNotes.hasValue())
+
+    playingNotes.readRewind();
+    while(playingNotes.hasReadValue())
     {        
-        if(playingNotes.getNoteOffTime() < micros())
+        if(playingNotes.readNoteOffTime() < micros())
         {
-//          playingNotes.printList();
-//          playingNotes.rewind();
 #ifdef DEBUG
             Serial.print("followNoteOff on track ");
-            Serial.print(playingNotes.getTrack());
+            Serial.print(playingNotes.readTrack());
             Serial.print(" at count ");
             Serial.println(foo);
 #endif
-
-            synth.endNote(playingNotes.getTrack(), 
-                            playingNotes.getMidiNote());
+            synth.endNote(playingNotes.readTrack(), 
+                            playingNotes.readMidiNote());
+            noInterrupts();
             playingNotes.dropNode();
+            interrupts();
         }
-        playingNotes.next();
+        playingNotes.readNext();
         foo++;
-
     }
 }
 

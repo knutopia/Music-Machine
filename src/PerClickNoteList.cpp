@@ -102,7 +102,7 @@ note PerClickNoteList::readNote()
 
     if( readCur != NULL )
         retVal = readCur->clickNote;
-        // really we should raise exception...
+//      memcpy(&retVal, &readCur->clickNote, sizeof(note));
     return retVal; 
 }
 
@@ -173,17 +173,17 @@ void PerClickNoteList::next()
                 cur = cur->next;
 }
 
-volatile bool PerClickNoteList::hasReadValue()
+bool PerClickNoteList::hasReadValue()
 {
     return ( readCur != NULL ? true : false );
 }
 
-volatile void PerClickNoteList::readRewind()
+void PerClickNoteList::readRewind()
 {
     readCur = head;
 }
 
-volatile void PerClickNoteList::readNext()
+void PerClickNoteList::readNext()
 {
     checkIntegrity("readNext");
     if( readCur != NULL )

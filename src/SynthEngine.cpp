@@ -284,13 +284,13 @@ void SynthEngine::endMidiNote(byte aMidiChannel, byte aMidiNote)
 void SynthEngine::allNotesOff()
 {
     int foo = 0;
-    playingNotes.rewind();
-    while(playingNotes.hasValue())
+    playingNotes.readRewind();
+    while(playingNotes.hasReadValue())
     {
-        endNote(playingNotes.getTrack(), 
-                playingNotes.getMidiNote());
+        endNote(playingNotes.readTrack(), 
+                playingNotes.readMidiNote());
         playingNotes.dropNode();
-        playingNotes.next();
+        playingNotes.readNext();
         foo++;
     }
 

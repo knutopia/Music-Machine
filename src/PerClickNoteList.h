@@ -31,9 +31,9 @@ public:
     unsigned long readDurationMS();
     void rewind();
     void next();
-    volatile bool hasReadValue();
-    volatile void readRewind();
-    volatile void readNext();
+    bool hasReadValue();
+    void readRewind();
+    void readNext();
 private:
     notePerClick *head;
     notePerClick *cur;

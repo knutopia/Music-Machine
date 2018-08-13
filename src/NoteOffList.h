@@ -28,16 +28,20 @@ public:
     void append(byte aTrackNum, byte aMidiNote, unsigned long anOffTime);
     void rewind();
     void next();
-    byte getTrack();
-    byte getMidiNote();
-    unsigned long getNoteOffTime();
+    byte readTrack();
+    byte readMidiNote();
+    unsigned long readNoteOffTime();
     int hasValue();
+    int hasReadValue();
+    void readRewind();
+    void readNext();
     int count();
 
 private:
     volatile noteOffNode *head;
     volatile noteOffNode *cur;
     volatile noteOffNode *tail;
+    volatile noteOffNode *readCur;
 };
 
 #endif

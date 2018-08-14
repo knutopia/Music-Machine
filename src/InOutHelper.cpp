@@ -1610,7 +1610,7 @@ void InOutHelper::ShowSynParOnLCD(const char label[], float value)
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
     lcd.print(label);
-    lcd.setCursor(strlen(label), 2);
+    lcd.setCursor(strlen(label), 1);
     lcd.print(value);
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
 }
@@ -1650,9 +1650,9 @@ void InOutHelper::ShowStepStateOnLCD(int i, boolean stepButtonPressed)
 
 void InOutHelper::ShowModeOnLCD()
 {
-    lcd.setCursor(0, 0);
-    lcd.print("              ");
-    lcd.setCursor(0, 0);
+    lcd.setCursor(0, 1);
+    lcd.print("                 ");
+    lcd.setCursor(0, 1);
     lcd.print(modeNames[currentMode]);
 }
 
@@ -1692,6 +1692,51 @@ void InOutHelper::ShowStepOnLCD(int step, bool isActive)
     else lcd.print(".");    
 
     prevPlaybackStep = step;
+}
+
+
+void InOutHelper::ShowPlaybackStepOnLCD(int step)
+{
+    if (step<100)
+    {
+        lcd.setCursor(14, 0);
+        lcd.print("  ");
+        lcd.setCursor(14, 0);
+    } else
+    if (step<1000)
+    {
+        lcd.setCursor(13, 0);
+        lcd.print("   ");
+        lcd.setCursor(13, 0);
+    } else
+    if (step<10000)
+    {
+        lcd.setCursor(12, 0);
+        lcd.print("    ");
+        lcd.setCursor(12, 0);
+    } else
+    if (step<100000)
+    {
+        lcd.setCursor(11, 0);
+        lcd.print("     ");
+        lcd.setCursor(11, 0);
+    } else
+    {
+        lcd.setCursor(10, 0);
+        lcd.print("      ");
+        lcd.setCursor(10, 0);
+    }
+
+    lcd.print(step);  
+}
+
+void InOutHelper::ShowMemoryOnLCD(int mem)
+{
+    lcd.setCursor(0, 0);
+    lcd.print("               ");  
+    lcd.setCursor(0, 0);
+    lcd.print("m:");  
+    lcd.print(mem);  
 }
 
 

@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -360,9 +360,13 @@ void prep_next_note()
             note_off_time = v_note_off_time;
         interrupts();
 
-        Serial.println("");
+        inout.ShowMemoryOnLCD((int)FreeMem());
+        inout.ShowPlaybackStepOnLCD(g_activeGlobalStep);
+
         Serial.print("prep_next_note after ");
-        Serial.println(g_activeGlobalStep);
+        Serial.print(g_activeGlobalStep);
+        Serial.print("  mem: ");
+        Serial.println(FreeMem());
 
         // adjust speed if tempo or multiplier have changed
         metro.updateTimingIfNeeded();
@@ -517,10 +521,6 @@ void prepNoteGlobals()
     activeNotes.rewind();
     sequencer.updateStepClickList();
 
-    Serial.print("###### Mem: ");
-    Serial.println(FreeMem());
-    inout.ShowValueInfoOnLCD("mem:", (int)FreeMem());
-    inout.SetLCDinfoTimeout();
 #ifdef DEBUG
     Serial.print("###### playingNotes count: ");
     Serial.println(playingNotes.count());
@@ -652,6 +652,7 @@ void handleRewindButton()
       playbackStep = 0;
       startFromZero = true;
       inout.RemoveStepIndicatorOnLCD();
+      inout.ShowModeOnLCD();
       playpath.resetStep();
     }
 }

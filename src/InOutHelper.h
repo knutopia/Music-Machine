@@ -57,6 +57,8 @@ class InOutHelper
     void ShowInfoOnLCD(const char info[]);
     void ShowValueInfoOnLCD(const char label[], int value);
     void ShowValueInfoOnLCD(const char label[], float value);
+    void ShowPlaybackStepOnLCD(int step);
+    void ShowMemoryOnLCD(int mem);
     void SetLCDinfoTimeout();
     void ShowSynParOnLCD(const char label[], int value);
     void ShowSynParOnLCD(const char label[], float value);
@@ -66,6 +68,7 @@ class InOutHelper
     void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);
+    void ShowModeOnLCD();
     void handleLCDtimeouts();
     String midiToNoteName(int note);
     void showLoopTimer();
@@ -107,7 +110,6 @@ class InOutHelper
     void ClearInfoOnLCD();
     void ClearLabelRowInfoOnLCD();
     void ShowStepStateOnLCD(int index, boolean stepButtonPressed);
-    void ShowModeOnLCD();
     void ShowBPMOnLCD(int bpm);
     void ShowSwingOnLCD(int swing);
     void ShowStepOnLCD(int step, bool isActive);

@@ -134,7 +134,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     n->clickStep = aClickStep;
     n->notes = new PerClickNoteList();
     
-        //noInterrupts();
+    noInterrupts();
         if(tail != NULL)
             tail->next = n; // point previously last node to new one
         tail = n;           // point tail at new node
@@ -144,7 +144,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
         if(head == NULL)
             head = n;
-        //interrupts();
+    interrupts();
     checkIntegrity("append");
 }
 
@@ -159,33 +159,34 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 
     if (tail == NULL)
     {
-            //noInterrupts();
+        noInterrupts();
             tail = cur;
-            //interrupts();
-    }
-    if (cur == NULL)
-    {
-            //noInterrupts();
-            cur = head;
-            //interrupts();
+        interrupts();
     }
 
     if (cur == NULL)
     {
-            //noInterrupts();
+        noInterrupts();
+            cur = head;
+        interrupts();
+    }
+    
+    if (cur == NULL)
+    {
+        noInterrupts();
             cur = n;
             head = n;
-            //interrupts();
+        interrupts();
     } else
     {
         if(cur == head)
         {
             n->next = head;
-                //noInterrupts();
+            noInterrupts();
                 head->prev = n;
                 head = n;
                 cur = n;
-                //interrupts();
+            interrupts();
         } else
         {
             if(cur->prev != NULL)
@@ -193,8 +194,10 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
                 stepClickNode *prev = cur->prev;
                 prev->next = n;
             } 
-            cur->prev = n;
-            cur = n;
+            noInterrupts();
+                cur->prev = n;
+                cur = n;
+            interrupts();
         }
     }
     checkIntegrity("insertBefore");

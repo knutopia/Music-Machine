@@ -350,14 +350,14 @@ void prep_next_note()
 {
     bool prepNextStep;
     noInterrupts();
-    prepNextStep = vb_prep_next_step;
+        prepNextStep = vb_prep_next_step;
     interrupts();
 
     if(prepNextStep) {    // this is triggered right after the interrupt
                             // started playing the current note
         noInterrupts();            
-        vb_prep_next_step = false; 
-        note_off_time = v_note_off_time;
+            vb_prep_next_step = false; 
+            note_off_time = v_note_off_time;
         interrupts();
 
         Serial.println("");
@@ -519,7 +519,8 @@ void prepNoteGlobals()
 
     Serial.print("###### Mem: ");
     Serial.println(FreeMem());
-
+    inout.ShowValueInfoOnLCD("mem:", (int)FreeMem());
+    inout.SetLCDinfoTimeout();
 #ifdef DEBUG
     Serial.print("###### playingNotes count: ");
     Serial.println(playingNotes.count());

@@ -112,14 +112,14 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
             Serial.println("addClickNote: inserting node at the start");
 #endif
             rewind();
-            insertBefore(aMasterStep, aClickStep); //ADD NOINTERRUPT
-            cur->notes->append(aNote, aTrack, aDuration); //ADD NOINTERRUPT
+            insertBefore(aMasterStep, aClickStep);
+            cur->notes->append(aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end
 #ifdef DEBUG
             Serial.println("addClickNote: inserting node at the end");
 #endif
-            append(aMasterStep, aClickStep); //ADD NOINTERRUPT
+            append(aMasterStep, aClickStep);
             cur = tail;
             cur->notes->append(aNote, aTrack, aDuration);
         }
@@ -134,17 +134,17 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     n->clickStep = aClickStep;
     n->notes = new PerClickNoteList();
     
-    if(tail != NULL)
-        tail->next = n; // point previously last node to new one
+        //noInterrupts();
+        if(tail != NULL)
+            tail->next = n; // point previously last node to new one
+        tail = n;           // point tail at new node
 
-    tail = n;           // point tail at new node
+        if(cur == NULL)
+            cur = n;
 
-    if(cur == NULL)
-        cur = n;
-
-    if(head == NULL)
-        head = n;
-    
+        if(head == NULL)
+            head = n;
+        //interrupts();
     checkIntegrity("append");
 }
 
@@ -158,23 +158,34 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
     n->next = cur;
 
     if (tail == NULL)
-        tail = cur;
-
+    {
+            //noInterrupts();
+            tail = cur;
+            //interrupts();
+    }
     if (cur == NULL)
-        cur = head;
+    {
+            //noInterrupts();
+            cur = head;
+            //interrupts();
+    }
 
     if (cur == NULL)
     {
-        cur = n;
-        head = n;
+            //noInterrupts();
+            cur = n;
+            head = n;
+            //interrupts();
     } else
     {
         if(cur == head)
         {
             n->next = head;
-            head->prev = n;
-            head = n;
-            cur = n;
+                //noInterrupts();
+                head->prev = n;
+                head = n;
+                cur = n;
+                //interrupts();
         } else
         {
             if(cur->prev != NULL)
@@ -270,7 +281,7 @@ PerClickNoteList* StepClickList::getNotes()
     return retVal; 
 }
 
-void StepClickList::dropNotesBeforeStepAndRewind(int aStep)  //ADD NOINTERRUPT
+void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 {
 #ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");
@@ -340,16 +351,19 @@ void StepClickList::dropHead()
         if(head->next == NULL)
             Serial.print("dropHead head->next == NULL");
 
-        if (cur == head)
-            cur = newHead;
+            //noInterrupts();
+            if (cur == head)
+                cur = newHead;
 
-//      Serial.print("  @#$ dropHead deleting head->notes");
-        delete head->notes;
-//      Serial.print("  @#$ dropHead head->notes deleted");
-        delete head;
-//      Serial.print("  @#$ dropHead head deleted");
-        head = newHead;
-    } else
+    //      Serial.print("  @#$ dropHead deleting head->notes");
+            delete head->notes;
+    //      Serial.print("  @#$ dropHead head->notes deleted");
+            delete head;
+    //      Serial.print("  @#$ dropHead head deleted");
+            head = newHead;
+            //interrupts();
+    } 
+//  else
 //      Serial.print("@#$ head == NULL");
 
     checkIntegrity("dropHead");

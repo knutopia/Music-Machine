@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -621,17 +621,21 @@ void followNoteOff()
     {        
         if(playingNotes.readNoteOffTime() < micros())
         {
+
 #ifdef DEBUG
             Serial.print("followNoteOff on track ");
             Serial.print(playingNotes.readTrack());
-            Serial.print(" at count ");
+            Serial.print(" at index ");
             Serial.println(foo);
 #endif
             synth.endNote(playingNotes.readTrack(), 
                             playingNotes.readMidiNote());
-            noInterrupts();
+
+#ifdef DEBUG
+            playingNotes.printList();
+            Serial.println();
+#endif            
             playingNotes.dropNode();
-            interrupts();
         }
         playingNotes.readNext();
         foo++;

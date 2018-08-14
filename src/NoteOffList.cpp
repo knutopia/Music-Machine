@@ -55,14 +55,15 @@ void NoteOffList::printList()
     rewind();
     while( hasValue())
     {
+        Serial.print(" tim:");
         Serial.print(cur->noteOffTime);
-        Serial.print(" ");
+        Serial.print(" tr:");
         Serial.print(cur->trackNumber);
-        Serial.print(" ");
+        Serial.print(" mi:");
         Serial.print(cur->midiNote);
-        Serial.print(" ");
+        Serial.print(" cur:");
         Serial.print((int)cur);
-        Serial.print(" ");
+        Serial.print(" next:");
         Serial.println((int)cur->next);
         if(cur==cur->next)
         {
@@ -77,40 +78,67 @@ void NoteOffList::printList()
 
 void NoteOffList::dropNode()
 {
+    if( readCur != NULL)
+    {
+        noInterrupts();
+            cur = readCur;
+        interrupts();
+    }
+
     if (cur == head)
     {
-//          Serial.println("dropNode 1");
-        cur = head->next;
-        if(cur != NULL)
-            cur->prev = NULL;
-        else
-        {
-//              Serial.println("NoteOffList tail nulled");
-            tail = NULL;
-        }
-        delete head;
-        head = cur;
+//      Serial.println("dropNode 1");
+        noInterrupts();
+            cur = head->next;
+            if(cur != NULL)
+                cur->prev = NULL;
+            else
+            {
+                tail = NULL;
+            }
+            delete head;
+            head = cur;
+        interrupts();
     } else 
     { 
         if (cur == tail)
         {
-//              Serial.println("dropNode 2");
-            volatile noteOffNode *prevNode = tail->prev;
-            cur = prevNode;
-            if(cur != NULL)
-                cur->next = NULL;
-            delete tail;
-            tail = cur;
+//          Serial.println("dropNode 2");
+            noInterrupts();
+                if( tail->prev != NULL)
+                {
+                    cur = tail->prev;
+                    cur->next = NULL;
+                }
+/*
+                volatile noteOffNode *prevNode = tail->prev;
+                if( prevNode != NULL)
+                {
+                    cur = prevNode;
+                    cur->next = NULL;
+                }
+                // alternative to...
+                cur = prevNode;
+                if(cur != NULL)
+                    cur->next = NULL;
+*/
+                delete tail;
+                tail = cur;
+            interrupts();
         } else 
         {
-//              Serial.println("dropNode 3");
-            volatile noteOffNode *prevNode = cur->prev;
-            prevNode->next = cur->next;
-            cur->next->prev = cur->prev;
-            delete cur;
-            cur = prevNode;
+//          Serial.println("dropNode 3");
+            volatile noteOffNode *prevNode;
+            noInterrupts();
+                prevNode = cur->prev;
+                prevNode->next = cur->next;
+                cur->next->prev = cur->prev;
+                delete cur;
+                cur = prevNode;
+            interrupts();
         }
     }
+    readCur = cur;
 #ifdef DEBUG
     Serial.println("dropNode done");
     printList();
@@ -192,7 +220,7 @@ void NoteOffList::readNext()
 {
         checkIntegrity("next");
         if( readCur != NULL )
-                readCur = cur->next;
+                readCur = readCur->next;
 }
 
 int NoteOffList::count()

@@ -250,14 +250,15 @@ void SynthEngine::endNote(byte aTrack, byte aMidiNote)
 
 void SynthEngine::endSynthNote(float velocity)
 {
-    AudioNoInterrupts();
-    string2.noteOff(velocity);
-    //      OSC1.amplitude(0);
-    //      OSC2.amplitude(0);
-    VCAenvelope2.noteOff();
-    VCAenvelope.noteOff();
-
-    AudioInterrupts();
+    noInterrupts();
+      AudioNoInterrupts();
+        string2.noteOff(velocity);
+        //      OSC1.amplitude(0);
+        //      OSC2.amplitude(0);
+        VCAenvelope2.noteOff();
+        VCAenvelope.noteOff();
+      AudioInterrupts();
+    interrupts();
 
     m_b_playing_a_note = false;
 

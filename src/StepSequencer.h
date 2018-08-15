@@ -79,7 +79,7 @@ class StepSequencer
       void setCurrentSequence(int index);
       void updateNoteList(int stepInPattern);
       void updateStepClickList();
-      StepClickList getClickNoteList(int click);
+//    StepClickList getClickNoteList(int click);
 
 
       //Helper method

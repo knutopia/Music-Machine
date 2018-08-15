@@ -1,4 +1,6 @@
 
+#define ENCODER_DO_NOT_USE_INTERRUPTS
+
 #include "Arduino.h"
 #include "InOutHelper.h"
 #include <Encoder.h>
@@ -166,7 +168,7 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   trellis.begin(0x70, 0x71);
 
   //supposedly a faster i2c bus
-  TWBR = 12; 
+  //TWBR = 12; 
 
   for (uint8_t i = 0; i < numKeys; i++) {
     trellis.setLED(i);
@@ -303,6 +305,7 @@ void InOutHelper::ResetTrellis() {
     ShowModeOnLCD();         
     ShowBPMOnLCD(metro.getBPM());
     ShowSwingOnLCD(metro.getSwing());
+    step_indicator_led_active = true; // ???
 }
 
 
@@ -685,7 +688,9 @@ void InOutHelper::handleTrellis() {
       
       if (trellis_led_dirty)
       {
-        trellis.writeDisplay();
+//      noInterrupts();
+          trellis.writeDisplay();
+//      interrupts();
         trellis_led_dirty = false;
       }
   }

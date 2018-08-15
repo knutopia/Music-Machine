@@ -129,16 +129,9 @@ class InOutHelper
     ReactToInput StartStopButtonCb;
     ReactToInputInt updateSynthCb;
     
-     // Trellis
-/*
-    const int TRELLAY = 20000;
-    const int STEPSOFFSET = 16;
-    const int MOMENTARY = 0;
-    const int LATCHING = 1;
-    const int NUMTRELLIS = 2;
-*/
     const int numKeys = (NUMTRELLIS * 16);
     const int INTPIN = A2;   
+
     Adafruit_Trellis matrix0 = Adafruit_Trellis();
     Adafruit_Trellis matrix1 = Adafruit_Trellis();
     Adafruit_TrellisSet trellis =  Adafruit_TrellisSet(&matrix0, &matrix1);

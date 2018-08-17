@@ -95,6 +95,7 @@ const unsigned long SAMPLE_RATE = 16384;
 int currentEditStep = 0;                //The current sequence edit position
 bool playbackOn = false;                //true when sequencer is running
 int playbackStep = 0;                   //The current playback step
+int prevPlaybackStep = 0;
 bool startFromZero = true;              //Has reset been pressed ?
 
 //Global Time Management object:
@@ -435,6 +436,7 @@ void prep_next_note_direct()
     
     // gather info about the following note N+1
     byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+    prevPlaybackStep = playbackStep;
     playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
     prepNoteGlobals();
@@ -485,9 +487,9 @@ void prepNextClick()
                 {
                     g_note_off_time = note_trigger_time + trigDur;
 
-                    Serial.print("setRunningStepIndicators playbackStep ");
-                    Serial.println(playbackStep);
-                    inout.setRunningStepIndicators(playbackStep, g_note_off_time);      
+                    Serial.print("setRunningStepIndicators prevPlaybackStep ");
+                    Serial.println(prevPlaybackStep);
+                    inout.setRunningStepIndicators(prevPlaybackStep, g_note_off_time);      
                 }
 
                 notesToTrig.next();
@@ -636,7 +638,7 @@ void prep_first_step()
         if (playbackStep == 0)
             playbackStep = playpath.getDontAdvanceStepPos(seqLength);
         else
-            playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+           playbackStep = playpath.getAndAdvanceStepPos(seqLength);
         
 
         prepNoteGlobals();

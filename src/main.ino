@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -47,7 +47,7 @@ const float NORMAL_VEL = 0.7;
 volatile unsigned long v_note_off_time = 0;
 unsigned long note_off_time = 0;
 volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
-//volatile bool vb_prep_retrig = false;         // set note end for a retrig
+volatile bool vb_clickHappened = false;
 
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
@@ -61,7 +61,7 @@ volatile unsigned long timeTracker;
 // midi
 int midiBaseNote = 255;
 int midiTranspose = 0;
-
+int g_midiClickCount = 0;
 
 // uses seqModes enum
 int currentMode = pattern_select;
@@ -111,6 +111,13 @@ InOutHelper inout;
 
 //Global Synth Engine object:
 SynthEngine synth;
+
+//Magic Crashy Superlists:
+LinkedNoteList activeNotes;
+StepClickList activeStepClicks;
+NoteOffList playingNotes;
+PerClickNoteList notesToTrig;
+
 
 //Callbacks for inputs
 void ChangeModeCb(bool forward)
@@ -234,6 +241,10 @@ void StartStopCb()
       timeTracker = millis();
 #endif
       prep_first_step();
+
+      g_midiClickCount = MIDICLOCKDIVIDER;
+      vb_clickHappened = true;
+      prepNextClick();
       metro.startPlayingRightNow();
     }  
 }
@@ -257,10 +268,9 @@ void OnNoteOn(byte channel, byte note, byte velocity) {
 
 }
 
-LinkedNoteList activeNotes;
-StepClickList activeStepClicks;
-NoteOffList playingNotes;
-
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ############################# S E T U P #############################
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void setup()
 {
 
@@ -336,6 +346,7 @@ static bool bTimeslice = true;
     bTimeslice = !bTimeslice;
 
     followNoteOff();
+    prepNextClick();
     prep_next_note();
 
     #ifdef MIDION
@@ -390,6 +401,79 @@ void prep_next_note()
 
         // change synth patch ?
         synth.prepPatchIfNeeded();
+    }
+}
+
+void prepNextClick()
+{
+    static int currentPlayingStep = 0;
+    bool prepNextStep = false;
+    bool clickPlayed;
+
+    noInterrupts();
+        clickPlayed = vb_clickHappened;
+    interrupts();
+
+    if(clickPlayed)
+    {
+        noInterrupts();
+            vb_clickHappened = false;
+        interrupts();
+
+        g_midiClickCount++;
+
+        if (g_midiClickCount >= MIDICLOCKDIVIDER)
+        {
+            g_midiClickCount = 0;
+            currentPlayingStep = g_activeGlobalStep;
+            prepNextStep = true;
+    #ifdef DEBUG                                    
+            Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
+            Serial.println(g_activeGlobalStep);
+    #endif
+        }
+
+        if(&notesToTrig != NULL)
+        {
+            notesToTrig.purge();
+        } else
+            Serial.println("NULL notesToTrig");
+
+        if(activeStepClicks.getClickNoteListVal(&notesToTrig, g_midiClickCount, currentPlayingStep))
+        {
+            notesToTrig.rewind();        
+            notesToTrig.readRewind();
+/*
+            if(!notesToTrig.hasValue())
+            {
+                Serial.println("notesToTrig NOVAL");
+            } else
+                Serial.println("notesToTrig has value");
+*/
+//          notesToTrig.print();
+//          notesToTrig.readRewind();
+/*
+            Serial.print("FOUND prepNextClick, g_activeGlobalStep is ");
+            Serial.print(g_activeGlobalStep);
+            Serial.print("  g_midiClickCount is ");
+            Serial.println(g_midiClickCount);
+*/
+        }
+        else
+        {
+/*            
+            Serial.print("NO notesToTrig: g_activeGlobalStep is ");
+            Serial.print(g_activeGlobalStep);
+            Serial.print("  g_midiClickCount is ");
+            Serial.println(g_midiClickCount);
+*/
+        }
+        activeStepClicks.readRewind();
+
+        if(prepNextStep)
+        {
+            vb_prep_next_step = true;
+        }
     }
 }
 
@@ -1294,11 +1378,17 @@ void printPerClickNoteList(PerClickNoteList *list)
 //      note *n = list->getNote();
         note n = list->getNote();
 //      if(n != NULL)
-          Serial.print(n.pitchVal);
+//        Serial.print(n.pitchVal);
 //      else
 //        Serial.print("NULL");
+        Serial.print("  pitch: ");
+        Serial.print(n.pitchVal);
         Serial.print("  durMS: ");
-        Serial.println(list->getDurationMS());
+        Serial.print(list->getDurationMS());
+        Serial.print("  cur: ");
+        Serial.print(list->getCur());
+        Serial.print("  next: ");
+        Serial.println(list->getNext());
         list->next();
     }
 }

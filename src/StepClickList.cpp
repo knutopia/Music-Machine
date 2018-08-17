@@ -132,7 +132,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     stepClickNode *n = new stepClickNode();
     n->masterStep = aMasterStep;
     n->clickStep = aClickStep;
-    n->notes = new PerClickNoteList();
+    n->notes = new PerClickNoteList();  
     
     noInterrupts();
         if(tail != NULL)
@@ -248,7 +248,7 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
         Serial.print(a_click);
         Serial.print(" ");
 #endif
-        retVal = NULL;
+//      retVal = NULL;
     } else {
 #ifdef DEBUG
         Serial.print("&&& getClickNoteList: FOUND, ");
@@ -258,6 +258,45 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
 #endif
     }
     return retVal;
+}
+
+bool StepClickList::getClickNoteListVal(PerClickNoteList *target, byte a_click, int a_step)
+{
+    checkIntegrity("getClickNoteList");
+
+    bool found = false;
+
+    readRewind();
+    while(hasReadValue())
+    {
+        if(readCur->masterStep == a_step
+            && a_click == readCur->clickStep)
+        {
+#ifdef DEBUG
+            Serial.print("Matching ");
+            Serial.println(a_step);
+#endif
+            readCur->notes->rewind();
+            while(readCur->notes->hasValue())
+            {
+//              Serial.print("Looping ");
+
+                target->append(readCur->notes->getNote(),
+                              readCur->notes->getTrack(),
+                              readCur->notes->getDurationMS());
+//              Serial.print(readCur->notes->getNote().pitchVal);
+//              Serial.print(" to ");
+//              Serial.println(target->getNote().pitchVal);
+                readCur->notes->next();
+                target->next();
+            }
+
+            found = true;
+            break;
+        }
+        readNext();
+    }
+    return found;
 }
 
 byte StepClickList::getClickStep()

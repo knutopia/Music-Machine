@@ -34,6 +34,7 @@ class StepClickList
     void insertBefore(int aMasterStep, byte aClickStep);
     int getMasterStep();
     PerClickNoteList* getClickNoteList(byte a_click, int a_step);
+    bool getClickNoteListVal(PerClickNoteList *target, byte a_click, int a_step);
     byte getClickStep();
     PerClickNoteList* getNotes();
     void dropNotesBeforeStepAndRewind(int aStep);

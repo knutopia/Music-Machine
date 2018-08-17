@@ -23,7 +23,8 @@ PerClickNoteList::~PerClickNoteList()
 #endif
 
     rewind();
-    while( hasValue()){
+    while( hasValue())
+    {
         
         die = cur;
         next();
@@ -37,10 +38,42 @@ PerClickNoteList::~PerClickNoteList()
     head = NULL;
     cur = NULL;
     tail = NULL;
+    readCur = NULL;
 
 #ifdef DEBUG
-    Serial.println(" ");
+    Serial.println("done");
 #endif
+}
+
+void PerClickNoteList::purge()
+{
+    notePerClick *die;
+
+#ifdef DEBUG
+    Serial.print("PerClickNoteList purge ");
+#endif
+
+    rewind();
+    while( hasValue())
+    {
+        
+        die = cur;
+        next();
+        delete die;
+
+#ifdef DEBUG
+        Serial.print("die ");
+#endif
+
+    }
+    head = NULL;
+    cur = NULL;
+    tail = NULL;
+    readCur = NULL;
+
+#ifdef DEBUG
+    Serial.println("done");
+#endif    
 }
 
 void PerClickNoteList::checkIntegrity(char caller[])
@@ -53,6 +86,25 @@ void PerClickNoteList::checkIntegrity(char caller[])
             Serial.println(caller);
         }
     }
+}
+
+void PerClickNoteList::print()
+{
+    Serial.print("PerClickNoteList print: ");
+    while(hasValue()){
+        Serial.println();
+        note n = getNote();
+        Serial.print("  pitch: ");
+        Serial.print(n.pitchVal);
+        Serial.print("  durMS: ");
+        Serial.print(getDurationMS());
+        Serial.print("  cur: ");
+        Serial.print(getCur());
+        Serial.print("  next: ");
+        Serial.print(getNext());
+        next();
+    }    
+    Serial.println();
 }
 
 void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS)
@@ -94,6 +146,16 @@ note PerClickNoteList::getNote()
         retVal = cur->clickNote;
         // really we should raise exception...
     return retVal; 
+}
+
+int PerClickNoteList::getCur()
+{
+    return (int)cur;
+}
+
+int PerClickNoteList::getNext()
+{
+    return (int)cur->next;
 }
 
 note PerClickNoteList::readNote()

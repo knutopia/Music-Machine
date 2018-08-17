@@ -3,12 +3,13 @@
 #include "SynthEngine.h"
 #include "NoteOffList.h"
 
-#define MIDION true
+//#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
 extern StepClickList activeStepClicks;
 extern NoteOffList playingNotes;
+extern PerClickNoteList notesToTrig;
 
 #ifdef DEBUG
 extern volatile unsigned long timeTracker;
@@ -16,6 +17,8 @@ extern volatile unsigned long timeTracker;
 
 extern volatile unsigned long v_note_off_time;
 extern volatile bool vb_prep_next_step;
+extern volatile bool vb_clickHappened;
+extern int g_midiClickCount;
 
 extern note nextNote;
 
@@ -219,7 +222,9 @@ void Timebase::recalcTimings()
 void Timebase::startPlayingRightNow()
 {
     midiClickCount = MIDICLOCKDIVIDER;
-    midiClick();
+    g_midiClickCount = MIDICLOCKDIVIDER;
+//  midiClick();
+    shortMidiClick();
     runMidiTimer();
 }
 
@@ -233,9 +238,8 @@ void Timebase::runMidiTimer()
     Serial.println(midiClickInterval);
 #endif
 
-//    midiClickCount = 0;
-//    resetSwingCountDown();
-    midiTimer.begin(Timebase::midiClick, midiClickInterval);
+//  midiTimer.begin(Timebase::midiClick, midiClickInterval);
+    midiTimer.begin(Timebase::shortMidiClick, midiClickInterval);
 }
 
 void Timebase::stopMidiTimer()
@@ -270,6 +274,7 @@ void Timebase::resetMidiTimer()
     }
     bMidiTimerOn = false;
     midiClickCount = 0;
+    g_midiClickCount = 0;
     swingCountdown = 0;
     retrigCountdown = 0;
     midiSteps = 0;
@@ -349,6 +354,32 @@ void Timebase::midiClick()
     }
 }
 
+void Timebase::shortMidiClick()
+{
+    while(notesToTrig.hasReadValue())
+    {
+        note trigNote = notesToTrig.readNote();
+        unsigned long trigDur = notesToTrig.readDurationMS();
+        byte trigTrack = notesToTrig.readTrack();
+    
+            unsigned long now = micros();
+            //for the step indicators...
+            if(trigTrack ==1)
+                v_note_off_time = now + trigDur;
+
+
+        if(trigNote.playIt)
+        {
+            synth.playNote(trigTrack, trigNote);
+
+            playingNotes.append(trigTrack, 
+                                trigNote.pitchVal, 
+                                (now + trigDur));
+        }
+        notesToTrig.readNext();
+    }
+    vb_clickHappened = true;
+}
 // 0  1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17 18 19 20 21 22 23
 // *                 *                  *                 *              
 // *                       *                        *

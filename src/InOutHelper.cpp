@@ -663,9 +663,9 @@ unsigned long InOutHelper::GetHoldableButtonPressed(holdableButton buttn) {
 
 
 void InOutHelper::handleTrellis() {
-    static long its_trellis_time = micros() + TRELLAY;
+    static unsigned long its_trellis_time = micros() + TRELLAY;
 
-    long now = micros();
+    unsigned long now = micros();
     if (now > its_trellis_time) {
       its_trellis_time = now + TRELLAY; // 30ms (20 !) delay is required, dont remove me!
       
@@ -911,12 +911,12 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
 }
 
 
-void InOutHelper::UpdateTrellisStepIndicator(long time_now)
+void InOutHelper::UpdateTrellisStepIndicator(unsigned long time_now)
 {
     step_indicator_led_active = false; // flag off, assuming all active step led's will be turned off
 
     for (uint8_t i = 0; i < 16; i++) {
-      long stepLedOffTime = stepLedOffTimes[i];
+      unsigned long stepLedOffTime = stepLedOffTimes[i];
       
       if (stepLedOffTime > 0) {
         if (stepLedOffTime > time_now) {    // this one can wait, so
@@ -1455,7 +1455,7 @@ bool InOutHelper::checkRewindButton()
 
 
 // Setters
-void InOutHelper::setRunningStepIndicators(int step, long led_off_time)
+void InOutHelper::setRunningStepIndicators(int step, unsigned long led_off_time)
 {
 //  static int prev_step;
     latestPlaybackStep = step;

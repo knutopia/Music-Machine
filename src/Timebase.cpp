@@ -16,6 +16,7 @@ extern volatile unsigned long timeTracker;
 #endif
 
 extern volatile unsigned long v_note_off_time;
+extern volatile unsigned long v_note_trigger_time;
 extern volatile bool vb_prep_next_step;
 extern volatile bool vb_clickHappened;
 extern int g_midiClickCount;
@@ -361,20 +362,23 @@ void Timebase::shortMidiClick()
         note trigNote = notesToTrig.readNote();
         unsigned long trigDur = notesToTrig.readDurationMS();
         byte trigTrack = notesToTrig.readTrack();
-    
-            unsigned long now = micros();
-            //for the step indicators...
-            if(trigTrack ==1)
-                v_note_off_time = now + trigDur;
 
+        unsigned long now = micros();
+        //for the step indicators...
+        if(trigTrack ==1)
+            v_note_off_time = now + trigDur;
+
+        v_note_trigger_time = now;
 
         if(trigNote.playIt)
         {
             synth.playNote(trigTrack, trigNote);
-
+//          v_note_trigger_time = now;
+/*
             playingNotes.append(trigTrack, 
                                 trigNote.pitchVal, 
                                 (now + trigDur));
+*/
         }
         notesToTrig.readNext();
     }

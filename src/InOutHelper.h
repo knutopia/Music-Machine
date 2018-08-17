@@ -52,7 +52,7 @@ class InOutHelper
     int checkJoystickY();
     bool checkRewindButton();
     
-    void setRunningStepIndicators(int step, long led_off_time);
+    void setRunningStepIndicators(int step, unsigned long led_off_time);
     void RemoveStepIndicatorOnLCD();
     void ShowInfoOnLCD(const char info[]);
     void ShowValueInfoOnLCD(const char label[], int value);
@@ -87,7 +87,7 @@ class InOutHelper
     
     void ProcessTrellisButtonRelease(uint8_t index);
     void ProcessTrellisButtonPress(uint8_t index);
-    void UpdateTrellisStepIndicator(long time_now);
+    void UpdateTrellisStepIndicator(unsigned long time_now);
     void HandleSynthEncoders();
     void HandlePerformanceEncoders();
     unsigned long GetHoldableButtonPressed(holdableButton buttn);
@@ -181,7 +181,7 @@ class InOutHelper
     bool selectedSteps[16];
     bool selectionBuffer[16];
     bool helperSteps[16];
-    long stepLedOffTimes[16];
+    unsigned long stepLedOffTimes[16];
     bool pressProcessed[32];
     bool *stepsToCheck;
     bool selectionChanged = false;

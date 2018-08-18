@@ -259,6 +259,25 @@ void InOutHelper::setupNewMode() {
 
 void InOutHelper::ResetTrellis() {
 
+    Wire.endTransmission();
+
+
+// change pin mux to digital I/O
+    pinMode(SDA,INPUT);
+    pinMode(SCL,OUTPUT);
+    digitalWrite(SCL,HIGH);
+    
+    int count = 0;
+    while(digitalRead(SDA) == 0 && count++ < 10)
+    {
+        digitalWrite(SCL,LOW);
+        delayMicroseconds(5);       // 10us period == 100kHz
+        digitalWrite(SCL,HIGH);
+        delayMicroseconds(5);
+    }
+        
+//  TWCR = 0; // reset TwoWire Control Register to default, inactive state
+
     trellis.begin(0x70, 0x71);
 
 /*

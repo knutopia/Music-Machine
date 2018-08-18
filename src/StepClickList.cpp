@@ -68,6 +68,38 @@ StepClickList::~StepClickList()
 #endif
 }
 
+void StepClickList::purge()
+{
+#ifdef DEBUG
+    Serial.print("StepClickList purge");
+#endif
+
+    stepClickNode *die = head;
+
+    while(die) 
+    {
+        head = die->next;
+        die->next = NULL;
+        die->prev = NULL;
+        delete die->notes;
+        delete die;
+        die = head;
+
+#ifdef DEBUG
+        Serial.print("die ");
+#endif
+    }
+
+    head = NULL;
+    cur = NULL;
+    tail = NULL;
+    readCur = NULL;
+
+#ifdef DEBUG
+    Serial.println("done");
+#endif
+}
+
 void StepClickList::checkIntegrity(char caller[])
 {
     if(cur != NULL)
@@ -103,6 +135,19 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
     rewind();
     while( hasValue() && !done)
     {
+#ifdef DEBUG        
+        Serial.print("cur->masterStep ");
+        Serial.print(cur->masterStep);
+        Serial.print("  cur->clickStep ");
+        Serial.print(cur->clickStep);
+        Serial.print("  cur->prev ");
+        Serial.println((int)cur->prev);
+        Serial.print("aMasterStep ");
+        Serial.print(aMasterStep);
+        Serial.print("  clickStep ");
+        Serial.println(aClickStep);
+#endif
+
         if (cur->masterStep == aMasterStep) 
         {
             if (cur->clickStep == aClickStep)
@@ -112,7 +157,6 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
                 Serial.println("addClickNote: appending to existing node");
 #endif
                 cur->notes->append(aNote, aTrack, aDuration);
-//                cur->notes->rewind();
                 done = true;
             } else
             {
@@ -124,7 +168,6 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
                     insertBefore(cur->masterStep, aClickStep);
                     cur->notes->append(aNote, aTrack, aDuration);
-//                    cur->notes->rewind();
                     done = true;
                 }
             }
@@ -474,8 +517,10 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
     {
         if (head == NULL)
         {
+#ifdef DEBUG
             Serial.print("head == NULL before ");
             Serial.println(aStep);
+#endif
             b = false;
         } else
         {

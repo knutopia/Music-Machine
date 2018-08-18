@@ -255,7 +255,6 @@ void StartStopCb()
       timeTracker = millis();
 #endif
       prep_first_step();
-
 //    g_midiClickCount = MIDICLOCKDIVIDER;
       g_midiClickCount = 0;
       vb_clickHappened = true;
@@ -456,7 +455,7 @@ void prep_next_note_direct()
     playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
     prepNoteGlobals();
-    
+
 #ifdef DEBUG
     Serial.println(" Note prepped.");
 #endif
@@ -684,6 +683,7 @@ void prepNoteGlobals()
 //  Serial.print(", updateNoteList done ");
     activeNotes.rewind();
     sequencer.updateStepClickList();
+//  Serial.println(" updateStepClickList done");
 
 #ifdef DEBUG
     Serial.print("###### playingNotes count: ");
@@ -813,13 +813,17 @@ void handleRewindButton()
 {
     if (inout.checkRewindButton()) 
     {      
-      if(playbackOn == true) stopPlayback();
-      synth.allNotesOff();
-      playbackStep = 0;
-      startFromZero = true;
-      inout.RemoveStepIndicatorOnLCD();
-      inout.ShowModeOnLCD();
-      playpath.resetStep();
+        if(playbackOn == true) stopPlayback();
+        synth.allNotesOff();
+        playbackStep = 0;
+        startFromZero = true;
+        inout.RemoveStepIndicatorOnLCD();
+        inout.ShowModeOnLCD();
+        playpath.resetStep();
+        
+        activeNotes.purge();
+        notesToTrig.purge();
+        activeStepClicks.purge();
     }
 }
 

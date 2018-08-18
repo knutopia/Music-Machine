@@ -13,7 +13,37 @@ LinkedNoteList::LinkedNoteList()
 
 LinkedNoteList::~LinkedNoteList()
 {
+#ifdef DEBUG
     Serial.print("Destructor LinkedNoteList ");
+#endif
+
+    noteNode *die = head;
+
+    while(die) 
+    {
+        head = die->next;
+        delete die;
+        die = head;
+
+#ifdef DEBUG
+        Serial.print("die ");
+#endif
+    }
+
+    head = NULL;
+    cur = NULL;
+    tail = NULL;
+
+#ifdef DEBUG
+    Serial.println("done");
+#endif
+}
+
+void LinkedNoteList::purge()
+{
+#ifdef DEBUG
+    Serial.print("LinkedNoteList purge ");
+#endif
 
     noteNode *die = head;
 

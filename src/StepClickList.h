@@ -25,6 +25,7 @@ class StepClickList
     StepClickList();
     ~StepClickList();
     
+    void purge();
     void checkIntegrity(char caller[]);
     void addClickNote(note aNote, byte aTrack, 
                       unsigned long aDuration, 

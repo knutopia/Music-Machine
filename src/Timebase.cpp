@@ -282,7 +282,7 @@ void Timebase::resetMidiTimer()
     midiTimer.priority(255);
 
 }
-
+/*
 void Timebase::midiClick()
 {
     static int currentPlayingStep = 0;
@@ -354,14 +354,19 @@ void Timebase::midiClick()
         vb_prep_next_step = true;
     }
 }
+*/
 
 void Timebase::shortMidiClick()
 {
+//  Serial.print("trying ");
     while(notesToTrig.hasReadValue())
-    {
+    {        
         note trigNote = notesToTrig.readNote();
         unsigned long trigDur = notesToTrig.readDurationMS();
         byte trigTrack = notesToTrig.readTrack();
+
+        Serial.print(" playing ");
+        Serial.println(trigNote.pitchVal);
 
         unsigned long now = micros();
         //for the step indicators...

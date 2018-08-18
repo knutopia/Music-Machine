@@ -38,6 +38,7 @@ public:
     bool hasReadValue();
     void readRewind();
     void readNext();
+    int count();
 private:
     notePerClick *head;
     notePerClick *cur;

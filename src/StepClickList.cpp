@@ -3,6 +3,7 @@
 #include "InOutHelper.h"
 
 //#define DEBUG true
+#define LISTCOUNT true
 
 extern StepClickList activeStepClicks;
 extern InOutHelper inout;
@@ -32,8 +33,11 @@ StepClickList::~StepClickList()
     while( hasValue()){
         die = cur;
         next();
+        die->next = NULL;
+        die->prev = NULL;
         delete die->notes;
         delete die;
+        die = NULL;
 
         Serial.print("die ");
     }
@@ -130,6 +134,7 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 void StepClickList::append(int aMasterStep, byte aClickStep)
 {
     stepClickNode *n = new stepClickNode();
+//  stepClickNode *n;
     n->masterStep = aMasterStep;
     n->clickStep = aClickStep;
     n->notes = new PerClickNoteList();  
@@ -147,6 +152,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     interrupts();
     checkIntegrity("append");
 }
+
 
 void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 {
@@ -202,6 +208,7 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
     }
     checkIntegrity("insertBefore");
 }
+
 
 int StepClickList::getMasterStep()
 {
@@ -260,7 +267,7 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
     return retVal;
 }
 
-bool StepClickList::getClickNoteListVal(PerClickNoteList *target, byte a_click, int a_step)
+bool StepClickList::getClickNoteList(PerClickNoteList *target, byte a_click, int a_step)
 {
     checkIntegrity("getClickNoteList");
 
@@ -299,6 +306,93 @@ bool StepClickList::getClickNoteListVal(PerClickNoteList *target, byte a_click, 
     return found;
 }
 
+bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click, int a_step)
+{
+    checkIntegrity("getClickNoteList");
+
+    bool found = false;
+
+    readRewind();
+    while(hasReadValue())
+    {
+        if(readCur->masterStep == a_step
+            && a_click == readCur->clickStep)
+        {
+#ifdef DEBUG
+            Serial.print("Matching ");
+            Serial.println(a_step);
+#endif
+            readCur->notes->rewind();
+            while(readCur->notes->hasValue())
+            {
+//              Serial.print("Looping ");
+
+                target.append(readCur->notes->getNote(),
+                              readCur->notes->getTrack(),
+                              readCur->notes->getDurationMS());
+//              Serial.print(readCur->notes->getNote().pitchVal);
+//              Serial.print(" to ");
+//              Serial.println(target->getNote().pitchVal);
+                readCur->notes->next();
+                target.next();
+            }
+            dropReadCur();
+            rewind();
+            readRewind();
+
+            found = true;
+            break;
+        }
+        readNext();
+    }
+    return found;
+}
+
+/*
+
+bool StepClickList::transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step)
+{
+    checkIntegrity("getClickNoteList");
+
+    bool found = false;
+
+    readRewind();
+    while(hasReadValue())
+    {
+        if(readCur->masterStep == a_step
+            && a_click == readCur->clickStep)
+        {
+#ifdef DEBUG
+            Serial.print("Matching ");
+            Serial.println(a_step);
+#endif
+            readCur->notes->rewind();
+            while(readCur->notes->hasValue())
+            {
+//              Serial.print("Looping ");
+
+                target->append(readCur->notes->getNote(),
+                              readCur->notes->getTrack(),
+                              readCur->notes->getDurationMS());
+//              Serial.print(readCur->notes->getNote().pitchVal);
+//              Serial.print(" to ");
+//              Serial.println(target->getNote().pitchVal);
+                readCur->notes->next();
+                target->next();
+            }
+            dropReadCur();
+            rewind();
+            readRewind();
+
+            found = true;
+            break;
+        }
+        readNext();
+    }
+    return found;
+}
+*/
+
 byte StepClickList::getClickStep()
 {
     byte retVal;
@@ -321,6 +415,26 @@ PerClickNoteList* StepClickList::getNotes()
         retVal = cur->notes;
         // really we should raise exception...
     return retVal; 
+}
+
+void StepClickList::dropReadCur()
+{
+    if( readCur != NULL)
+    {
+        if( readCur == head)
+        {
+            head = readCur->next;
+        }
+
+        if( readCur == tail)
+        {
+            tail = readCur->prev;
+        }
+
+        delete readCur;
+        readCur = NULL;
+    }
+    checkIntegrity("dropReadCur");
 }
 
 void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
@@ -451,4 +565,18 @@ int StepClickList::hasValue()
 volatile int StepClickList::hasReadValue()
 {
         return ( readCur != NULL ? true : false );
+}
+
+int StepClickList::count()
+{
+    int count = 0;
+    stepClickNode *buf = cur;
+    rewind();
+    while(hasValue())
+    {
+        count++;
+        next();
+    }
+    cur = buf;
+    return count;
 }

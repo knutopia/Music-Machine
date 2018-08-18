@@ -36,7 +36,9 @@ public:
             
             die = cur;
             next();
+            delete die->trackRef;
             delete die;
+            die = NULL;
 
             Serial.print("die ");
         }

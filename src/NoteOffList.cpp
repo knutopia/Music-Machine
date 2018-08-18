@@ -17,8 +17,11 @@ NoteOffList::~NoteOffList()
         
         die = cur;
         next();
+        die->prev = NULL;
+        die->next = NULL;
         delete die;
-
+        die = NULL;
+        
         Serial.print("die ");
     }
     head = NULL;
@@ -80,15 +83,15 @@ void NoteOffList::dropNode()
 {
     if( readCur != NULL)
     {
-        noInterrupts();
+//      noInterrupts();
             cur = readCur;
-        interrupts();
+//      interrupts();
     }
 
     if (cur == head)
     {
 //      Serial.println("dropNode 1");
-        noInterrupts();
+//      noInterrupts();
             cur = head->next;
             if(cur != NULL)
                 cur->prev = NULL;
@@ -96,15 +99,16 @@ void NoteOffList::dropNode()
             {
                 tail = NULL;
             }
+            head->next = NULL;
             delete head;
             head = cur;
-        interrupts();
+//      interrupts();
     } else 
     { 
         if (cur == tail)
         {
 //          Serial.println("dropNode 2");
-            noInterrupts();
+//          noInterrupts();
                 if( tail->prev != NULL)
                 {
                     cur = tail->prev;
@@ -124,18 +128,18 @@ void NoteOffList::dropNode()
 */
                 delete tail;
                 tail = cur;
-            interrupts();
+//          interrupts();
         } else 
         {
 //          Serial.println("dropNode 3");
             volatile noteOffNode *prevNode;
-            noInterrupts();
+//          noInterrupts();
                 prevNode = cur->prev;
                 prevNode->next = cur->next;
                 cur->next->prev = cur->prev;
                 delete cur;
                 cur = prevNode;
-            interrupts();
+//          interrupts();
         }
     }
     readCur = cur;
@@ -225,6 +229,19 @@ void NoteOffList::readNext()
 
 int NoteOffList::count()
 {
+
+    int count = 0;
+    volatile noteOffNode *buf = cur;
+    rewind();
+    while(hasValue())
+    {
+        count++;
+        next();
+    }
+    cur = buf;
+    return count;
+
+/*
     int retVal = 0;
     rewind();
 
@@ -234,4 +251,5 @@ int NoteOffList::count()
         next();
     }        
     return retVal;
+*/
 }

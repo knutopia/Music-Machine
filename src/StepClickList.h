@@ -34,10 +34,13 @@ class StepClickList
     void insertBefore(int aMasterStep, byte aClickStep);
     int getMasterStep();
     PerClickNoteList* getClickNoteList(byte a_click, int a_step);
-    bool getClickNoteListVal(PerClickNoteList *target, byte a_click, int a_step);
+    bool getClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
+//  bool transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
+    bool transferClickNoteList(PerClickNoteList& target, byte a_click, int a_step);
     byte getClickStep();
     PerClickNoteList* getNotes();
     void dropNotesBeforeStepAndRewind(int aStep);
+    void dropReadCur();
     void dropHead();
     void rewind();
     volatile void readRewind();
@@ -45,6 +48,7 @@ class StepClickList
     volatile void readNext();
     int hasValue();
     volatile int hasReadValue();
+    int count();
 
 private:
     stepClickNode *head;

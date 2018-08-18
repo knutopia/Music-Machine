@@ -90,8 +90,6 @@ void StepSequencer::updateNoteList(int stepInPattern)
     Serial.println(m_activeTracks.count());
 #endif
 
-//  activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
-
     m_activeTracks.rewind();
 
     if ( !m_activeTracks.hasValue())
@@ -176,6 +174,7 @@ void StepSequencer::updateStepClickList()
         Serial.println(aNote.swingTicks);
 #endif
 
+/*
 #ifdef DEBUG
         activeStepClicks.rewind();
         PerClickNoteList* fooNotesToTrig;
@@ -196,6 +195,7 @@ void StepSequencer::updateStepClickList()
             Serial.println("  BLOP");
         }
 #endif
+*/
 
         if (aNote.retrigClickDivider != NORETRIGS)
         {

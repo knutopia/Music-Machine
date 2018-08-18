@@ -80,7 +80,7 @@ class Timebase
       //Helper methods
       void recalcTimings();
 
-      static void midiClick();
+//    static void midiClick();
       static void shortMidiClick();
 };
 

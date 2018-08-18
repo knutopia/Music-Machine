@@ -21,20 +21,23 @@ PerClickNoteList::~PerClickNoteList()
 #ifdef DEBUG
     Serial.print("Destructor PerClickNoteList ");
 #endif
-
+/*
     rewind();
     while( hasValue())
     {
         
         die = cur;
         next();
+        die->next = NULL;
         delete die;
+        die = NULL;
 
 #ifdef DEBUG
         Serial.print("die ");
 #endif
 
     }
+*/
     head = NULL;
     cur = NULL;
     tail = NULL;
@@ -60,12 +63,14 @@ void PerClickNoteList::purge()
         die = cur;
         next();
         delete die;
+        die = NULL;
 
 #ifdef DEBUG
         Serial.print("die ");
 #endif
 
     }
+
     head = NULL;
     cur = NULL;
     tail = NULL;
@@ -110,6 +115,7 @@ void PerClickNoteList::print()
 void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS)
 {
     notePerClick *n = new notePerClick();   // create new Node
+//  notePerClick *n;
     n->clickNote = aNote;  // set value
     n->track = aTrack;
     n->durationMS = aDurationMS;
@@ -250,4 +256,18 @@ void PerClickNoteList::readNext()
     checkIntegrity("readNext");
     if( readCur != NULL )
             readCur = readCur->next;
+}
+
+int PerClickNoteList::count()
+{
+    int count = 0;
+    notePerClick *buf = cur;
+    rewind();
+    while(hasValue())
+    {
+        count++;
+        next();
+    }
+    cur = buf;
+    return count;
 }

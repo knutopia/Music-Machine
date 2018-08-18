@@ -22,7 +22,9 @@ LinkedNoteList::~LinkedNoteList()
         die = cur;
 
         next();
+        die->next = NULL;
         delete die;
+        die = NULL;
 
         Serial.print("die ");
     }
@@ -68,7 +70,10 @@ void LinkedNoteList::checkIntegrity(char caller[])
 void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
 {
     while(head != NULL && head->masterStep < aStep)
+    {
         dropHeadNote();
+        rewind();
+    }
     cur = head;
     checkIntegrity("dropNotesBeforeStepAndRewind");
 }
@@ -77,13 +82,27 @@ void LinkedNoteList::dropHeadNote()
 {
     if (head != NULL)
     {
-        noteNode *newHead = head->next;
+        if(head->next == NULL)
+        {
+            if(tail == head)
+                tail == NULL;
 
-        if (cur == head)
-            cur = newHead;
-        
-        delete head;
-        head = newHead;
+            delete head;
+            head = NULL;
+//          Serial.println(" dropHeadNote A ");
+
+        } else 
+        {
+            noteNode *die = head;
+            head = head->next;
+            
+            die->next = NULL;
+            delete die;
+            die = NULL;
+
+//          Serial.println(" dropHeadNote B ");
+
+        }
     }
     checkIntegrity("dropHeadNote");
 }
@@ -189,8 +208,8 @@ void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
 void LinkedNoteList::rewind()
 {
         cur = head;
-        if(head == NULL)
-            Serial.println("NULL head on Notelist rewind");
+//      if(head == NULL)
+//          Serial.println("NULL head on Notelist rewind");
 }
 void LinkedNoteList::next()
 {
@@ -254,6 +273,19 @@ int LinkedNoteList::hasValue()
 
 int LinkedNoteList::count()
 {
+    int count = 0;
+    noteNode *buf = cur;
+    rewind();
+    
+    while(hasValue())
+    {
+        count++;
+        next();
+    }
+    cur = buf;
+    return count;
+
+/*
     int retVal = 0;
     rewind();
     while( hasValue()){
@@ -265,5 +297,6 @@ int LinkedNoteList::count()
         next();
     }        
     return retVal;
+*/
 }
 

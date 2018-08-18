@@ -120,6 +120,18 @@ StepClickList activeStepClicks;
 NoteOffList playingNotes;
 PerClickNoteList notesToTrig;
 
+//Helper
+void listCounts()
+{
+    Serial.print("activeNotes: ");
+    Serial.print(activeNotes.count());
+    Serial.print("  activeStepClicks: ");
+    Serial.print(activeStepClicks.count());
+    Serial.print("  notesToTrig: ");
+    Serial.print(notesToTrig.count());
+    Serial.print("  playingNotes: ");
+    Serial.println(playingNotes.count());
+}
 
 //Callbacks for inputs
 void ChangeModeCb(bool forward)
@@ -419,6 +431,8 @@ void prep_next_note_direct()
     Serial.print("  mem: ");
     Serial.println(FreeMem());
 
+    listCounts();
+
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();
 
@@ -464,7 +478,7 @@ void prepNextClick()
             note_trigger_time = v_note_trigger_time;
             v_note_trigger_time = 0;
         interrupts();
-
+    
         // track noteOffs
         if(note_trigger_time != 0)
         {
@@ -486,12 +500,8 @@ void prepNextClick()
                 if(trigTrack ==1)
                 {
                     g_note_off_time = note_trigger_time + trigDur;
-
-                    Serial.print("setRunningStepIndicators prevPlaybackStep ");
-                    Serial.println(prevPlaybackStep);
                     inout.setRunningStepIndicators(prevPlaybackStep, g_note_off_time);      
                 }
-
                 notesToTrig.next();
             }
             notesToTrig.rewind();
@@ -511,18 +521,23 @@ void prepNextClick()
     #endif
         }
 
+//      Serial.print(" pNC3 ");
+
         // acquire notes for next click
         if(&notesToTrig != NULL)
             notesToTrig.purge();
         else
             Serial.println("prepNextClick: NULL notesToTrig");
 
-        if(activeStepClicks.getClickNoteListVal(&notesToTrig, g_midiClickCount, currentPlayingStep))
+        // THIS IS THE CULPRIT \/ \/ \/ \/ \/ \/
+//      if(activeStepClicks.transferClickNoteList(&notesToTrig, g_midiClickCount, currentPlayingStep))
+        if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
         {
             notesToTrig.rewind();        
             notesToTrig.readRewind();
         }
         activeStepClicks.readRewind();
+        // THIS IS THE CULPRIT /\ /\ /\ /\ /\ /\ 
 
         if(prepNextStep)
         {
@@ -653,9 +668,17 @@ void prepNoteGlobals()
 //  Serial.print(", activeStepClicks drop done ");
 
     g_activeGlobalStep++;
+
+//  Serial.println(activeNotes.count());
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+//  Serial.println(" dropNotesBeforeStepAndRewind -> ");
+//  Serial.println(activeNotes.count());
+
 //  Serial.print(", activeNotes drop done ");
     sequencer.updateNoteList(playbackStep);
+//  Serial.println(" updateNoteList --> ");
+//  Serial.println(activeNotes.count());
+
 //  Serial.print(", updateNoteList done ");
     activeNotes.rewind();
     sequencer.updateStepClickList();
@@ -756,6 +779,7 @@ void followNoteOff()
     int foo = 0;
 
     playingNotes.readRewind();
+
     while(playingNotes.hasReadValue())
     {        
         if(playingNotes.readNoteOffTime() < micros())

@@ -529,6 +529,21 @@ void prepNextClick()
         else
             Serial.println("prepNextClick: NULL notesToTrig");
 
+/*
+        PerClickNoteList freshStepClicks = activeStepClicks.getClickNoteList(g_midiClickCount, currentPlayingStep);
+        freshStepClicks.rewind();
+        while(freshStepClicks.hasValue())
+        {
+            notesToTrig.append(freshStepClicks.getNote(),
+                                freshStepClicks.getTrack(),
+                                freshStepClicks.getDurationMS());
+            freshStepClicks.next();
+//          notesToTrig.next();
+        }
+*/
+
+
+
         // THIS IS THE CULPRIT \/ \/ \/ \/ \/ \/
 //      if(activeStepClicks.transferClickNoteList(&notesToTrig, g_midiClickCount, currentPlayingStep))
         if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
@@ -703,6 +718,7 @@ void trackListSizes()
     Serial.println(sizeof(synth));
 }
 
+/*
 void playbackTest()
 {
     Serial.print("playbackTest:  ");
@@ -752,7 +768,7 @@ void playbackTest()
     }
     activeStepClicks.rewind();
 }
-
+*/
 
 byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 {

@@ -33,7 +33,7 @@ class StepClickList
     void append(int aMasterStep, byte aClickStep);
     void insertBefore(int aMasterStep, byte aClickStep);
     int getMasterStep();
-    PerClickNoteList* getClickNoteList(byte a_click, int a_step);
+    PerClickNoteList getClickNoteList(byte a_click, int a_step);
     bool getClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
 //  bool transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
     bool transferClickNoteList(PerClickNoteList& target, byte a_click, int a_step);

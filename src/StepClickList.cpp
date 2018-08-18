@@ -222,9 +222,9 @@ int StepClickList::getMasterStep()
     return retVal; 
 }
 
-PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
+PerClickNoteList StepClickList::getClickNoteList(byte a_click, int a_step)
 {
-    PerClickNoteList *retVal;
+    PerClickNoteList retVal;
 
     checkIntegrity("getClickNoteList");
 
@@ -241,7 +241,7 @@ PerClickNoteList* StepClickList::getClickNoteList(byte a_click, int a_step)
             Serial.println(a_step);
 #endif
             readCur->notes->rewind();
-            retVal = readCur->notes;
+            retVal = *readCur->notes;
             found = true;
             break;
         }

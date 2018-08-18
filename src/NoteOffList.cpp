@@ -9,26 +9,32 @@ NoteOffList::NoteOffList()
 
 NoteOffList::~NoteOffList()
 {
-    volatile noteOffNode *die;
-
     Serial.print("Destructor NoteOffList ");
-    rewind();
-    while( hasValue()){
+
+    volatile noteOffNode *die = head;
+
+    while(die) 
+    {
+        head = die->next;
         
-        die = cur;
-        next();
-        die->prev = NULL;
         die->next = NULL;
+        die->prev = NULL;
         delete die;
-        die = NULL;
-        
+        die = head;
+
+#ifdef DEBUG
         Serial.print("die ");
+#endif
     }
+
     head = NULL;
     cur = NULL;
     tail = NULL;
-
-    Serial.println();
+    readCur = NULL;
+    
+#ifdef DEBUG
+    Serial.println("done");
+#endif
 }
 
 void NoteOffList::checkIntegrity(char caller[])

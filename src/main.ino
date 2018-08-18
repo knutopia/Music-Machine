@@ -46,8 +46,8 @@ const float NORMAL_VEL = 0.7;
 //boolean b_note_on = false;
 volatile unsigned long v_note_off_time = 0;
 unsigned long g_note_off_time = 0;
-volatile bool vb_prep_next_step = false;      // grab the next step's note to be ready for play
-volatile bool vb_clickHappened = false;
+//volatile bool vb_prep_next_step = false;       // grab the next step's note to be ready for play
+volatile bool vb_clickHappened = false;          //follow up closely after each click
 volatile unsigned long v_note_trigger_time = 0;
 
 int save_sequence_destination = -1;
@@ -372,6 +372,7 @@ static bool bTimeslice = true;
 //  inout.showLoopTimer();
 }
 
+/*
 void prep_next_note()
 {
     bool prepNextStep;
@@ -420,6 +421,7 @@ void prep_next_note()
         synth.prepPatchIfNeeded();
     }
 }
+*/
 
 void prep_next_note_direct()
 {
@@ -431,7 +433,7 @@ void prep_next_note_direct()
     Serial.print("  mem: ");
     Serial.println(FreeMem());
 
-    listCounts();
+//  listCounts();
 
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();
@@ -454,7 +456,10 @@ void prep_next_note_direct()
     playbackStep = playpath.getAndAdvanceStepPos(seqLength);
 
     prepNoteGlobals();
+    
+#ifdef DEBUG
     Serial.println(" Note prepped.");
+#endif
 
     // change synth patch ?
     synth.prepPatchIfNeeded();
@@ -521,38 +526,20 @@ void prepNextClick()
     #endif
         }
 
-//      Serial.print(" pNC3 ");
-
         // acquire notes for next click
         if(&notesToTrig != NULL)
             notesToTrig.purge();
         else
             Serial.println("prepNextClick: NULL notesToTrig");
 
-/*
-        PerClickNoteList freshStepClicks = activeStepClicks.getClickNoteList(g_midiClickCount, currentPlayingStep);
-        freshStepClicks.rewind();
-        while(freshStepClicks.hasValue())
-        {
-            notesToTrig.append(freshStepClicks.getNote(),
-                                freshStepClicks.getTrack(),
-                                freshStepClicks.getDurationMS());
-            freshStepClicks.next();
-//          notesToTrig.next();
-        }
-*/
-
-
-
-        // THIS IS THE CULPRIT \/ \/ \/ \/ \/ \/
-//      if(activeStepClicks.transferClickNoteList(&notesToTrig, g_midiClickCount, currentPlayingStep))
+        // THIS was THE CULPRIT \/ \/ \/ \/ \/ \/
         if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
         {
             notesToTrig.rewind();        
             notesToTrig.readRewind();
         }
         activeStepClicks.readRewind();
-        // THIS IS THE CULPRIT /\ /\ /\ /\ /\ /\ 
+        // THIS was THE CULPRIT /\ /\ /\ /\ /\ /\ 
 
         if(prepNextStep)
         {
@@ -841,7 +828,7 @@ void stopPlayback()
 {
      metro.stopMidiTimer();
      playbackOn = false;
-     vb_prep_next_step = false;
+//   vb_prep_next_step = false;
 }
 
 

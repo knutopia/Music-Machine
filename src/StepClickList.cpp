@@ -24,12 +24,26 @@ StepClickList::StepClickList()
 
 StepClickList::~StepClickList()
 {
-    stepClickNode *die;
-
 #ifdef DEBUG
     Serial.print("Destructor StepClickList ");
 #endif
 
+    stepClickNode *die = head;
+
+    while(die) 
+    {
+        head = die->next;
+        die->next = NULL;
+        die->prev = NULL;
+        delete die->notes;
+        delete die;
+        die = head;
+
+#ifdef DEBUG
+        Serial.print("die ");
+#endif
+    }
+/*
     while( hasValue()){
         die = cur;
         next();
@@ -39,9 +53,19 @@ StepClickList::~StepClickList()
         delete die;
         die = NULL;
 
+#ifdef DEBUG
         Serial.print("die ");
+#endif
     }
-    Serial.println();
+*/
+    head = NULL;
+    cur = NULL;
+    tail = NULL;
+    readCur = NULL;
+
+#ifdef DEBUG
+    Serial.println("done");
+#endif
 }
 
 void StepClickList::checkIntegrity(char caller[])
@@ -431,6 +455,7 @@ void StepClickList::dropReadCur()
             tail = readCur->prev;
         }
 
+        delete readCur->notes;
         delete readCur;
         readCur = NULL;
     }

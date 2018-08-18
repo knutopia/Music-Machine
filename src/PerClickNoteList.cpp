@@ -16,28 +16,24 @@ PerClickNoteList::PerClickNoteList()
 
 PerClickNoteList::~PerClickNoteList()
 {
-    notePerClick *die;
 
 #ifdef DEBUG
     Serial.print("Destructor PerClickNoteList ");
 #endif
-/*
-    rewind();
-    while( hasValue())
+
+    notePerClick *die = head;
+
+    while(die) 
     {
-        
-        die = cur;
-        next();
-        die->next = NULL;
+        head = die->next;
         delete die;
-        die = NULL;
+        die = head;
 
 #ifdef DEBUG
         Serial.print("die ");
 #endif
-
     }
-*/
+
     head = NULL;
     cur = NULL;
     tail = NULL;
@@ -50,20 +46,17 @@ PerClickNoteList::~PerClickNoteList()
 
 void PerClickNoteList::purge()
 {
-    notePerClick *die;
-
 #ifdef DEBUG
     Serial.print("PerClickNoteList purge ");
 #endif
 
-    rewind();
-    while( hasValue())
+    notePerClick *die = head;
+
+    while(die) 
     {
-        
-        die = cur;
-        next();
+        head = die->next;
         delete die;
-        die = NULL;
+        die = head;
 
 #ifdef DEBUG
         Serial.print("die ");

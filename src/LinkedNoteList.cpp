@@ -13,27 +13,28 @@ LinkedNoteList::LinkedNoteList()
 
 LinkedNoteList::~LinkedNoteList()
 {
-    noteNode *die;
-
     Serial.print("Destructor LinkedNoteList ");
-    rewind();
-    while( hasValue()){
-        
-        die = cur;
 
-        next();
-        die->next = NULL;
+    noteNode *die = head;
+
+    while(die) 
+    {
+        head = die->next;
         delete die;
-        die = NULL;
+        die = head;
 
+#ifdef DEBUG
         Serial.print("die ");
+#endif
     }
 
     head = NULL;
     cur = NULL;
     tail = NULL;
 
-    Serial.println("LinkedNoteList alive !");
+#ifdef DEBUG
+    Serial.println("done");
+#endif
 }
 
 void LinkedNoteList::printActiveNote()

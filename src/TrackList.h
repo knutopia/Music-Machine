@@ -28,25 +28,30 @@ public:
 
     ~LinkedTrackList()
     {
-        trackNode *die;
-
+#ifdef DEBUG
         Serial.print("Destructor LinkedTrackList ");
-        rewind();
-        while( hasValue()){
-            
-            die = cur;
-            next();
+#endif
+        trackNode *die = head;
+
+        while(die) 
+        {
+            head = die->next;
             delete die->trackRef;
             delete die;
-            die = NULL;
+            die = head;
 
+#ifdef DEBUG
             Serial.print("die ");
+#endif
         }
+
         head = NULL;
         cur = NULL;
         tail = NULL;
 
-        Serial.println();
+#ifdef DEBUG
+        Serial.print("done ");
+#endif
     }
 
     void dropTrack(byte trackNum)

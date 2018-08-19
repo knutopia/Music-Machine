@@ -122,7 +122,8 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
                         ReactToInputSpeedFactor updateSpeedMultiplierPointer,
                         ReactToInput SaveToSdCbPointer,
                         ReactToInput startStopCbPointer,
-                        ReactToInputInt updateSynthCbPointer) {
+                        ReactToInputInt updateSynthCbPointer,
+                        ReactToInputInt updateTrackCbPointer) {
 
   updateModeCb = updateModeCbPointer;
   updateRepetitionCb = updateRepetitionCbPointer;
@@ -131,6 +132,7 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   updateSaveSequenceDestCb = updateSaveSequenceDestPointer;
   updateTempoCb = updateTempoPointer;
   updateSpeedMultiplierCb = updateSpeedMultiplierPointer;
+  updateTrackCb = updateTrackCbPointer;
   
   SaveToSdCb = SaveToSdCbPointer;
   startStopCb = startStopCbPointer;
@@ -223,6 +225,12 @@ void InOutHelper::setupNewMode() {
         StartStopButtonCb = startStopCb;
         SetupSelectEditTrellis();
         break;
+      case track_select:
+        StepButtonCb = updateTrackCb;    
+        StartStopButtonCb = startStopCb;
+        SetupTrackSelectModeTrellis();
+        break;      
+
       case accent_edit:
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
@@ -420,6 +428,19 @@ void InOutHelper::SetupSaveModeTrellis() {
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
     LiteUpTrellisSteps(helperSteps);
+}
+
+
+void InOutHelper::SetupTrackSelectModeTrellis() {
+    
+    int seqNum = sequencer.getCurrentTrack();
+    
+    stepsToCheck = helperSteps;
+    ClearBoolSteps(helperSteps, 16);
+    helperSteps[seqNum] = true;
+    
+    LiteUpTrellisSteps(helperSteps);
+    ShowTrackNumberOnLCD(seqNum);
 }
 
 
@@ -1251,6 +1272,7 @@ void InOutHelper::handleModeButtons()
 {
     static int selectOrSave = pattern_select;
     static int muteOrHold = step_mute;
+    static int stepOrTrack = step_edit;
     
     if (PatternModeButton.update() && PatternModeButton.fell()) {
       if (currentMode == pattern_select) {
@@ -1274,6 +1296,29 @@ void InOutHelper::handleModeButtons()
         handleButtonHoldTiming(PATTERNMODEBUTTON, false);    
       }
     
+
+
+    if (StepEditModeButton.update() && StepEditModeButton.fell()) {
+      if (currentMode == step_edit) {
+        currentMode = track_select;
+        stepOrTrack = track_select;
+      } else
+        if (currentMode == track_select) {
+          currentMode = step_edit;
+          stepOrTrack = step_edit;
+        } else
+          currentMode = stepOrTrack;
+      setupNewMode();
+      ShowModeOnLCD();        
+      selectionChanged = true;
+      handleButtonHoldTiming(STEPEDITMODEBUTTON, true);
+    } else
+      if (StepEditModeButton.rose()) {
+        handleButtonHoldTiming(STEPEDITMODEBUTTON, false);    
+      }
+
+
+
     if (MuteModeButton.update() && MuteModeButton.fell()) {
       if (currentMode == step_hold) {
         currentMode = step_mute;
@@ -1775,6 +1820,17 @@ void InOutHelper::ShowSequenceNumberOnLCD(int seqNum)
     lcd.print(seqNum);  
 }
 
+
+void InOutHelper::ShowTrackNumberOnLCD(byte trackNum)
+{
+    lcd.setCursor(18, 3);
+    lcd.print("  ");  
+
+    if(trackNum < 9) lcd.setCursor(19, 3);
+    else lcd.setCursor(18, 3);
+
+    lcd.print(trackNum);  
+}
 
 void InOutHelper::ShowPathNumberOnLCD(byte pathNum)
 {

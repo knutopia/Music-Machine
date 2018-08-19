@@ -408,6 +408,11 @@ int StepSequencer::getCurrentSequence()
     return m_currentSequence;
 }
 
+byte StepSequencer::getCurrentTrack()
+{
+    return activeEditTrack->getNumber();
+}
+
 byte StepSequencer::getLowestSelectedNote(boolean selectedNotes[])
 {
   byte lowestNote = 127;
@@ -662,6 +667,18 @@ void StepSequencer::setCurrentSequence(int index)
         m_recall_buffer_active = false;
     }
 }
+
+void StepSequencer::setCurrentTrack(byte trackNum)
+{
+    Track* aTrack = m_activeTracks.getTrackRef();
+    if(aTrack != NULL)
+        activeEditTrack = aTrack;
+    else {
+        Serial.print("setCurrentTrack not found: ");
+        Serial.println(trackNum);
+    }
+}
+
 
 //Helper method
 bool StepSequencer::playOrNot(int index)

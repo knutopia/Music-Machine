@@ -14,6 +14,7 @@ enum seqModes {first,
                path_select,
                synth_edit,
                save_to_sd, 
+               track_select,
                last};
 
 enum sequenceVariations {ROOT = 0, EDIT = 255};   // unused            

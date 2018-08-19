@@ -36,7 +36,8 @@ class InOutHelper
                 ReactToInputSpeedFactor updateSpeedMultiplierPointer,
                 ReactToInput SaveToSdCbPointer,
                 ReactToInput startStopCbPointer,
-                ReactToInputInt updateSynthCbPointer);
+                ReactToInputInt updateSynthCbPointer,
+                ReactToInputInt updateTrackCbPointer);
     void setupNewMode();
     void handleEncoders();
     void handleEncoderButtons();
@@ -64,6 +65,7 @@ class InOutHelper
     void ShowSynParOnLCD(const char label[], float value);
     void ShowErrorOnLCD(char error[]);
     void ShowSequenceNumberOnLCD(int seqNum);
+    void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
     void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
@@ -84,6 +86,7 @@ class InOutHelper
     void SetupPathSelectModeTrellis();
     void SetupSynthEditTrellis();
     void SetupSaveModeTrellis();
+    void SetupTrackSelectModeTrellis();
     
     void ProcessTrellisButtonRelease(uint8_t index);
     void ProcessTrellisButtonPress(uint8_t index);
@@ -128,6 +131,7 @@ class InOutHelper
     ReactToInputInt StepButtonCb;
     ReactToInput StartStopButtonCb;
     ReactToInputInt updateSynthCb;
+    ReactToInputInt updateTrackCb;
     
     const int numKeys = (NUMTRELLIS * 16);
     const int INTPIN = A2;   

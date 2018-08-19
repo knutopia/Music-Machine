@@ -105,6 +105,10 @@ char* Track::getName()
   return trackName;
 }
 
+byte Track::getNumber()
+{
+      return trackNumber;
+}
 /*
 byte Track::getCurrentPattern()
 {

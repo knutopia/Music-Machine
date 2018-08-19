@@ -51,6 +51,7 @@ class StepSequencer
       byte getPath(); // kg
 
       int getCurrentSequence();
+      byte getCurrentTrack();
       byte getLowestSelectedNote(boolean selectedNotes[]);
       byte getHighestSelectedNote(boolean selectedNotes[]);
       byte getLowestSelectedVelocity(boolean selectedNotes[]);
@@ -77,6 +78,7 @@ class StepSequencer
       void setVelocity(int _step, byte velocity);
       void setPath(byte path);
       void setCurrentSequence(int index);
+      void setCurrentTrack(byte trackNum);
       void updateNoteList(int stepInPattern);
       void updateStepClickList();
 //    StepClickList getClickNoteList(int click);

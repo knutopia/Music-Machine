@@ -54,6 +54,25 @@ public:
 #endif
     }
 
+    Track* getTrackRef(byte trackNum)
+    {
+        Track* retVal = NULL;
+        trackNode *curBup = cur;
+
+        rewind();
+        while(hasValue())
+        {
+            if(cur->trackNumber == trackNum)
+            {
+                retVal = cur->trackRef;
+                break;
+            }
+            next();
+        }
+        cur = curBup;
+        return retVal;
+    }
+
     void dropTrack(byte trackNum)
     {
         rewind();
@@ -91,6 +110,7 @@ public:
             }
         }
     }
+
     // add value at the end -kg
     void appendTrack(byte aTrackNum, Track *aTrack)
     {

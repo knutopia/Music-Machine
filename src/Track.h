@@ -27,6 +27,7 @@ class Track
       void setName(char *namePar);
 //    void setCurrentPattern(byte newPat);
       char* getName();
+      byte getNumber();
 //    byte getCurrentPattern();
       NoteGetter getNoteCb;
 

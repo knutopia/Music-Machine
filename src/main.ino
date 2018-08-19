@@ -188,6 +188,15 @@ void ChangeSequenceNumberCb(int seqNum) {
 }
 
 
+void ChangeTrackCb(int trackNum) {
+  
+    sequencer.setCurrentTrack((byte)trackNum);
+    playpath.setPath(sequencer.getPath());
+    inout.ShowTrackNumberOnLCD(trackNum);
+    inout.ShowPathNumberOnLCD(sequencer.getPath());
+    sequencer.printSequence();
+}
+
 void ChangeSaveSequenceDestinationCb(int seqNum) {
           
     save_sequence_destination = seqNum;
@@ -325,7 +334,8 @@ void setup()
                 ChangeSpeedMultiplierCb,
                 SaveToSdCb,
                 StartStopCb,
-                SynthButtonCb);
+                SynthButtonCb,
+                ChangeTrackCb);
                 
     playpath.setPath(sequencer.getPath());
 
@@ -820,7 +830,7 @@ void handleRewindButton()
         inout.RemoveStepIndicatorOnLCD();
         inout.ShowModeOnLCD();
         playpath.resetStep();
-        
+
         activeNotes.purge();
         notesToTrig.purge();
         activeStepClicks.purge();

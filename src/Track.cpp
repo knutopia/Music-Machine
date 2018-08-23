@@ -63,7 +63,9 @@ note Track::getNoteParams(int step, byte curSequence)
       Serial.print(" for step ");
       Serial.print(step);
       Serial.print(" of sequence ");
-      Serial.println(curSequence);
+      Serial.print(curSequence);
+      Serial.print(" nn track ");
+      Serial.println(trackNumber);
 #endif
 
       // this may be completely redundant ?

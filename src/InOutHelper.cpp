@@ -187,6 +187,8 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   ShowModeOnLCD();
   ShowBPMOnLCD(metro.getBPM());
   ShowSwingOnLCD(metro.getSwing());
+  ShowPathNumberOnLCD(sequencer.getPath());
+  ShowTrackNumberOnLCD(sequencer.getCurrentTrack());
 }
 
 
@@ -436,7 +438,7 @@ void InOutHelper::SetupTrackSelectModeTrellis() {
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
-    helperSteps[trackNum] = true;
+    helperSteps[trackNum - 1] = true;
     
     LiteUpTrellisSteps(helperSteps);
     ShowTrackNumberOnLCD(trackNum);
@@ -1065,7 +1067,7 @@ void InOutHelper::PathModeTrellisButtonPressed(int i)
 void InOutHelper::TrackSelectTrellisButtonPressed(int i) 
 {
       byte curTrack = sequencer.getCurrentTrack();
-      if(curTrack==(byte)i % STEPSOFFSET)
+      if(curTrack == 1 + ((byte)i % STEPSOFFSET))
       {
           SimpleIndicatorModeTrellisButtonPressed(i);
           
@@ -1843,10 +1845,10 @@ void InOutHelper::ShowTrackNumberOnLCD(byte trackNum)
     lcd.setCursor(15, 2);
     lcd.print("  ");  
 
-    if(trackNum < 9) lcd.setCursor(16, 2);
+    if(trackNum < 10) lcd.setCursor(16, 2);
     else lcd.setCursor(15, 2);
 
-    lcd.print(trackNum + 1);  
+    lcd.print(trackNum);  
 }
 
 void InOutHelper::ShowPathNumberOnLCD(byte pathNum)

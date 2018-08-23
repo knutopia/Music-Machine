@@ -192,16 +192,14 @@ void ChangeSequenceNumberCb(int seqNum) {
 void ChangeTrackCb(int trackNum) {
   
     Serial.print("ChangeTrackCb: ");
-    Serial.print(trackNum);
+    Serial.print(1 + trackNum);
     
-    sequencer.setCurrentTrack((byte)trackNum);
+    sequencer.setCurrentTrack(1 + (byte)trackNum);
 
     Serial.print("  result: ");
     Serial.println(sequencer.getCurrentTrack());
 
     playpath.setPath(sequencer.getPath());
-//  inout.ShowTrackNumberOnLCD(trackNum);
-//  inout.ShowPathNumberOnLCD(sequencer.getPath());
 //  sequencer.printSequence();
 }
 

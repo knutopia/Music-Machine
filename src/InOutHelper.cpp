@@ -230,7 +230,6 @@ void InOutHelper::setupNewMode() {
         StartStopButtonCb = startStopCb;
         SetupTrackSelectModeTrellis();
         break;      
-
       case accent_edit:
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
@@ -433,14 +432,14 @@ void InOutHelper::SetupSaveModeTrellis() {
 
 void InOutHelper::SetupTrackSelectModeTrellis() {
     
-    int seqNum = sequencer.getCurrentTrack();
+    int trackNum = sequencer.getCurrentTrack();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
-    helperSteps[seqNum] = true;
+    helperSteps[trackNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-    ShowTrackNumberOnLCD(seqNum);
+    ShowTrackNumberOnLCD(trackNum);
 }
 
 
@@ -926,6 +925,9 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
             case accent_edit:
               AccentModeTrellisButtonPressed(i);
               break;
+            case track_select:
+              TrackSelectTrellisButtonPressed(i);
+              break;
             case length_edit:
             case pattern_select:
               save_sequence_destination = -1;
@@ -1057,6 +1059,21 @@ void InOutHelper::PathModeTrellisButtonPressed(int i)
      ShowInfoOnLCD(playpath.getPathName());
      SetLCDinfoTimeout();
      ShowPathNumberOnLCD(i % STEPSOFFSET);
+}
+
+
+void InOutHelper::TrackSelectTrellisButtonPressed(int i) 
+{
+      byte curTrack = sequencer.getCurrentTrack();
+      if(curTrack==(byte)i % STEPSOFFSET)
+      {
+          SimpleIndicatorModeTrellisButtonPressed(i);
+          
+          ShowTrackNumberOnLCD(curTrack);
+          ShowPathNumberOnLCD(sequencer.getPath());
+      } else {
+          LiteUpTrellisSteps(helperSteps);
+      }
 }
 
 
@@ -1823,13 +1840,13 @@ void InOutHelper::ShowSequenceNumberOnLCD(int seqNum)
 
 void InOutHelper::ShowTrackNumberOnLCD(byte trackNum)
 {
-    lcd.setCursor(18, 3);
+    lcd.setCursor(15, 2);
     lcd.print("  ");  
 
-    if(trackNum < 9) lcd.setCursor(19, 3);
-    else lcd.setCursor(18, 3);
+    if(trackNum < 9) lcd.setCursor(16, 2);
+    else lcd.setCursor(15, 2);
 
-    lcd.print(trackNum);  
+    lcd.print(trackNum + 1);  
 }
 
 void InOutHelper::ShowPathNumberOnLCD(byte pathNum)

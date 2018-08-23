@@ -48,11 +48,11 @@ void StepSequencer::begin()
     for(int n = 0; n < len; n+=4)
         m_beat_sequence[0].setDuration(n, 0.5);
 
-    tmpTrack1.begin(m_sequence, max_sequences, (byte)1);
-    tmpTrack2.begin(m_beat_sequence, 1, (byte)2);
+    tmpTrack1.begin(m_sequence, max_sequences, (byte)0);
+    tmpTrack2.begin(m_beat_sequence, 1, (byte)1);
 
-    m_activeTracks.appendTrack(1, &tmpTrack1);
-    m_activeTracks.appendTrack(2, &tmpTrack2);
+    m_activeTracks.appendTrack(0, &tmpTrack1);
+    m_activeTracks.appendTrack(1, &tmpTrack2);
 
     activeEditTrack = &tmpTrack1;
 }
@@ -670,10 +670,12 @@ void StepSequencer::setCurrentSequence(int index)
 
 void StepSequencer::setCurrentTrack(byte trackNum)
 {
-    Track* aTrack = m_activeTracks.getTrackRef();
-    if(aTrack != NULL)
-        activeEditTrack = aTrack;
-    else {
+    Track *newRef = m_activeTracks.getTrackRef(trackNum);
+
+    if(newRef != NULL)
+        activeEditTrack = activeEditTrack = newRef;
+    else
+    {
         Serial.print("setCurrentTrack not found: ");
         Serial.println(trackNum);
     }

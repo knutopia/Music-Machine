@@ -96,6 +96,7 @@ class InOutHelper
     unsigned long GetHoldableButtonPressed(holdableButton buttn);
     
     void SelectEditTrellisButtonPressed(int index);
+    void TrackSelectTrellisButtonPressed(int index);
     void MuteModeTrellisButtonPressed(int index);
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);

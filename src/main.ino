@@ -78,6 +78,7 @@ const char *modeNames[] = {"foo1",
                            "Path Select", 
                            "Synth Edit",
                            "Save to SD", 
+                           "Track Select",
                            "foo2"};
 
 
@@ -190,11 +191,18 @@ void ChangeSequenceNumberCb(int seqNum) {
 
 void ChangeTrackCb(int trackNum) {
   
+    Serial.print("ChangeTrackCb: ");
+    Serial.print(trackNum);
+    
     sequencer.setCurrentTrack((byte)trackNum);
+
+    Serial.print("  result: ");
+    Serial.println(sequencer.getCurrentTrack());
+
     playpath.setPath(sequencer.getPath());
-    inout.ShowTrackNumberOnLCD(trackNum);
-    inout.ShowPathNumberOnLCD(sequencer.getPath());
-    sequencer.printSequence();
+//  inout.ShowTrackNumberOnLCD(trackNum);
+//  inout.ShowPathNumberOnLCD(sequencer.getPath());
+//  sequencer.printSequence();
 }
 
 void ChangeSaveSequenceDestinationCb(int seqNum) {

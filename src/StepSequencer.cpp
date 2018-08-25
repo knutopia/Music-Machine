@@ -55,6 +55,7 @@ void StepSequencer::begin()
     m_activeTracks.appendTrack(2, &tmpTrack2);
 
     activeEditTrack = &tmpTrack1;
+    activeEditTrack->setCurrentSequenceIndex(0);
 }
 
 void StepSequencer::updateNoteList(int stepInPattern)
@@ -309,18 +310,20 @@ void StepSequencer::swap_edit_root_seqs(int seqnum)
     swap_buffer.copySeqTo(m_sequence[seqnum]);
 }
 
-bool StepSequencer::toggle_pattern_recall()
+bool StepSequencer::toggle_pattern_recall() // TODO ...handle m_sequence_root
 {
     static StepSequence recall_buffer;
     
     if (!m_recall_buffer_active) {
-      m_sequence[m_currentSequence].copySeqTo(recall_buffer);
+//    m_sequence[m_currentSequence].copySeqTo(recall_buffer);
+      activeEditTrack->getCurrentSequenceRef()->copySeqTo(recall_buffer);
       m_sequence_root[m_currentSequence].copySeqTo(m_sequence[m_currentSequence]);
       m_recall_buffer_active = true;
       Serial.print(" Restoring root ");          
       Serial.println(m_currentSequence);          
     } else {
-      recall_buffer.copySeqTo(m_sequence[m_currentSequence]);
+//    recall_buffer.copySeqTo(m_sequence[m_currentSequence]);
+      recall_buffer.copySeqTo(activeEditTrack->getCurrentSequenceRef());
       m_recall_buffer_active = false;
       Serial.print(" Recalling edit ");          
       Serial.println(m_currentSequence);       
@@ -331,79 +334,93 @@ bool StepSequencer::toggle_pattern_recall()
 //"Getters" and "setters"
 byte StepSequencer::getNote(int _step)
 {
-    return m_sequence[m_currentSequence].getNote(_step);
+//  return m_sequence[m_currentSequence].getNote(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getNote(_step);
 }
 
 byte StepSequencer::getTransposition()
 {
-    return m_sequence[m_currentSequence].getTransposition();
+//  return m_sequence[m_currentSequence].getTransposition();
+    return activeEditTrack->getCurrentSequenceRef()->getTransposition();
 }
 
 byte StepSequencer::getLength()
 {
-    return m_sequence[m_currentSequence].getLength();
+//  return m_sequence[m_currentSequence].getLength();
+    return activeEditTrack->getCurrentSequenceRef()->getLength();
 }
 
 byte StepSequencer::getMaxLength()
 {
-    return m_sequence[m_currentSequence].getMaxLength();
+//  return m_sequence[m_currentSequence].getMaxLength();
+    return activeEditTrack->getCurrentSequenceRef()->getMaxLength();
 }
 
 float StepSequencer::getDuration(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getDuration(_step);
+//  return m_sequence[m_currentSequence].getDuration(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getDuration(_step);
 }
 
 byte StepSequencer::getProbability(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getProbability(_step);
+//  return m_sequence[m_currentSequence].getProbability(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getProbability(_step);
 }
 
 byte StepSequencer::getTicks(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getTicks(_step);
+//  return m_sequence[m_currentSequence].getTicks(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getTicks(_step);
 }
 
 bool StepSequencer::getMute(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getMute(_step);
+//  return m_sequence[m_currentSequence].getMute(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getMute(_step);
 }
 
 
 bool StepSequencer::getHold(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getHold(_step);
+//  return m_sequence[m_currentSequence].getHold(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getHold(_step); 
 }
 
 
 byte StepSequencer::getAccent(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getAccent(_step);      
+//  return m_sequence[m_currentSequence].getAccent(_step);      
+    return activeEditTrack->getCurrentSequenceRef()->getAccent(_step); 
 }
 
 
 byte StepSequencer::getRetrig(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getRetrig(_step);      
+//  return m_sequence[m_currentSequence].getRetrig(_step);      
+    return activeEditTrack->getCurrentSequenceRef()->getRetrig(_step);      
 }
 
 
 byte StepSequencer::getVelocity(int _step) // kg
 {
-    return m_sequence[m_currentSequence].getVelocity(_step);      
+//  return m_sequence[m_currentSequence].getVelocity(_step);      
+    return activeEditTrack->getCurrentSequenceRef()->getVelocity(_step);      
 }
 
 note StepSequencer::getNoteParams(int _step) // kg
 {
-  return m_sequence[m_currentSequence].getNoteParams(_step);
+//  return m_sequence[m_currentSequence].getNoteParams(_step);
+    return activeEditTrack->getCurrentSequenceRef()->getNoteParams(_step);
 }
 
 byte StepSequencer::getPath() // kg
 {
-    return m_sequence[m_currentSequence].getPath();
+//  return m_sequence[m_currentSequence].getPath();
+    return activeEditTrack->getCurrentSequenceRef()->getPath();
 }
 
-int StepSequencer::getCurrentSequence()
+int StepSequencer::getCurrentSequence() // TODO
 {
     return m_currentSequence;
 }
@@ -423,7 +440,8 @@ byte StepSequencer::getLowestSelectedNote(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentNote = m_sequence[m_currentSequence].getNote(i);
+//        currentNote = m_sequence[m_currentSequence].getNote(i);
+          currentNote = activeEditTrack->getCurrentSequenceRef()->getNote(i);
           lowestNote = (lowestNote > currentNote) ? currentNote : lowestNote;
       }
     }
@@ -441,7 +459,8 @@ byte StepSequencer::getHighestSelectedNote(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentNote = m_sequence[m_currentSequence].getNote(i);
+//        currentNote = m_sequence[m_currentSequence].getNote(i);
+          currentNote = activeEditTrack->getCurrentSequenceRef()->getNote(i);
           highestNote = (highestNote < currentNote) ? currentNote : highestNote; 
       }
     }
@@ -459,7 +478,8 @@ byte StepSequencer::getLowestSelectedVelocity(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentVel = m_sequence[m_currentSequence].getVelocity(i);
+//        currentVel = m_sequence[m_currentSequence].getVelocity(i);
+          currentVel = activeEditTrack->getCurrentSequenceRef()->getVelocity(i);
           lowestVel = (lowestVel > currentVel) ? currentVel : lowestVel;
       }
     }
@@ -477,7 +497,8 @@ byte StepSequencer::getHighestSelectedVelocity(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentVel = m_sequence[m_currentSequence].getVelocity(i);
+//        currentVel = m_sequence[m_currentSequence].getVelocity(i);
+          currentVel = activeEditTrack->getCurrentSequenceRef()->getVelocity(i);
           highestVel = (highestVel < currentVel) ? currentVel : highestVel; 
       }
     }
@@ -495,7 +516,8 @@ float StepSequencer::getShortestSelectedNote(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentNote = m_sequence[m_currentSequence].getDuration(i);
+//        currentNote = m_sequence[m_currentSequence].getDuration(i);
+          currentNote = activeEditTrack->getCurrentSequenceRef()->getDuration(i);
           shortestNote = (shortestNote > currentNote) ? currentNote : shortestNote;
       }
     }
@@ -513,7 +535,8 @@ float StepSequencer::getLongestSelectedNote(boolean selectedNotes[])
   } else {
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) {
-          currentNote = m_sequence[m_currentSequence].getDuration(i);
+//        currentNote = m_sequence[m_currentSequence].getDuration(i);
+          currentNote = activeEditTrack->getCurrentSequenceRef()->getDuration(i);
           longestNote = (longestNote < currentNote) ? currentNote : longestNote;
       }
     }
@@ -566,7 +589,8 @@ void StepSequencer::offsetSelectedDurations(boolean selectedNotes[], float durat
 void StepSequencer::setSelectedRepetitions(boolean selectedNotes[], byte repetition) 
 {
   for (int i=0; i < 16; i++) {
-    if (selectedNotes[i]) m_sequence[m_currentSequence].setTicks(i, repetition);
+//  if (selectedNotes[i]) m_sequence[m_currentSequence].setTicks(i, repetition);
+    if (selectedNotes[i]) activeEditTrack->getCurrentSequenceRef()->setTicks(i, repetition);
   }
 }
 
@@ -574,7 +598,8 @@ void StepSequencer::setSelectedRepetitions(boolean selectedNotes[], byte repetit
 void StepSequencer::setSelectedRetrigs(boolean selectedNotes[], byte retrigs) 
 {
   for (int i=0; i < 16; i++) {
-    if (selectedNotes[i]) m_sequence[m_currentSequence].setRetrig(i, retrigs);
+//  if (selectedNotes[i]) m_sequence[m_currentSequence].setRetrig(i, retrigs);
+    if (selectedNotes[i]) activeEditTrack->getCurrentSequenceRef()->setRetrig(i, retrigs);
   }
 }
 
@@ -582,89 +607,124 @@ void StepSequencer::setSelectedRetrigs(boolean selectedNotes[], byte retrigs)
 void StepSequencer::setSelectedProbabilities(boolean selectedNotes[], byte prob)
 {
   for (int i=0; i < 16; i++) {
-    if (selectedNotes[i]) m_sequence[m_currentSequence].setProbability(i, (byte)prob);
+//  if (selectedNotes[i]) m_sequence[m_currentSequence].setProbability(i, (byte)prob);
+    if (selectedNotes[i]) activeEditTrack->getCurrentSequenceRef()->setProbability(i, (byte)prob);
   }
 }
 
 
 void StepSequencer::setNote(int _step, byte note)
 {
-    m_sequence[m_currentSequence].setNote(_step, note); 
+//  m_sequence[m_currentSequence].setNote(_step, note); 
+    activeEditTrack->getCurrentSequenceRef()->setNote(_step, note); 
 }
 
 void StepSequencer::setMute(int _step, bool muteFlag)
 {
-    m_sequence[m_currentSequence].setMute(_step, muteFlag); 
+//  m_sequence[m_currentSequence].setMute(_step, muteFlag);
+    activeEditTrack->getCurrentSequenceRef()->setMute(_step, muteFlag);
 }
 
 void StepSequencer::setHold(int _step, bool holdFlag)
 {
-    m_sequence[m_currentSequence].setHold(_step, holdFlag); 
+//  m_sequence[m_currentSequence].setHold(_step, holdFlag); 
+    activeEditTrack->getCurrentSequenceRef()->setHold(_step, holdFlag);
 }
 
 void StepSequencer::offsetNote(int _step, byte note_offset) // kg
 {
-    int current_note = m_sequence[m_currentSequence].getNote(_step);
+//  int current_note = m_sequence[m_currentSequence].getNote(_step);
+    int current_note = activeEditTrack->getCurrentSequenceRef()->getNote(_step);
     int new_note = current_note + note_offset;
-    m_sequence[m_currentSequence].setNote(_step, new_note);
+//  m_sequence[m_currentSequence].setNote(_step, new_note);
+    activeEditTrack->getCurrentSequenceRef()->setNote(_step, new_note);
 }
 
 void StepSequencer::offsetDuration(int _step, float duration_offset) // kg
 {
-    float current_duration = m_sequence[m_currentSequence].getDuration(_step);
+//  float current_duration = m_sequence[m_currentSequence].getDuration(_step);
+    float current_duration = activeEditTrack->getCurrentSequenceRef()->getDuration(_step);
     float new_duration = current_duration + duration_offset;
-    m_sequence[m_currentSequence].setDuration(_step, new_duration);
+//  m_sequence[m_currentSequence].setDuration(_step, new_duration);
+    activeEditTrack->getCurrentSequenceRef()->setDuration(_step, new_duration);
 }
 
 void StepSequencer::setDuration(int _step, float duration) // kg
 {
-    m_sequence[m_currentSequence].setDuration(_step, duration);      
+//  m_sequence[m_currentSequence].setDuration(_step, duration);      
+    activeEditTrack->getCurrentSequenceRef()->setDuration(_step, duration);
 }
 
 void StepSequencer::setProbability(int _step, byte prob) // kg
 {
-    m_sequence[m_currentSequence].setProbability(_step, prob);      
+//  m_sequence[m_currentSequence].setProbability(_step, prob);      
+    activeEditTrack->getCurrentSequenceRef()->setProbability(_step, prob);
 }
 
 void StepSequencer::setTicks(int _step, byte repetition) {
-    m_sequence[m_currentSequence].setTicks(_step, repetition); 
+//  m_sequence[m_currentSequence].setTicks(_step, repetition); 
+    activeEditTrack->getCurrentSequenceRef()->setTicks(_step, repetition);
 }
 
 void StepSequencer::setTransposition(byte transposition)
 {
-    m_sequence[m_currentSequence].setTransposition(transposition);
+//  m_sequence[m_currentSequence].setTransposition(transposition);
+    activeEditTrack->getCurrentSequenceRef()->setTransposition(transposition);
 }
 
 void StepSequencer::setLength(byte _length)
 {
-    m_sequence[m_currentSequence].setLength(_length);
+//  m_sequence[m_currentSequence].setLength(_length);
+    activeEditTrack->getCurrentSequenceRef()->setLength(_length);
 }
 
 void StepSequencer::setAccent(int _step, byte accent)
 {
-    m_sequence[m_currentSequence].setAccent(_step, accent);
+//  m_sequence[m_currentSequence].setAccent(_step, accent);
+    activeEditTrack->getCurrentSequenceRef()->setAccent(_step, accent);
 }
 
 void StepSequencer::setRetrig(int _step, byte retrig)
 {
-    m_sequence[m_currentSequence].setRetrig(_step, retrig);
+//  m_sequence[m_currentSequence].setRetrig(_step, retrig);
+    activeEditTrack->getCurrentSequenceRef()->setRetrig(_step, retrig);
 }
 
 void StepSequencer::setVelocity(int _step, byte velocity)
 {
-    m_sequence[m_currentSequence].setVelocity(_step, velocity);
+//  m_sequence[m_currentSequence].setVelocity(_step, velocity);
+    activeEditTrack->getCurrentSequenceRef()->setVelocity(_step, velocity);
+
 }
 
 void StepSequencer::setPath(byte path)
 {
-    m_sequence[m_currentSequence].setPath(path);
+//  m_sequence[m_currentSequence].setPath(path);
+    activeEditTrack->getCurrentSequenceRef()->setPath(path);
 }
 
-void StepSequencer::setCurrentSequence(int index)
+void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ??
 {
-    if(index >= 0 && index < max_sequences && index != m_currentSequence) {
+    if(index >= 0 && index < max_sequences && index != m_currentSequence) 
+    {
         m_currentSequence = index;
         m_recall_buffer_active = false;
+        if(activeEditTrack != NULL)
+        {
+            bool seqCess = activeEditTrack->setCurrentSequenceIndex(index);
+            if( !seqCess)
+            {
+                Serial.print("setCurrentSequenceIndex failed with index ");
+                Serial.println(index);
+                inout.ShowValueInfoOnLCD("setCurSeqIfail", index);
+                inout.SetLCDinfoTimeout();
+            }
+        } else {
+            Serial.print("setCurrentSequence activeEditTrack is NULL");
+            Serial.println(index);
+            inout.ShowInfoOnLCD("setCurSeq fail NULL");
+            inout.SetLCDinfoTimeout();
+        }
     }
 }
 
@@ -673,7 +733,11 @@ void StepSequencer::setCurrentTrack(byte trackNum)
     Track *newRef = m_activeTracks.getTrackRef(trackNum);
 
     if(newRef != NULL)
-        activeEditTrack = activeEditTrack = newRef;
+    {
+//      activeEditTrack = activeEditTrack = newRef;
+        activeEditTrack = newRef;
+        activeEditTrack->setCurrentSequenceIndex(m_currentSequence);
+    }
     else
     {
         Serial.print("setCurrentTrack not found: ");
@@ -686,23 +750,24 @@ void StepSequencer::setCurrentTrack(byte trackNum)
 bool StepSequencer::playOrNot(int index)
 {
   //evaluate probability...
+  Serial.println("@@@@@@@@@@@@@  playOrNot is EMPTY @@@@@@@@@@@@@@");
   return false;
 }
 
 
-void StepSequencer::resetSequence(int index)
+void StepSequencer::resetSequence(int index) //TODO
 {
     if(index >=0 && index < max_sequences)
       m_sequence[index].reset();
 }
 
-void StepSequencer::selectPreviousSequence()
+void StepSequencer::selectPreviousSequence() //TODO
 {
     if(m_currentSequence > 0)
-    m_currentSequence--; 
+    m_currentSequence--;
 }
 
-void StepSequencer::selectNextSequence()
+void StepSequencer::selectNextSequence() //TODO
 {
     if(m_currentSequence < max_sequences -1)
     m_currentSequence++; 
@@ -713,7 +778,9 @@ void StepSequencer::printSequence()
     Serial.print("Sequence ");
     Serial.print(m_currentSequence);
     Serial.println(": ");
-    m_sequence[m_currentSequence].printSequence();
+//  m_sequence[m_currentSequence].printSequence();
+    activeEditTrack->getCurrentSequenceRef()->printSequence();
+
 }
 
 bool StepSequencer::notesArrayEmpty(boolean notesArray[])

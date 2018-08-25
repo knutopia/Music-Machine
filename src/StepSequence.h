@@ -15,6 +15,7 @@ class StepSequence
         void begin();
         void reset();
         void copySeqTo(StepSequence &destination);
+        void copySeqTo(StepSequence *destination);
         byte getNote(int _step);
         float getDuration(int _step); // kg
         byte getProbability(int _step); // kg

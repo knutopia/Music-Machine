@@ -25,10 +25,11 @@ class Track
       void activate();
       void deactivate();
       void setName(char *namePar);
-//    void setCurrentPattern(byte newPat);
+      bool setCurrentSequenceIndex(byte newIndex);
       char* getName();
       byte getNumber();
-//    byte getCurrentPattern();
+      byte getCurrentSequenceIndex();
+      StepSequence* getCurrentSequenceRef();
       NoteGetter getNoteCb;
 
     private:
@@ -37,8 +38,9 @@ class Track
       
       trackTypes trackType;
       StepSequence *sequences;
-      byte currentSequence;
-      byte maxSequences;
+      StepSequence *currentSequence;
+      byte currentSequenceIndex;
+      byte maxSequenceIndex;
       instruments instrument;
       bool b_IsActive = false;
 //    byte currentPattern = 0;

@@ -319,16 +319,28 @@ void setup()
     analogReadAveraging(32);
     analogReadResolution(14);
 
+    inout.ShowInfoOnLCD("Start1.4");
+
     setupSDcard();
+
+    inout.ShowInfoOnLCD("Start1.445");
+
+    sequencer.begin();
+
     Serial.println("Reading sequences from SD");
     readSeqFromSDcard();
-    
+
+    inout.ShowInfoOnLCD("Start1.6");
+
     sequencer.copy_edit_buffers_to_roots();
-    sequencer.begin();
+//  sequencer.begin();
         
+    inout.ShowInfoOnLCD("Start1.7");
+
     Serial.println("Reading patches from SD");
     readSndFromSDcard();
     
+
     synth.begin();
 
     inout.begin(ChangeModeCb, 
@@ -1163,10 +1175,11 @@ void parseAndAssignSeqSD(char *buff)
           Serial.println();
 */
           if(strcmp(name, "Sequence") == 0) {
-              sequencer.setCurrentSequence(atoi(valu));
 
               Serial.print("Sequence ");
               Serial.println(valu);
+
+              sequencer.setCurrentSequence(atoi(valu));
 
               Serial.print("  Mem: ");
               Serial.println(FreeMem());

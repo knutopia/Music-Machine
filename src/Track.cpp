@@ -26,7 +26,7 @@ void Track::begin(StepSequence sequencesPtr[], byte sequencesCount, byte number)
 {
       trackType = STEPSEQUENCE;
       sequences = sequencesPtr;
-      maxSequences = sequencesCount - 1;
+      maxSequenceIndex = sequencesCount - 1;
       b_IsActive = false;
 //    currentPattern = 0;  
       trackNumber = number;
@@ -43,10 +43,10 @@ note Track::getNoteParams(int step, byte curSequence)
       switch (trackType)
       {
             case STEPSEQUENCE:
-                  if(curSequence < maxSequences)
+                  if(curSequence < maxSequenceIndex)
                         retrievedNote = sequences[curSequence].getNoteParams(step);
                   else
-                        retrievedNote = sequences[maxSequences].getNoteParams(step);
+                        retrievedNote = sequences[maxSequenceIndex].getNoteParams(step);
                   break;
             case SIMPLEBEAT:
                   break;
@@ -94,12 +94,23 @@ void Track::setName(char *namePar)
   
 }
 
-/*
-void Track::setCurrentPattern(byte newPat)
+
+bool Track::setCurrentSequenceIndex(byte newIndex)
 {
-  
+      bool success = false;
+      if( newIndex < maxSequenceIndex)
+      {
+            currentSequenceIndex = newIndex;
+            currentSequence = &sequences[newIndex];
+            success = true;
+      }
+      return success;
 }
-*/
+
+StepSequence* Track::getCurrentSequenceRef()
+{
+      return currentSequence;
+}
 
 // Getters
 char* Track::getName()
@@ -111,9 +122,9 @@ byte Track::getNumber()
 {
       return trackNumber;
 }
-/*
-byte Track::getCurrentPattern()
+
+byte Track::getCurrentSequenceIndex()
 {
-  
+      return currentSequenceIndex;
 }
-*/
+

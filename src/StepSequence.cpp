@@ -107,6 +107,25 @@ void StepSequence::copySeqTo(StepSequence &destination)
     destination.setPath(m_path);
 }
 
+void StepSequence::copySeqTo(StepSequence *destination) 
+{
+    for(byte n = 0; n < max_notes; n++)
+    {
+        destination->setNote(n, m_notes[n]); 
+        destination->setDuration(n, m_duration[n]);
+        destination->setProbability(n, m_probability[n]);
+        destination->setTicks(n, m_ticks[n]);
+        destination->setMute(n, m_unmuted[n]);
+        destination->setHold(n, m_hold[n]);
+        destination->setAccent(n, m_accent[n]);
+        destination->setRetrig(n, m_retrig[n]);
+        destination->setVelocity(n, m_velocity[n]);
+    }
+    destination->setLength(m_length);
+    destination->setTransposition(m_transposition);
+    destination->setPath(m_path);
+}
+
 
 // getters
 

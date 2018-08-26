@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -318,24 +318,14 @@ void setup()
     // Joystick reading
     analogReadAveraging(32);
     analogReadResolution(14);
-
-    inout.ShowInfoOnLCD("Start1.4");
-
     setupSDcard();
-
-    inout.ShowInfoOnLCD("Start1.445");
-
     sequencer.begin();
 
     Serial.println("Reading sequences from SD");
     readSeqFromSDcard();
 
-    inout.ShowInfoOnLCD("Start1.6");
-
     sequencer.copy_edit_buffers_to_roots();
 //  sequencer.begin();
-        
-    inout.ShowInfoOnLCD("Start1.7");
 
     Serial.println("Reading patches from SD");
     readSndFromSDcard();
@@ -368,28 +358,29 @@ void setup()
 
 void loop()
 {
-static bool bTimeslice = true;
+    static bool bTimeslice = true;
 
     if (bTimeslice)
     {
-    inout.handleStartStopButton();
-    inout.handleSelectButton();
-    inout.handleModeButtons();
-    inout.handleButtonHolds();
-    handleRewindButton();
+        inout.handleStartStopButton();
+        inout.handleSelectButton();
+        inout.handleModeButtons();
+        inout.handleButtonHolds();
+        handleRewindButton();
     } else {
-    inout.handleEncoders();
-    inout.handleEncoderButtons();
-    inout.handleTrellis();
-    inout.handleLCDtimeouts();
-    synth.trackJoystick();
-
+        inout.handleEncoders();
+    
+        prepNextClick();
+    
+        inout.handleEncoderButtons();
+        inout.handleTrellis();
+        inout.handleLCDtimeouts();
+        synth.trackJoystick();
     }
     bTimeslice = !bTimeslice;
 
     followNoteOff();
     prepNextClick();
-//  prep_next_note();
 
     #ifdef MIDION
       while (usbMIDI.read()) {

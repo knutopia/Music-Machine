@@ -26,6 +26,7 @@ void Track::begin(StepSequence sequencesPtr[], byte sequencesCount, byte number)
 {
       trackType = STEPSEQUENCE;
       sequences = sequencesPtr;
+      StepSequence rootSequences[sequencesCount]; // ADDRESS
       maxSequenceIndex = sequencesCount - 1;
       b_IsActive = false;
 //    currentPattern = 0;  
@@ -98,7 +99,7 @@ void Track::setName(char *namePar)
 bool Track::setCurrentSequenceIndex(byte newIndex)
 {
       bool success = false;
-      if( newIndex < maxSequenceIndex)
+      if( newIndex <= maxSequenceIndex)
       {
             currentSequenceIndex = newIndex;
             currentSequence = &sequences[newIndex];
@@ -109,7 +110,13 @@ bool Track::setCurrentSequenceIndex(byte newIndex)
 
 StepSequence* Track::getCurrentSequenceRef()
 {
-      return currentSequence;
+      if(currentSequence != NULL)
+            return currentSequence;
+      else{
+            Serial.print("getCurrentSequenceRef fail on track ");
+            Serial.println(trackNumber);
+            return &sequences[0];
+      }
 }
 
 // Getters

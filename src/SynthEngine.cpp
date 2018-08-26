@@ -9,7 +9,7 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-//#define MIDION true
+#define MIDION true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
@@ -96,7 +96,8 @@ SynthEngine::SynthEngine()
 void SynthEngine::begin()
 {
   //required to setup audio. if it's too low it won't run.
-  AudioMemory(255); //255 is max
+//AudioMemory(255); //255 is max
+  AudioMemory(100); //255 is max
   
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.8);

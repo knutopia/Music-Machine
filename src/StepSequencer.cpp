@@ -175,29 +175,6 @@ void StepSequencer::updateStepClickList()
         Serial.println(aNote.swingTicks);
 #endif
 
-/*
-#ifdef DEBUG
-        activeStepClicks.rewind();
-        PerClickNoteList* fooNotesToTrig;
-        if((fooNotesToTrig = activeStepClicks.getClickNoteList(0)))
-        {
-            fooNotesToTrig->rewind();
-            Serial.println("  Note pitches after assign: ");
-            while(fooNotesToTrig->hasValue())
-            {
-                note trigNote = fooNotesToTrig->getNote();
-                Serial.print("    fooNotesToTrig trigNote.pitchVal ");
-                Serial.print(trigNote.pitchVal);
-                Serial.print("  fooNotesToTrig->getTrack ");
-                Serial.println(fooNotesToTrig->getTrack());
-
-                fooNotesToTrig->next();
-            }
-            Serial.println("  BLOP");
-        }
-#endif
-*/
-
         if (aNote.retrigClickDivider != NORETRIGS)
         {
             bool retrigLegato = false;
@@ -239,29 +216,31 @@ void StepSequencer::updateStepClickList()
 
 bool StepSequencer::playItOrNot(int _step) //make obsolete
 {
-  // take step probability into account 
-  // and check if the step isn't holding from the previous step
-  
-  bool retVal = false;
-  if (!m_sequence[m_currentSequence].getHold(_step))
-  {
-    int stepProbability = (int)m_sequence[m_currentSequence].getProbability(_step);
-    switch (stepProbability) {
-      case ZEROPROB:
-        retVal = false;
-        break;        
-      case LOWPROB:
-        if (random(100) < 33) retVal = true;
-        else retVal = false;
-        break;        
-      case HIGHPROB:
-        if (random(100) < 66) retVal = true;
-        else retVal = false;
-        break;        
-      case FULLPROB:
-        retVal = true;
-        break;
-    }
+    // take step probability into account 
+    // and check if the step isn't holding from the previous step
+    
+    bool retVal = false;
+//  if (!m_sequence[m_currentSequence].getHold(_step))
+    if (!activeEditTrack->getCurrentSequenceRef()->getHold(_step))
+    {
+//      int stepProbability = (int)m_sequence[m_currentSequence].getProbability(_step);
+        int stepProbability = (int)activeEditTrack->getCurrentSequenceRef()->getProbability(_step);
+        switch (stepProbability) {
+        case ZEROPROB:
+            retVal = false;
+            break;        
+        case LOWPROB:
+            if (random(100) < 33) retVal = true;
+            else retVal = false;
+            break;        
+        case HIGHPROB:
+            if (random(100) < 66) retVal = true;
+            else retVal = false;
+            break;        
+        case FULLPROB:
+            retVal = true;
+            break;
+        }
   }
   return retVal;
 }
@@ -272,18 +251,18 @@ void StepSequencer::prime_edit_buffers()
       reset_edit_seq(i);            
 }
 
-void StepSequencer::reset_edit_seq(int seqnum)
+void StepSequencer::reset_edit_seq(int seqnum) // ADDRESS
 {
     m_sequence_root[seqnum].copySeqTo(m_sequence[seqnum]);            
 }
 
-void StepSequencer::save_sequence(int destination)
+void StepSequencer::save_sequence(int destination) // TODO // ADDRESS
 {
     m_sequence[m_currentSequence].copySeqTo(m_sequence_root[destination]);
     m_sequence[m_currentSequence].copySeqTo(m_sequence[destination]);
 }
 
-void StepSequencer::save_edit_seq_to_root(int seqnum)
+void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESS
 {
     m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
 }
@@ -301,7 +280,7 @@ void StepSequencer::copy_edit_buffers_to_roots()
     }
 }
 
-void StepSequencer::swap_edit_root_seqs(int seqnum)
+void StepSequencer::swap_edit_root_seqs(int seqnum) // TODO // ADDRESS
 {
     StepSequence swap_buffer;
     
@@ -681,7 +660,12 @@ void StepSequencer::setLength(byte _length)
 void StepSequencer::setAccent(int _step, byte accent)
 {
 //  m_sequence[m_currentSequence].setAccent(_step, accent);
-    activeEditTrack->getCurrentSequenceRef()->setAccent(_step, accent);
+    StepSequence* activeSequence = activeEditTrack->getCurrentSequenceRef();
+    if( activeSequence != NULL)
+//      activeEditTrack->getCurrentSequenceRef()->setAccent(_step, accent);
+        activeSequence->setAccent(_step, accent);
+    else
+        Serial.println("setAccent NULLREF");
 }
 
 void StepSequencer::setRetrig(int _step, byte retrig)
@@ -776,11 +760,12 @@ void StepSequencer::selectNextSequence() //TODO
 void StepSequencer::printSequence()
 {
     Serial.print("Sequence ");
-    Serial.print(m_currentSequence);
-    Serial.println(": ");
+//  Serial.print(m_currentSequence);
+    Serial.print(activeEditTrack->getCurrentSequenceIndex());
+    Serial.println(" on track ");
+    Serial.println(activeEditTrack->getNumber());
 //  m_sequence[m_currentSequence].printSequence();
     activeEditTrack->getCurrentSequenceRef()->printSequence();
-
 }
 
 bool StepSequencer::notesArrayEmpty(boolean notesArray[])

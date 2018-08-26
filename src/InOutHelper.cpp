@@ -485,8 +485,8 @@ void InOutHelper::HandleSynthEncoders() {
 
     newPosition = EncA.read();
 
-    if (newPosition != oldPositionA) {
-  
+    if (newPosition != oldPositionA)
+    {
       valueA = newPosition / 4;
       if (valueA != prevValueA)
       {
@@ -571,33 +571,41 @@ void InOutHelper::HandlePerformanceEncoders() {
     // Encoder A for Transposition - a per-sequence-step edit
     newPosition = EncA.read();
 
-    if (newPosition != oldPositionA) {
-      
-      if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
-        newPosition = pitchChangeLowerBoundary * -4;
-        EncA.write(newPosition);
-      } else if(newPosition > pitchChangeUpperBoundary * 4) {
-        newPosition = pitchChangeUpperBoundary * 4;
-        EncA.write(newPosition);
-      }
-      transposition = newPosition / 4;
+//  if (newPosition != oldPositionA) {
+    if ((newPosition >= oldPositionA + 4) || (newPosition <= oldPositionA - 4)) 
+    {
+//      Serial.print("posdelta: ");   
+//      Serial.println(newPosition - oldPositionA);   
 
-      if (transposition != prevTransposition)
-      {
-        sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
-        prevTransposition = transposition;
-      }
+        if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
+          newPosition = pitchChangeLowerBoundary * -4;
+          EncA.write(newPosition);
+        } else if(newPosition > pitchChangeUpperBoundary * 4) {
+          newPosition = pitchChangeUpperBoundary * 4;
+          EncA.write(newPosition);
+        }
+        transposition = newPosition / 4;
 
-      ShowValueInfoOnLCD("Transpose: ", transposition);
-      SetLCDinfoTimeout();
-      
-      oldPositionA = newPosition;
+        if (transposition != prevTransposition)
+        {
+          sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
+          prevTransposition = transposition;
+        }
+
+        ShowValueInfoOnLCD("Transpose: ", transposition);
+        SetLCDinfoTimeout();
+        
+        oldPositionA = newPosition;
     }
 
     // Encoder B for Note Duration - a per-sequence-step edit
     newPosFloat = (float)EncB.read() /100.0;
-    if (newPosFloat != oldPositionBfloat) {
+//  if (newPosFloat != oldPositionBfloat) {
+    if ((newPosFloat >= oldPositionBfloat + .04) || (newPosFloat <= oldPositionBfloat - .04)) {
       
+//    Serial.print("posdelta: ");   
+//    Serial.println(newPosFloat - oldPositionBfloat);   
+
       if(newPosFloat < 0 - durationChangeLowerBoundary * 4) {        
         newPosFloat = durationChangeLowerBoundary * -4;
         EncB.write(newPosFloat * 100);
@@ -1356,7 +1364,7 @@ void InOutHelper::handleModeButtons()
       if (MuteModeButton.rose()) {
         handleButtonHoldTiming(MUTEMODEBUTTON, false);    
       }
-    
+/*    
     if (StepEditModeButton.update() && StepEditModeButton.fell()) {
       currentMode = step_edit;
       setupNewMode();
@@ -1367,7 +1375,7 @@ void InOutHelper::handleModeButtons()
       if (StepEditModeButton.rose()) {
         handleButtonHoldTiming(STEPEDITMODEBUTTON, false);    
       }
-  
+*/
     if (AccentEditModeButton.update() && AccentEditModeButton.fell()) {
       currentMode = accent_edit;
       setupNewMode();

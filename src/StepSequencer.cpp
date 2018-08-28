@@ -303,15 +303,32 @@ void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESSed
 
 void StepSequencer::copy_edit_buffers_to_roots()
 {
-    for(int i = 0; i < max_sequences; i++) {
-      save_edit_seq_to_root(i);
-/*
-      Serial.println("EDIT:");
-      m_sequence[i].printSequence();
-      Serial.println("ROOT:");
-      m_sequence_root[i].printSequence();
-*/          
+    Track* bufTrack = activeEditTrack;
+
+    m_activeTracks.rewind();
+    while( m_activeTracks.hasValue())
+    {
+        activeEditTrack = m_activeTracks.getTrackRef();
+        if(activeEditTrack != NULL)
+        {
+            byte maxSeqIndex = activeEditTrack->getMaxSequenceIndex();
+            for(int i = 0; i < maxSeqIndex; i++)
+            {
+                save_edit_seq_to_root(i);
+            }
+        } else
+            Serial.println("copy_edit_buffers_to_roots activeEditTrack is NULL");
+        m_activeTracks.next();
     }
+    activeEditTrack = bufTrack;
+
+//  for(int i = 0; i < max_sequences; i++) {}
+/*
+    Serial.println("EDIT:");
+    m_sequence[i].printSequence();
+    Serial.println("ROOT:");
+    m_sequence_root[i].printSequence();
+*/          
 }
 
 void StepSequencer::swap_edit_root_seqs(int seqnum) // ADDRESSed

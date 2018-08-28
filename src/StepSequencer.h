@@ -98,14 +98,16 @@ class StepSequencer
 
 
     private:
-      
-      //Class data members:
-      int m_currentSequence;     // index of currently active sequence
-      bool m_recall_buffer_active; // is there something in the recall buffer ?
+    
+      // These two moved into Track:
+//    int m_currentSequence;     // index of currently active sequence
+//    bool m_recall_buffer_active; // is there something in the recall buffer ?
+
       //This array stores the sequences
       StepSequence m_sequence[max_sequences];                           // current, edit buffer
       StepSequence m_sequence_root[max_sequences];
       StepSequence m_beat_sequence[1];
+      StepSequence m_beat_sequence_root[1];
       
       LinkedTrackList m_activeTracks;
       Track tmpTrack1;

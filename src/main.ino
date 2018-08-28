@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -356,28 +356,27 @@ void setup()
 
 }
 
+
 void loop()
 {
-    static bool bTimeslice = true;
-
-    if (bTimeslice)
+    static byte bTimeslice = 0;
+    
+    if (bTimeslice == 2)
     {
+        inout.handleEncoders();
+    } else {
         inout.handleStartStopButton();
         inout.handleSelectButton();
         inout.handleModeButtons();
         inout.handleButtonHolds();
         handleRewindButton();
-    } else {
-        inout.handleEncoders();
-    
-        prepNextClick();
-    
+
         inout.handleEncoderButtons();
         inout.handleTrellis();
         inout.handleLCDtimeouts();
         synth.trackJoystick();
     }
-    bTimeslice = !bTimeslice;
+    bTimeslice = ++bTimeslice % 3;
 
     followNoteOff();
     prepNextClick();

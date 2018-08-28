@@ -3,7 +3,7 @@
 #include "SynthEngine.h"
 #include "NoteOffList.h"
 
-#define MIDION true
+//#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;

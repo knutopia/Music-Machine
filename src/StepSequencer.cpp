@@ -21,8 +21,8 @@ extern InOutHelper inout;
 //Public constructor and methods
 StepSequencer::StepSequencer()
 {
-    m_currentSequence = 0;
-    m_recall_buffer_active = false;
+//  m_currentSequence = 0;
+//  m_recall_buffer_active = false;
     g_activeGlobalStep = 0;
 
 #ifdef DEBUG
@@ -47,9 +47,11 @@ void StepSequencer::begin()
     }
     for(int n = 0; n < len; n+=4)
         m_beat_sequence[0].setDuration(n, 0.5);
+    
 
-    tmpTrack1.begin(m_sequence, max_sequences, (byte)1);
-    tmpTrack2.begin(m_beat_sequence, 1, (byte)2);
+    tmpTrack1.begin(m_sequence, m_sequence_root, max_sequences, (byte)1);
+    tmpTrack2.begin(m_beat_sequence, m_beat_sequence_root, 1, (byte)2);
+    m_beat_sequence[0].copySeqTo(m_beat_sequence_root[0]);
 
     m_activeTracks.appendTrack(1, &tmpTrack1);
     m_activeTracks.appendTrack(2, &tmpTrack2);
@@ -99,12 +101,19 @@ void StepSequencer::updateNoteList(int stepInPattern)
     while( m_activeTracks.hasValue())
     {
         Track *cur_trackRef = m_activeTracks.getTrackRef();
-        cur_note = cur_trackRef->getNoteParams(stepInPattern, (byte)m_currentSequence);
-        cur_track = m_activeTracks.getTrackNumber();
-        activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
 
-        if (cur_trackRef == NULL)
-            Serial.println("NULL cur_trackRef");
+        if (cur_trackRef != NULL)
+        {
+//          cur_note = cur_trackRef->getNoteParams(stepInPattern, (byte)m_currentSequence);
+            cur_note = cur_trackRef->getNoteParams(stepInPattern);
+            cur_track = m_activeTracks.getTrackNumber();
+            activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
+        }
+        else
+        {
+            Serial.println("updateNoteList: NULL cur_trackRef");
+            inout.ShowErrorOnLCD("updateNoteList: NULL");
+        }
 
 #ifdef DEBUG
         Serial.print("updateNoteList note ");
@@ -113,8 +122,8 @@ void StepSequencer::updateNoteList(int stepInPattern)
         Serial.print(cur_track);
         Serial.print(" for step ");
         Serial.print(g_activeGlobalStep);
-        Serial.print(" from sequence ");
-        Serial.println(m_currentSequence);
+//      Serial.print(" from sequence ");
+//      Serial.println(m_currentSequence);
 #endif
 
         m_activeTracks.next();
@@ -245,7 +254,7 @@ bool StepSequencer::playItOrNot(int _step) //make obsolete
   return retVal;
 }
 
-void StepSequencer::prime_edit_buffers()
+void StepSequencer::prime_edit_buffers() // UNUSED - ADDRESS ?
 {
     for(int i = 0; i < max_sequences; i++) 
       reset_edit_seq(i);            
@@ -256,15 +265,40 @@ void StepSequencer::reset_edit_seq(int seqnum) // ADDRESS
     m_sequence_root[seqnum].copySeqTo(m_sequence[seqnum]);            
 }
 
-void StepSequencer::save_sequence(int destination) // TODO // ADDRESS
+void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
 {
-    m_sequence[m_currentSequence].copySeqTo(m_sequence_root[destination]);
-    m_sequence[m_currentSequence].copySeqTo(m_sequence[destination]);
+//  m_sequence[m_currentSequence].copySeqTo(m_sequence_root[destination]);
+//  m_sequence[m_currentSequence].copySeqTo(m_sequence[destination]);
+
+    StepSequence* curSeq = activeEditTrack->getCurrentSequenceRef();
+    StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(destination);
+    if(curSeq != NULL && indexedRootSeq != NULL)
+    {
+        curSeq->copySeqTo(indexedRootSeq);
+    } else {
+        Serial.print("save_sequence NULL error: curSeq = ");
+        Serial.print((int)curSeq);
+        Serial.print("  indexedRootSeq = ");
+        Serial.println((int)indexedRootSeq);
+    }
 }
 
-void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESS
+void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESSed
 {
-    m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
+//  m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
+
+    StepSequence* indexedSeq = activeEditTrack->getSequenceRef(seqnum);
+    StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(seqnum);
+    if(indexedSeq != NULL && indexedRootSeq != NULL)
+    {
+        indexedSeq->copySeqTo(indexedRootSeq);
+    } else {
+        Serial.print("save_edit_seq_to_root NULL error: indexedSeq = ");
+        Serial.print((int)indexedSeq);
+        Serial.print("  indexedRootSeq = ");
+        Serial.println((int)indexedRootSeq);
+    }
+
 }
 
 void StepSequencer::copy_edit_buffers_to_roots()
@@ -280,34 +314,67 @@ void StepSequencer::copy_edit_buffers_to_roots()
     }
 }
 
-void StepSequencer::swap_edit_root_seqs(int seqnum) // TODO // ADDRESS
+void StepSequencer::swap_edit_root_seqs(int seqnum) // ADDRESSed
 {
     StepSequence swap_buffer;
     
-    m_sequence_root[seqnum].copySeqTo(swap_buffer);
-    m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
-    swap_buffer.copySeqTo(m_sequence[seqnum]);
+//  m_sequence_root[seqnum].copySeqTo(swap_buffer);
+//  m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
+//  swap_buffer.copySeqTo(m_sequence[seqnum]);
+
+    StepSequence* indexedSeq = activeEditTrack->getSequenceRef(seqnum);
+    StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(seqnum);
+    if(indexedSeq != NULL && indexedRootSeq != NULL)
+    {
+        indexedRootSeq->copySeqTo(swap_buffer);
+        indexedSeq->copySeqTo(indexedRootSeq);
+        swap_buffer.copySeqTo(indexedSeq);
+    } else {
+        Serial.print("swap_edit_root_seqs NULL error: indexedSeq = ");
+        Serial.print((int)indexedSeq);
+        Serial.print("  indexedRootSeq = ");
+        Serial.println((int)indexedRootSeq);
+    }
 }
 
 bool StepSequencer::toggle_pattern_recall() // TODO ...handle m_sequence_root
 {
     static StepSequence recall_buffer;
-    
-    if (!m_recall_buffer_active) {
-//    m_sequence[m_currentSequence].copySeqTo(recall_buffer);
-      activeEditTrack->getCurrentSequenceRef()->copySeqTo(recall_buffer);
-      m_sequence_root[m_currentSequence].copySeqTo(m_sequence[m_currentSequence]);
-      m_recall_buffer_active = true;
-      Serial.print(" Restoring root ");          
-      Serial.println(m_currentSequence);          
+
+    byte curIndex = activeEditTrack->getCurrentSequenceIndex();
+    StepSequence* curSeq = activeEditTrack->getCurrentSequenceRef();
+    StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(curIndex);
+
+    if(curSeq != NULL && indexedRootSeq != NULL)
+    {
+//      if (!m_recall_buffer_active) {
+//          m_sequence[m_currentSequence].copySeqTo(recall_buffer);
+        if (!activeEditTrack->recallBufferIsActive()) {
+            curSeq->copySeqTo(recall_buffer);
+            indexedRootSeq->copySeqTo(curSeq);
+
+            activeEditTrack->setRecallBufferActive(true);
+            Serial.print(" Restoring root ");          
+            Serial.println(curIndex);          
+        } else {
+//          recall_buffer.copySeqTo(m_sequence[m_currentSequence]);
+            recall_buffer.copySeqTo(curSeq);
+
+            activeEditTrack->setRecallBufferActive(false);
+            Serial.print(" Recalling edit ");          
+            Serial.println(curIndex);       
+        }
+
     } else {
-//    recall_buffer.copySeqTo(m_sequence[m_currentSequence]);
-      recall_buffer.copySeqTo(activeEditTrack->getCurrentSequenceRef());
-      m_recall_buffer_active = false;
-      Serial.print(" Recalling edit ");          
-      Serial.println(m_currentSequence);       
+        Serial.print("toggle_pattern_recall NULL error: curSeq = ");
+        Serial.print((int)curSeq);
+        Serial.print("  indexedRootSeq = ");
+        Serial.print((int)indexedRootSeq);
+        Serial.print("  curIndex = ");
+        Serial.println(curIndex);
     }
-    return m_recall_buffer_active;
+
+    return activeEditTrack->recallBufferIsActive();
 }
 
 //"Getters" and "setters"
@@ -401,7 +468,8 @@ byte StepSequencer::getPath() // kg
 
 int StepSequencer::getCurrentSequence() // TODO
 {
-    return m_currentSequence;
+//  return m_currentSequence;
+    return (int)activeEditTrack->getCurrentSequenceIndex();
 }
 
 byte StepSequencer::getCurrentTrack()
@@ -687,15 +755,19 @@ void StepSequencer::setPath(byte path)
     activeEditTrack->getCurrentSequenceRef()->setPath(path);
 }
 
-void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ??
+void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // ADDRESS
 {
-    if(index >= 0 && index < max_sequences && index != m_currentSequence) 
+//  if(index >= 0 && index < max_sequences && index != m_currentSequence)
+
+    if(index >= 0 && index < max_sequences && index != activeEditTrack->getCurrentSequenceIndex()) 
     {
-        m_currentSequence = index;
-        m_recall_buffer_active = false;
+//      m_currentSequence = index;
+//      m_recall_buffer_active = false;
+        
         if(activeEditTrack != NULL)
         {
             bool seqCess = activeEditTrack->setCurrentSequenceIndex(index);
+            activeEditTrack->setRecallBufferActive(false);
             if( !seqCess)
             {
                 Serial.print("setCurrentSequenceIndex failed with index ");
@@ -715,12 +787,13 @@ void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ??
 void StepSequencer::setCurrentTrack(byte trackNum)
 {
     Track *newRef = m_activeTracks.getTrackRef(trackNum);
+    byte curSeqIndex = activeEditTrack->getCurrentSequenceIndex();
 
     if(newRef != NULL)
     {
 //      activeEditTrack = activeEditTrack = newRef;
         activeEditTrack = newRef;
-        activeEditTrack->setCurrentSequenceIndex(m_currentSequence);
+//      activeEditTrack->setCurrentSequenceIndex(curSeqIndex);
     }
     else
     {
@@ -739,22 +812,38 @@ bool StepSequencer::playOrNot(int index)
 }
 
 
-void StepSequencer::resetSequence(int index) //TODO
+void StepSequencer::resetSequence(int index)
 {
     if(index >=0 && index < max_sequences)
-      m_sequence[index].reset();
+    {
+//      m_sequence[index].reset();
+
+        StepSequence* indexedSeq = activeEditTrack->getSequenceRef(index);
+        if(indexedSeq != NULL)
+            indexedSeq->reset();
+        else
+            Serial.println("resetSequence: indexedSeq is NULL");
+    }
 }
 
 void StepSequencer::selectPreviousSequence() //TODO
 {
-    if(m_currentSequence > 0)
-    m_currentSequence--;
+//  if(m_currentSequence > 0)
+//      m_currentSequence--;
+
+    byte seqIndex = activeEditTrack->getCurrentSequenceIndex();
+    if(seqIndex > 0)
+        activeEditTrack->setCurrentSequenceIndex(seqIndex - 1);
 }
 
 void StepSequencer::selectNextSequence() //TODO
 {
-    if(m_currentSequence < max_sequences -1)
-    m_currentSequence++; 
+//  if(m_currentSequence < max_sequences -1)
+//      m_currentSequence++; 
+
+    byte seqIndex = activeEditTrack->getCurrentSequenceIndex();
+    if(seqIndex < activeEditTrack->getMaxSequenceIndex())
+        activeEditTrack->setCurrentSequenceIndex(seqIndex + 1);
 }
 
 void StepSequencer::printSequence()

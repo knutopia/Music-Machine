@@ -14,27 +14,35 @@ void Track::begin(byte number)
       trackNumber = number;
 }
 
+/*
 void Track::begin(NoteGetter noteGetterRef, byte number)
 {
       b_IsActive = false;
-//    currentPattern = 0;  
       getNoteCb = noteGetterRef;
       trackNumber = number;
+      currentSequenceIndex = 0;
 }
+*/
 
-void Track::begin(StepSequence sequencesPtr[], byte sequencesCount, byte number)
+void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number)
 {
       trackType = STEPSEQUENCE;
       sequences = sequencesPtr;
-      StepSequence rootSequences[sequencesCount]; // ADDRESS
+      rootSequences = rootSequencesPtr;
       maxSequenceIndex = sequencesCount - 1;
       b_IsActive = false;
-//    currentPattern = 0;  
       trackNumber = number;
+      currentSequenceIndex = 0;
+      currentSequence = &sequences[0];
 }
 
 
 // Core Methods
+
+note Track::getNoteParams(int step)
+{
+      return getNoteParams(step, currentSequenceIndex);
+}
 
 note Track::getNoteParams(int step, byte curSequence)
 {
@@ -119,6 +127,46 @@ StepSequence* Track::getCurrentSequenceRef()
       }
 }
 
+StepSequence* Track::getSequenceRef(int index)
+{
+      StepSequence* retVal = NULL;
+      if(index <= maxSequenceIndex)
+      {
+            if(sequences != NULL)
+                  retVal = &sequences[index];
+            else{
+                  Serial.print("getSequenceRef fail on track ");
+                  Serial.println(trackNumber);
+            }
+      } else {
+                  Serial.print("getSequenceRef index ");
+                  Serial.print(index);
+                  Serial.print(" out of range on track ");
+                  Serial.println(trackNumber);
+      }
+      return retVal;
+}
+
+StepSequence* Track::getRootSequenceRef(int index)
+{
+      StepSequence* retVal = NULL;
+      if(index <= maxSequenceIndex)
+      {
+            if(rootSequences != NULL)
+                  retVal = &rootSequences[index];
+            else{
+                  Serial.print("getRootSequenceRef fail on track ");
+                  Serial.println(trackNumber);
+            }
+      } else {
+                  Serial.print("getRootSequenceRef index ");
+                  Serial.print(index);
+                  Serial.print(" out of range on track ");
+                  Serial.println(trackNumber);
+      }
+      return retVal;
+}
+
 // Getters
 char* Track::getName()
 {
@@ -133,5 +181,20 @@ byte Track::getNumber()
 byte Track::getCurrentSequenceIndex()
 {
       return currentSequenceIndex;
+}
+
+byte Track::getMaxSequenceIndex()
+{
+      return maxSequenceIndex;
+}
+
+void Track::setRecallBufferActive(bool trueOrFalse)
+{
+      b_recallBufferIsActive = trueOrFalse;
+}
+
+bool Track::recallBufferIsActive()
+{
+      return b_recallBufferIsActive;
 }
 

@@ -2,11 +2,12 @@
 #include "StepSequence.h"
 #include "Timebase.h"
 #include "Path.h"
+#include "InOutHelper.h"
 
 extern Timebase metro;
 extern Path playpath;
 extern int midiTranspose;
-
+extern InOutHelper inout;
 
 StepSequence::StepSequence()
 {
@@ -80,8 +81,13 @@ byte StepSequence::assembleHolds(note aNote)
         while (holdNext) {
             holdNext = getHold(playpath.getStepPosForward(stepOffset, seqLength));
             if (holdNext) {
-            holdStepCount++;
-            stepOffset++;
+                holdStepCount++;
+                stepOffset++;
+                if(holdStepCount > 100)
+                {
+                    inout.ShowErrorOnLCD("assembleHolds stuck");
+                    break;
+                }
             }
         }
     }
@@ -248,6 +254,9 @@ bool StepSequence::playItOrNot(int _step)
                 case FULLPROB:
                     retVal = true;
                     break;
+                default:
+                    inout.ShowErrorOnLCD("playItOrNot default");
+                    retVal = true;
             }
         }
     }
@@ -278,33 +287,6 @@ retrigDivisions StepSequence::getRetrigDivider(int retrigs)
     }
     return retVal;
 }
-
-/*
-note StepSequence::getNoteParams(int _step)
-{
-    if(_step >=0 && _step < max_notes)
-    {
-        m_noteStruct.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
-        m_noteStruct.unmuted = m_unmuted[_step];
-        m_noteStruct.playIt = playItOrNot(_step);
-        m_noteStruct.pitchVal = m_notes[_step] + midiTranspose;
-        m_noteStruct.pitchFreq = (float) 440.0 
-                             * (float)(pow(2, ((m_notes[_step] + midiTranspose -57) 
-                             / 12.0)));
-        m_noteStruct.hold = m_hold[_step];
-        m_noteStruct.retrigs = m_retrig[_step];
-
-        m_noteStruct.duration = m_duration[_step];
-        m_noteStruct.ticks = m_ticks[_step];
-        m_noteStruct.accent = m_accent[_step];
-        m_noteStruct.velocity = m_velocity[_step];
-
-        m_noteStruct.swingTicks = metro.getSwingTicks();
-        m_noteStruct.durationMS = calcNextNoteDuration(m_noteStruct);
-    }
-    return m_noteStruct;
-}
-*/
 
 note StepSequence::getNoteParams(int _step)
 {

@@ -380,6 +380,7 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
     bool found = false;
 
     readRewind();
+    int sentryO = 0;
     while(hasReadValue())
     {
         if(readCur->masterStep == a_step
@@ -390,6 +391,7 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
             Serial.println(a_step);
 #endif
             readCur->notes->rewind();
+            int sentry = 0;
             while(readCur->notes->hasValue())
             {
 //              Serial.print("Looping ");
@@ -402,6 +404,12 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
 //              Serial.println(target->getNote().pitchVal);
                 readCur->notes->next();
                 target.next();
+
+                if(++sentry == 1000)
+                {
+                    inout.ShowErrorOnLCD("traCNLi stuck");
+                    break;
+                }
             }
             dropReadCur();
             rewind();
@@ -411,6 +419,12 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
             break;
         }
         readNext();
+
+        if(++sentryO == 1000)
+        {
+            inout.ShowErrorOnLCD("traCNLo stuck");
+            break;
+        }
     }
     return found;
 }

@@ -3,7 +3,7 @@
 #include "SynthEngine.h"
 #include "NoteOffList.h"
 
-//#define MIDION true
+#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
@@ -359,6 +359,7 @@ void Timebase::midiClick()
 void Timebase::shortMidiClick()
 {
 //  Serial.print("trying ");
+    int sentry = 0;
     while(notesToTrig.hasReadValue())
     {        
         note trigNote = notesToTrig.readNote();
@@ -382,6 +383,12 @@ void Timebase::shortMidiClick()
             synth.playNote(trigTrack, trigNote);
         }
         notesToTrig.readNext();
+
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("shMClk stuck");
+            break;
+        }
     }
     vb_clickHappened = true;
 }

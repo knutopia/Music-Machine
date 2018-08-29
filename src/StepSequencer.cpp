@@ -93,11 +93,14 @@ void StepSequencer::updateNoteList(int stepInPattern)
     Serial.println(m_activeTracks.count());
 #endif
 
+    if(&m_activeTracks == NULL) inout.ShowErrorOnLCD("updateNL: m_ac NULL");
+
     m_activeTracks.rewind();
 
     if ( !m_activeTracks.hasValue())
         Serial.println("m_activeTracks.has NO Value");
 
+    int sentry = 0;
     while( m_activeTracks.hasValue())
     {
         Track *cur_trackRef = m_activeTracks.getTrackRef();
@@ -127,6 +130,11 @@ void StepSequencer::updateNoteList(int stepInPattern)
 #endif
 
         m_activeTracks.next();
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("updateNL stuck");
+            break;
+        }
     }
 }
 
@@ -140,6 +148,7 @@ void StepSequencer::updateStepClickList()
     Serial.println("updateStepClickList");
 #endif
 
+    int sentry = 0;
     while( activeNotes.hasValue())
     {
         note aNote = activeNotes.getNote();
@@ -219,6 +228,13 @@ void StepSequencer::updateStepClickList()
             }
         }
         activeNotes.next();
+        
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("updateSCL stuck");
+            break;
+        }
+
     }
 //  activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 }
@@ -254,6 +270,7 @@ bool StepSequencer::playItOrNot(int _step) //make obsolete
   return retVal;
 }
 
+/*
 void StepSequencer::prime_edit_buffers() // UNUSED - ADDRESS ?
 {
     for(int i = 0; i < max_sequences; i++) 
@@ -264,6 +281,7 @@ void StepSequencer::reset_edit_seq(int seqnum) // ADDRESS
 {
     m_sequence_root[seqnum].copySeqTo(m_sequence[seqnum]);            
 }
+*/
 
 void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
 {
@@ -306,6 +324,7 @@ void StepSequencer::copy_edit_buffers_to_roots()
     Track* bufTrack = activeEditTrack;
 
     m_activeTracks.rewind();
+    int sentry = 0;
     while( m_activeTracks.hasValue())
     {
         activeEditTrack = m_activeTracks.getTrackRef();
@@ -319,6 +338,12 @@ void StepSequencer::copy_edit_buffers_to_roots()
         } else
             Serial.println("copy_edit_buffers_to_roots activeEditTrack is NULL");
         m_activeTracks.next();
+        
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("copyEBtR stuck");
+            break;
+        }
     }
     activeEditTrack = bufTrack;
 
@@ -772,7 +797,7 @@ void StepSequencer::setPath(byte path)
     activeEditTrack->getCurrentSequenceRef()->setPath(path);
 }
 
-void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // ADDRESS
+void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // ADDRESSed
 {
 //  if(index >= 0 && index < max_sequences && index != m_currentSequence)
 

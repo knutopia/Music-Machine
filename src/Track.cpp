@@ -1,6 +1,7 @@
 #include "Track.h"
 #include "InOutHelper.h"
 
+extern InOutHelper inout;
 
 Track::Track()
 {
@@ -60,7 +61,8 @@ note Track::getNoteParams(int step, byte curSequence)
             case SIMPLEBEAT:
                   break;
             default:
-                  Serial.println("trackType DEFAULTED");
+                  inout.ShowErrorOnLCD("trackType DEFAULTED");
+//                Serial.println("trackType DEFAULTED");
                   break;
       }
 #ifdef DEBUG
@@ -78,7 +80,10 @@ note Track::getNoteParams(int step, byte curSequence)
 #endif
 
       // this may be completely redundant ?
-      memcpy(&retNote, &retrievedNote, sizeof(note));
+      if(&retrievedNote != NULL)
+            memcpy(&retNote, &retrievedNote, sizeof(note));
+      else
+            inout.ShowErrorOnLCD("getNoteParams NULL");
       return retNote;
 }
 

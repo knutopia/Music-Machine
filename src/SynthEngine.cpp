@@ -9,7 +9,7 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-//#define MIDION true
+#define MIDION true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
@@ -286,6 +286,7 @@ void SynthEngine::endMidiNote(byte aMidiChannel, byte aMidiNote)
 void SynthEngine::allNotesOff()
 {
     int foo = 0;
+    int sentry = 0;
     playingNotes.readRewind();
     while(playingNotes.hasReadValue())
     {
@@ -294,6 +295,12 @@ void SynthEngine::allNotesOff()
         playingNotes.dropNode();
         playingNotes.readNext();
         foo++;
+
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("allNotesOff stuck");
+            break;
+        }
     }
 
 /*

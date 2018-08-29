@@ -26,8 +26,8 @@ class StepSequencer
       StepSequencer();
       void begin();
       bool playItOrNot(int _step);
-      void prime_edit_buffers();
-      void reset_edit_seq(int seqnum);
+//    void prime_edit_buffers();
+//    void reset_edit_seq(int seqnum);
       void save_sequence(int destination);
       void save_edit_seq_to_root(int seqnum);
       void copy_edit_buffers_to_roots();

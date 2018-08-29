@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // to make SD card work
@@ -504,6 +504,8 @@ void prepNextClick()
         // track noteOffs
         if(note_trigger_time != 0)
         {
+
+            int sentry = 0;
             notesToTrig.rewind();
             while(notesToTrig.hasValue())
             {
@@ -525,6 +527,13 @@ void prepNextClick()
                     inout.setRunningStepIndicators(prevPlaybackStep, g_note_off_time);      
                 }
                 notesToTrig.next();
+
+                if(++sentry == 1000)
+                {
+                    inout.ShowErrorOnLCD("prepNC stuck");
+                    break;
+                }
+
             }
             notesToTrig.rewind();
         }
@@ -798,7 +807,7 @@ byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 void followNoteOff()
 {
     int foo = 0;
-
+    int sentry = 0;
     playingNotes.readRewind();
 
     while(playingNotes.hasReadValue())
@@ -823,6 +832,12 @@ void followNoteOff()
         }
         playingNotes.readNext();
         foo++;
+
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("followNO stuck");
+            break;
+        }
     }
 }
 

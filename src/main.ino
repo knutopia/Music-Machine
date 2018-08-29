@@ -528,7 +528,7 @@ void prepNextClick()
                 }
                 notesToTrig.next();
 
-                if(++sentry == 1000)
+                if(++sentry == 100)
                 {
                     inout.ShowErrorOnLCD("prepNC stuck");
                     break;
@@ -833,7 +833,7 @@ void followNoteOff()
         playingNotes.readNext();
         foo++;
 
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("followNO stuck");
             break;

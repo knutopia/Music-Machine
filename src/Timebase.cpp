@@ -384,7 +384,7 @@ void Timebase::shortMidiClick()
         }
         notesToTrig.readNext();
 
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("shMClk stuck");
             break;

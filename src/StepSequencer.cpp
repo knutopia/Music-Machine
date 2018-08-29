@@ -130,7 +130,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
 #endif
 
         m_activeTracks.next();
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("updateNL stuck");
             break;
@@ -229,7 +229,7 @@ void StepSequencer::updateStepClickList()
         }
         activeNotes.next();
         
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("updateSCL stuck");
             break;
@@ -339,7 +339,7 @@ void StepSequencer::copy_edit_buffers_to_roots()
             Serial.println("copy_edit_buffers_to_roots activeEditTrack is NULL");
         m_activeTracks.next();
         
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("copyEBtR stuck");
             break;

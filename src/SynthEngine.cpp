@@ -274,7 +274,7 @@ void SynthEngine::allNotesOff()
         playingNotes.readNext();
         foo++;
 
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("allNotesOff stuck");
             break;

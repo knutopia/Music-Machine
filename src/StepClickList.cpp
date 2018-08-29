@@ -156,6 +156,12 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #ifdef DEBUG
                 Serial.println("addClickNote: appending to existing node");
 #endif
+                if(cur->notes == NULL)
+                {
+                    inout.ShowErrorOnLCD("addCL notes NULL");
+                    break;
+                }
+
                 cur->notes->append(aNote, aTrack, aDuration);
                 done = true;
             } else
@@ -167,6 +173,11 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
                     Serial.println("addClickNote: inserting node");
 #endif
                     insertBefore(cur->masterStep, aClickStep);
+                    if(cur->notes == NULL)
+                    {
+                        inout.ShowErrorOnLCD("addCL2 notes NULL");
+                        break;
+                    }
                     cur->notes->append(aNote, aTrack, aDuration);
                     done = true;
                 }
@@ -184,7 +195,10 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             rewind();
             insertBefore(aMasterStep, aClickStep);
-            cur->notes->append(aNote, aTrack, aDuration);
+            if(cur->notes == NULL)
+                inout.ShowErrorOnLCD("addCL3 notes NULL");
+            else
+                cur->notes->append(aNote, aTrack, aDuration);
         } else 
         { // add stepClickNode at the end
 #ifdef DEBUG
@@ -192,7 +206,10 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
             append(aMasterStep, aClickStep);
             cur = tail;
-            cur->notes->append(aNote, aTrack, aDuration);
+            if(cur->notes == NULL)
+                inout.ShowErrorOnLCD("addCL4 notes NULL");
+            else
+                cur->notes->append(aNote, aTrack, aDuration);
         }
     }
     checkIntegrity("addClickNote");
@@ -285,7 +302,8 @@ int StepClickList::getMasterStep()
 
     if( cur != NULL )
         retVal = cur->masterStep;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("SCL getMS NULL");
     return retVal; 
 }
 
@@ -298,6 +316,7 @@ PerClickNoteList StepClickList::getClickNoteList(byte a_click, int a_step)
     bool found = false;
 
     readRewind();
+    int sentry = 0;
     while(hasReadValue())
     {
         if(readCur->masterStep == a_step
@@ -307,12 +326,23 @@ PerClickNoteList StepClickList::getClickNoteList(byte a_click, int a_step)
             Serial.print("Matching ");
             Serial.println(a_step);
 #endif
+            if(readCur->notes == NULL)
+            {
+                inout.ShowErrorOnLCD("getCNL notes NULL");
+                break;
+            }
             readCur->notes->rewind();
             retVal = *readCur->notes;
             found = true;
             break;
         }
         readNext();
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("getCNList stuck1");
+            break;
+        }
+
     }
     if(!found) {
 #ifdef DEBUG
@@ -341,6 +371,7 @@ bool StepClickList::getClickNoteList(PerClickNoteList *target, byte a_click, int
     bool found = false;
 
     readRewind();
+    int sentryO = 0;
     while(hasReadValue())
     {
         if(readCur->masterStep == a_step
@@ -350,7 +381,13 @@ bool StepClickList::getClickNoteList(PerClickNoteList *target, byte a_click, int
             Serial.print("Matching ");
             Serial.println(a_step);
 #endif
+            if(readCur->notes == NULL)
+            {
+                inout.ShowErrorOnLCD("getCNL notes NULL");
+                break;
+            }
             readCur->notes->rewind();
+            int sentryI = 0;
             while(readCur->notes->hasValue())
             {
 //              Serial.print("Looping ");
@@ -363,19 +400,32 @@ bool StepClickList::getClickNoteList(PerClickNoteList *target, byte a_click, int
 //              Serial.println(target->getNote().pitchVal);
                 readCur->notes->next();
                 target->next();
+
+                if(++sentryI == 100)
+                {
+                    inout.ShowErrorOnLCD("getCNList stuckI");
+                    break;
+                }
             }
 
             found = true;
             break;
         }
         readNext();
+
+        if(++sentryO == 100)
+        {
+            inout.ShowErrorOnLCD("getCNList stuckO");
+            break;
+        }
+
     }
     return found;
 }
 
 bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click, int a_step)
 {
-    checkIntegrity("getClickNoteList");
+    checkIntegrity("transferClickNoteList");
 
     bool found = false;
 
@@ -390,6 +440,11 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
             Serial.print("Matching ");
             Serial.println(a_step);
 #endif
+            if(readCur->notes == NULL)
+            {
+                inout.ShowErrorOnLCD("tfrCNL notes NULL");
+                break;
+            }
             readCur->notes->rewind();
             int sentry = 0;
             while(readCur->notes->hasValue())
@@ -405,7 +460,7 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
                 readCur->notes->next();
                 target.next();
 
-                if(++sentry == 1000)
+                if(++sentry == 100)
                 {
                     inout.ShowErrorOnLCD("traCNLi stuck");
                     break;
@@ -420,7 +475,7 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
         }
         readNext();
 
-        if(++sentryO == 1000)
+        if(++sentryO == 100)
         {
             inout.ShowErrorOnLCD("traCNLo stuck");
             break;
@@ -482,7 +537,8 @@ byte StepClickList::getClickStep()
 
     if( cur != NULL )
         retVal = cur->clickStep;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("SCL getCS NULL");
     return retVal; 
 }
 
@@ -494,7 +550,12 @@ PerClickNoteList* StepClickList::getNotes()
 
     if( cur != NULL )
         retVal = cur->notes;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("SCL getNotes NULL");
+
+    if(cur->notes == NULL)
+        inout.ShowErrorOnLCD("SCL getNotesN NULL");
+
     return retVal; 
 }
 

@@ -1,6 +1,9 @@
 #include "PerClickNoteList.h"
+#include "InOutHelper.h"
 
 //#define DEBUG true
+
+extern InOutHelper inout;
 
 PerClickNoteList::PerClickNoteList()
 {
@@ -143,7 +146,8 @@ note PerClickNoteList::getNote()
 
     if( cur != NULL )
         retVal = cur->clickNote;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("PCNL getNote NULL");
     return retVal; 
 }
 
@@ -198,7 +202,8 @@ unsigned long PerClickNoteList::getDurationMS()
 
     if( cur != NULL )
         retVal = cur->durationMS;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("PCNL getDur NULL");
     return retVal; 
 }
 
@@ -208,7 +213,8 @@ unsigned long PerClickNoteList::readDurationMS()
 
     if( readCur != NULL )
         retVal = readCur->durationMS;
-        // really we should raise exception...
+    else
+        inout.ShowErrorOnLCD("PCNL readDur NULL");
     return retVal; 
 }
 
@@ -223,7 +229,7 @@ void PerClickNoteList::rewind()
     Serial.print("  tail: ");
     Serial.println((unsigned int)tail);
 #endif
-
+    
     cur = head;
 }
 

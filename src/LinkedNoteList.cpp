@@ -1,6 +1,9 @@
 #include "LinkedNoteList.h"    
+#include "InOutHelper.h"
 
 //#define DEBUG true
+
+extern InOutHelper inout;
 
 LinkedNoteList::LinkedNoteList()
 {
@@ -288,10 +291,8 @@ note LinkedNoteList::getNote()
 //      Serial.print("  dur ");
 //      Serial.println(cur->trackNote.duration);
 #endif
-
-        // really we should raise exception...
     } else
-        Serial.println(" NULL cur");
+        inout.ShowErrorOnLCD("LNL getNote NULL");
 
     return retVal; 
 }

@@ -98,7 +98,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
     m_activeTracks.rewind();
 
     if ( !m_activeTracks.hasValue())
-        Serial.println("m_activeTracks.has NO Value");
+        inout.ShowErrorOnLCD("updateNL: m_ac noval");
 
     int sentry = 0;
     while( m_activeTracks.hasValue())

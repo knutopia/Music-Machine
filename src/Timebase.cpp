@@ -3,7 +3,7 @@
 #include "SynthEngine.h"
 #include "NoteOffList.h"
 
-#define MIDION true
+//#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
@@ -127,7 +127,7 @@ long Timebase::truncateSwingStepDuration(note aNote)
 
     if(aNote.holdsAfter == 0 && aNote.swingTicks > 0)
     {
-        float factor = ((float)(MIDICLOCKDIVIDER - aNote.swingTicks - 1.0) / (float)MIDICLOCKDIVIDER);
+        float factor = ((float)(MIDICLOCKDIVIDER - aNote.swingTicks - 3.0) / (float)MIDICLOCKDIVIDER);
         long durAvail = referenceStepDuration * factor;
         if(durAvail < retval)
             retval = durAvail;
@@ -366,10 +366,10 @@ void Timebase::shortMidiClick()
         unsigned long trigDur = notesToTrig.readDurationMS();
         byte trigTrack = notesToTrig.readTrack();
 
-#ifdef DEBUG
+//#ifdef DEBUG
         Serial.print(" playing ");
         Serial.println(trigNote.pitchVal);
-#endif
+//#endif
 
         unsigned long now = micros();
         //for the step indicators...

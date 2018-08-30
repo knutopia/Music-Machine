@@ -652,24 +652,29 @@ void StepClickList::dropHead()
         if(head->next == NULL)
             Serial.print("dropHead head->next == NULL");
 
-            //noInterrupts();
+        noInterrupts();
             if (cur == head)
                 cur = newHead;
 
-    //      Serial.print("  @#$ dropHead deleting head->notes");
-            delete head->notes;
-    //      Serial.print("  @#$ dropHead head->notes deleted");
+            Serial.print("  @#$ dropHead deleting head->notes");
+            if(head->notes != NULL)
+                delete head->notes;
+            else
+                inout.ShowErrorOnLCD("SCL dh notes NULL");
+            Serial.print("  @#$ dropHead head->notes deleted");
             delete head;
-    //      Serial.print("  @#$ dropHead head deleted");
+            Serial.print("  @#$ dropHead head deleted");
             head = newHead;
-            //interrupts();
+        interrupts();
     } 
 //  else
 //      Serial.print("@#$ head == NULL");
 
+    Serial.print("  @#$before checkIntegrity ");
+
     checkIntegrity("dropHead");
 
-//  Serial.print("  @#$ dropHead done");
+    Serial.println("  @#$ dropHead done");
 }
 
 void StepClickList::rewind()
@@ -717,10 +722,16 @@ int StepClickList::count()
     int count = 0;
     stepClickNode *buf = cur;
     rewind();
+    int sentry = 0;
     while(hasValue())
     {
         count++;
         next();
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("SCL count stuck");
+            break;
+        }
     }
     cur = buf;
     return count;

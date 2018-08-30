@@ -20,9 +20,9 @@ PerClickNoteList::PerClickNoteList()
 PerClickNoteList::~PerClickNoteList()
 {
 
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.print("Destructor PerClickNoteList ");
-#endif
+//#endif
 
     notePerClick *die = head;
 
@@ -32,9 +32,9 @@ PerClickNoteList::~PerClickNoteList()
         delete die;
         die = head;
 
-#ifdef DEBUG
+//#ifdef DEBUG
         Serial.print("die ");
-#endif
+//#endif
     }
 
     head = NULL;
@@ -42,9 +42,9 @@ PerClickNoteList::~PerClickNoteList()
     tail = NULL;
     readCur = NULL;
 
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.println("done");
-#endif
+//#endif
 }
 
 void PerClickNoteList::purge()
@@ -260,7 +260,11 @@ void PerClickNoteList::readNext()
 {
     checkIntegrity("readNext");
     if( readCur != NULL )
-            readCur = readCur->next;
+    {
+        readCur = readCur->next;
+    }
+    else
+        inout.ShowErrorOnLCD("rn cur NULL");
 }
 
 int PerClickNoteList::count()
@@ -268,10 +272,16 @@ int PerClickNoteList::count()
     int count = 0;
     notePerClick *buf = cur;
     rewind();
+    int sentry = 0;
     while(hasValue())
     {
         count++;
         next();
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("PCNL count stuck");
+            break;
+        }
     }
     cur = buf;
     return count;

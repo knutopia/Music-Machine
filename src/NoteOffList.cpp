@@ -1,4 +1,7 @@
 #include "NoteOffList.h"
+#include "InOutHelper.h"
+
+extern InOutHelper inout;
  
 NoteOffList::NoteOffList()
 {
@@ -239,23 +242,17 @@ int NoteOffList::count()
     int count = 0;
     volatile noteOffNode *buf = cur;
     rewind();
+    int sentry = 0;
     while(hasValue())
     {
         count++;
         next();
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("NOL count stuck");
+            break;
+        }
     }
     cur = buf;
     return count;
-
-/*
-    int retVal = 0;
-    rewind();
-
-    while( hasValue()){
-        retVal++;
-        checkIntegrity("count");
-        next();
-    }        
-    return retVal;
-*/
 }

@@ -4,9 +4,12 @@
 #include <Arduino.h>
 #include "Enum.h"
 #include "Track.h"
+#include "InOutHelper.h"
 
 using namespace std;
- 
+
+extern InOutHelper inout;
+
 class LinkedTrackList 
 {
     
@@ -167,10 +170,15 @@ public:
     {
         int retVal = 0;
         rewind();
-
+        int sentry = 0;
         while( hasValue()){
             retVal++;
             next();
+            if(++sentry == 1000)
+            {
+                inout.ShowErrorOnLCD("TL count stuck");
+                break;
+            }
         }        
         return retVal;
     }

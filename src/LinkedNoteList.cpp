@@ -249,7 +249,7 @@ void LinkedNoteList::next()
     if( cur != NULL )
     {
         if( cur == cur->next)
-            Serial.println("cur->next circular on Notelist next");
+            inout.ShowErrorOnLCD("c->n circular on NL");
         cur = cur->next;
     }
     else
@@ -261,7 +261,10 @@ void LinkedNoteList::next()
 int LinkedNoteList::getStep()
 {
         if( cur != NULL )
-                return cur->masterStep;
+            return cur->masterStep;
+        else
+            inout.ShowErrorOnLCD("LNL getStep NULL");
+
         return 0; // really we should raise exception
 }
 
@@ -269,6 +272,9 @@ int LinkedNoteList::getTrack()
 {
         if( cur != NULL )
                 return cur->track;
+        else
+            inout.ShowErrorOnLCD("LNL getTrack NULL");
+
         return 0; // really we should raise exception
 }
 
@@ -307,11 +313,16 @@ int LinkedNoteList::count()
     int count = 0;
     noteNode *buf = cur;
     rewind();
-    
+    int sentry = 0;
     while(hasValue())
     {
         count++;
         next();
+        if(++sentry == 1000)
+        {
+            inout.ShowErrorOnLCD("LNL count stuck");
+            break;
+        }
     }
     cur = buf;
     return count;

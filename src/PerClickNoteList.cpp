@@ -168,6 +168,8 @@ note PerClickNoteList::readNote()
     if( readCur != NULL )
         retVal = readCur->clickNote;
 //      memcpy(&retVal, &readCur->clickNote, sizeof(note));
+    else
+        inout.ShowErrorOnLCD("readNote NULL");
     return retVal; 
 }
 
@@ -177,6 +179,8 @@ byte PerClickNoteList::getTrack()
 
     if( cur != NULL )
         retVal = cur->track;
+    else
+        inout.ShowErrorOnLCD("getTrack NULL");
 
     return retVal; 
 }
@@ -187,6 +191,8 @@ byte PerClickNoteList::readTrack()
 
     if( readCur != NULL )
         retVal = readCur->track;
+    else
+        inout.ShowErrorOnLCD("readTrack NULL");
 
     return retVal; 
 }

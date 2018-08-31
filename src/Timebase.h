@@ -42,6 +42,10 @@ class Timebase
       void updateMidiTimer();
       void resetMidiTimer();
 
+      // exposed to use in main loop
+      static unsigned long midiClickInterval;
+      static void arrayMidiClick();
+
     private:
 
       enum{max_steps = 16};
@@ -67,7 +71,6 @@ class Timebase
                                           false, true, false, true, 
                                           false, true, false, true};
 
-      static unsigned long midiClickInterval;
       static bool bMidiTimerOn;
       volatile static int midiClickCount;
       volatile static int swingCountdown;
@@ -75,14 +78,13 @@ class Timebase
 
       static retrigDivisions retrigClickDivider;
       static int midiSteps;
-      static IntervalTimer midiTimer;
+//    static IntervalTimer midiTimer;
     
       //Helper methods
       void recalcTimings();
 
 //    static void midiClick();
       static void shortMidiClick();
-      static void arrayMidiClick();
 };
 
 #endif

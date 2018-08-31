@@ -12,6 +12,7 @@ extern StepClickList activeStepClicks;
 extern NoteOffList playingNotes;
 extern PerClickNoteList notesToTrig;
 extern volatile notePerClick notesToPlay[];
+extern elapsedMicros clickTrack;
 
 
 #ifdef DEBUG
@@ -36,7 +37,7 @@ volatile int Timebase::retrigCountdown = -1;
 
 int Timebase::midiSteps;
 retrigDivisions Timebase::retrigClickDivider;
-IntervalTimer Timebase::midiTimer;
+// IntervalTimer Timebase::midiTimer; // NOTIMER
 
 Timebase::Timebase()
 {
@@ -229,6 +230,9 @@ void Timebase::startPlayingRightNow()
     g_midiClickCount = MIDICLOCKDIVIDER;
 //  midiClick();
 //  shortMidiClick();
+    
+    clickTrack = 0;
+
     arrayMidiClick();
     runMidiTimer();
 }
@@ -245,7 +249,7 @@ void Timebase::runMidiTimer()
 
 //  midiTimer.begin(Timebase::midiClick, midiClickInterval);
 //  midiTimer.begin(Timebase::shortMidiClick, midiClickInterval);
-    midiTimer.begin(Timebase::arrayMidiClick, midiClickInterval);
+//  midiTimer.begin(Timebase::arrayMidiClick, midiClickInterval); // NOTIMER
 }
 
 void Timebase::stopMidiTimer()
@@ -255,7 +259,7 @@ void Timebase::stopMidiTimer()
         Serial.println("stopMidiTimer");
 #endif
         bMidiTimerOn = false;
-        midiTimer.end();
+//      midiTimer.end(); // NOTIMER
     }
 }
 
@@ -265,7 +269,7 @@ void Timebase::updateMidiTimer()
 #ifdef DEBUG
         Serial.println("updateMidiTimer");
 #endif
-        midiTimer.update(midiClickInterval);
+//      midiTimer.update(midiClickInterval); // NOTIMER
     }
 }
 
@@ -276,7 +280,7 @@ void Timebase::resetMidiTimer()
 #endif
 
     if (bMidiTimerOn) {
-        midiTimer.end();
+//      midiTimer.end(); // NOTIMER
     }
     bMidiTimerOn = false;
     midiClickCount = 0;
@@ -284,82 +288,9 @@ void Timebase::resetMidiTimer()
     swingCountdown = 0;
     retrigCountdown = 0;
     midiSteps = 0;
-    midiTimer.priority(255);
+//  midiTimer.priority(255); // NOTIMER
 
 }
-/*
-void Timebase::midiClick()
-{
-    static int currentPlayingStep = 0;
-    bool prep_next = false;
-
-    midiClickCount++;
-
-    if (midiClickCount >= MIDICLOCKDIVIDER)
-    {
-        midiClickCount = 0;
-        currentPlayingStep = g_activeGlobalStep;
-        prep_next = true;
-#ifdef DEBUG                                    
-        Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
-        Serial.println(g_activeGlobalStep);
-#endif
-    }    
-    PerClickNoteList* notesToTrig;
-    if((notesToTrig = activeStepClicks
-                      .getClickNoteList(midiClickCount, currentPlayingStep))
-                      != NULL)
-    {
-        notesToTrig->readRewind();
-        while(notesToTrig->hasReadValue())
-        {
-            note trigNote = notesToTrig->readNote();
-            unsigned long trigDur = notesToTrig->readDurationMS();
-            byte trigTrack = notesToTrig->readTrack();
-        
-                unsigned long now = micros();
-                //for the step indicators...
-                if(trigTrack ==1)
-                    v_note_off_time = now + trigDur;
-
-
-            if(trigNote.playIt)
-            {
-                synth.playNote(trigTrack, trigNote);
-
-                playingNotes.append(trigTrack, 
-                                    trigNote.pitchVal, 
-                                    (now + trigDur));
-#ifdef DEBUG                                    
-                Serial.print("Playing ");
-//              Serial.print(g_activeGlobalStep);
-//              Serial.print(" or ");
-                Serial.print(currentPlayingStep);
-                Serial.print(" at click ");
-                Serial.print(midiClickCount);
-                Serial.print(" on track ");
-                Serial.println(trigTrack);
-#endif
-            } else 
-            {
-#ifdef DEBUG
-                Serial.print("Don't play it ! ");
-                Serial.print(g_activeGlobalStep);
-                Serial.print(" on track ");
-                Serial.println(trigTrack);
-#endif
-            }
-            notesToTrig->readNext();
-        }
-    } 
-    activeStepClicks.readRewind();
-
-    if(prep_next)
-    {
-        vb_prep_next_step = true;
-    }
-}
-*/
 
 void Timebase::shortMidiClick()
 {

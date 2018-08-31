@@ -28,6 +28,7 @@
 #include "StepSequencer.h"
 #include "Path.h"
 #include "Timebase.h"
+//#include "elapsedMicros.h"
 
 int g_activeGlobalStep;
 
@@ -124,6 +125,9 @@ PerClickNoteList notesToTrig;
 
 //To replace PerClickNoteList:
 volatile notePerClick notesToPlay[TRACKCOUNT];
+
+//To replace timer
+elapsedMicros clickTrack;
 
 //Helper
 void listCounts()
@@ -357,9 +361,48 @@ void setup()
     inout.SetLCDinfoTimeout();
 
     synth.playTestClick();
-
 }
 
+void loop()
+{
+    static byte bTimeslice = 0;
+    
+    if(clickTrack > metro.midiClickInterval)
+    {
+        metro.arrayMidiClick();
+        prepNextClick();
+        clickTrack = clickTrack - metro.midiClickInterval;
+    } else {
+
+        followNoteOff();
+
+        if (bTimeslice == 2)
+        {
+            inout.handleEncoders();
+        } else {
+            inout.handleStartStopButton();
+            inout.handleSelectButton();
+            inout.handleModeButtons();
+            inout.handleButtonHolds();
+            handleRewindButton();
+
+            inout.handleEncoderButtons();
+            inout.handleTrellis();
+            inout.handleLCDtimeouts();
+            synth.trackJoystick();
+        }
+        bTimeslice = ++bTimeslice % 3;
+    }
+
+    #ifdef MIDION
+      while (usbMIDI.read()) {
+        // ignore incoming messages
+      }
+    #endif
+//  inout.showLoopTimer();
+}
+
+/*
 
 void loop()
 {
@@ -392,6 +435,7 @@ void loop()
     #endif
 //  inout.showLoopTimer();
 }
+*/
 
 /*
 void prep_next_note()

@@ -148,14 +148,13 @@ void SynthEngine::playTestClick()
 
 void SynthEngine::playPercNote(note aNote)
 {
-/*
+
 //  Track2drum.frequency(aNote.pitchFreq / 2);
     Track2drum.frequency(aNote.pitchFreq);
 //  Track2drum.length(100);
     Track2drum.length(aNote.durationMS / 1000);
     Track2drum.pitchMod(.5);
     Track2drum.noteOn();
-*/
 
 #ifdef MIDION
     if(!aNote.accent)
@@ -186,7 +185,7 @@ void SynthEngine::playSynthNote(note aNote)
     Serial.print("  ms: ");
     Serial.println(aNote.durationMS);
 #endif
-/*
+
 //  trackJoystick();
     prepSynthAccent(aNote.accent);
     AudioNoInterrupts();
@@ -204,7 +203,7 @@ void SynthEngine::playSynthNote(note aNote)
     AudioInterrupts();
 
     m_b_playing_a_note = true;
-*/
+
 #ifdef MIDION
     if(!aNote.accent)
       usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
@@ -240,7 +239,7 @@ void SynthEngine::endNote(byte aTrack, byte aMidiNote)
 
 void SynthEngine::endSynthNote(float velocity)
 {
-/*
+
 //  noInterrupts();
       AudioNoInterrupts();
         string2.noteOff(velocity);
@@ -250,7 +249,7 @@ void SynthEngine::endSynthNote(float velocity)
         VCAenvelope.noteOff();
       AudioInterrupts();
 //  interrupts();
-*/
+
     m_b_playing_a_note = false;
 }
 

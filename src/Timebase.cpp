@@ -2,6 +2,7 @@
 #include "InOutHelper.h"
 #include "SynthEngine.h"
 #include "NoteOffList.h"
+#include "NotePerClick.h"
 
 //#define MIDION true
 
@@ -10,6 +11,8 @@ extern InOutHelper inout;
 extern StepClickList activeStepClicks;
 extern NoteOffList playingNotes;
 extern PerClickNoteList notesToTrig;
+extern volatile notePerClick notesToPlay[];
+
 
 #ifdef DEBUG
 extern volatile unsigned long timeTracker;
@@ -225,7 +228,8 @@ void Timebase::startPlayingRightNow()
     midiClickCount = MIDICLOCKDIVIDER;
     g_midiClickCount = MIDICLOCKDIVIDER;
 //  midiClick();
-    shortMidiClick();
+//  shortMidiClick();
+    arrayMidiClick();
     runMidiTimer();
 }
 
@@ -240,7 +244,8 @@ void Timebase::runMidiTimer()
 #endif
 
 //  midiTimer.begin(Timebase::midiClick, midiClickInterval);
-    midiTimer.begin(Timebase::shortMidiClick, midiClickInterval);
+//  midiTimer.begin(Timebase::shortMidiClick, midiClickInterval);
+    midiTimer.begin(Timebase::arrayMidiClick, midiClickInterval);
 }
 
 void Timebase::stopMidiTimer()
@@ -366,10 +371,10 @@ void Timebase::shortMidiClick()
         unsigned long trigDur = notesToTrig.readDurationMS();
         byte trigTrack = notesToTrig.readTrack();
 
-//#ifdef DEBUG
+#ifdef DEBUG
         Serial.print(" playing ");
         Serial.println(trigNote.pitchVal);
-//#endif
+#endif
 
         unsigned long now = micros();
         //for the step indicators...
@@ -388,6 +393,57 @@ void Timebase::shortMidiClick()
         {
             inout.ShowErrorOnLCD("shMClk stuck");
             break;
+        }
+    }
+    vb_clickHappened = true;
+}
+
+void Timebase::arrayMidiClick()
+{
+//  Serial.print("trying ");
+
+    for(int i = 0; i < TRACKCOUNT; i++)
+    {        
+        if(notesToPlay[i].active)
+        {
+            unsigned long trigDur = notesToPlay[i].durationMS;
+            byte trigTrack = notesToPlay[i].track;
+
+#ifdef DEBUG
+            Serial.print(" playing track ");
+            Serial.print(notesToPlay[i].track);
+            Serial.print(" note ");
+            Serial.println(notesToPlay[i].clickNote.pitchVal);
+#endif
+
+            unsigned long now = micros();
+            //for the step indicators...
+            if(trigTrack ==1)
+                v_note_off_time = now + trigDur;
+
+            v_note_trigger_time = now;
+
+            if(notesToPlay[i].clickNote.playIt)
+            {
+                note playNote;
+
+                playNote.retrigClickDivider = notesToPlay[i].clickNote.retrigClickDivider;
+                playNote.unmuted = notesToPlay[i].clickNote.unmuted;
+                playNote.playIt = notesToPlay[i].clickNote.playIt;
+                playNote.pitchVal = notesToPlay[i].clickNote.pitchVal;
+                playNote.pitchFreq = notesToPlay[i].clickNote.pitchFreq;
+                playNote.durationMS = notesToPlay[i].clickNote.durationMS;
+                playNote.hold = notesToPlay[i].clickNote.hold;
+                playNote.duration = notesToPlay[i].clickNote.duration;
+                playNote.retrigs = notesToPlay[i].clickNote.retrigs;
+                playNote.ticks = notesToPlay[i].clickNote.ticks;
+                playNote.accent = notesToPlay[i].clickNote.accent;
+                playNote.velocity = notesToPlay[i].clickNote.velocity;
+                playNote.swingTicks = notesToPlay[i].clickNote.swingTicks;
+                playNote.holdsAfter = notesToPlay[i].clickNote.holdsAfter;  
+                
+                synth.playNote(trigTrack, playNote);
+            }
         }
     }
     vb_clickHappened = true;

@@ -204,16 +204,43 @@ void StepSequencer::updateStepClickList()
                 int clickPos = (count + 1) * aNote.retrigClickDivider 
                                 + swingOffset;
                 long duration = aNote.durationMS;
-                if(retrigLegato && (count+1 == aNote.retrigs))
-                    duration += aNote.duration * metro.getReferenceStepDurationMS();
 
-                if(clickPos > 24)
-                    Serial.print("updateStepClickList: clickPos out of bounds !");                                
-                activeStepClicks.addClickNote(  aNote, 
-                                                activeNotes.getTrack(),
-                                                duration, 
-                                                activeNotes.getStep(), 
-                                                clickPos);
+                // for legato, tuck on a step duration to last retrig...
+                if(retrigLegato && (count+1 == aNote.retrigs))
+                {
+                    duration += aNote.duration * metro.getReferenceStepDurationMS();
+                    // ...but shorten it if the click was pushed over to next step
+                    if(clickPos > 24)
+                        duration -= (clickPos - 24.0) / 24.0 * metro.getReferenceStepDurationMS();
+                }
+/*
+                if(clickPos > 24) {
+                    Serial.print("updateStepClickList: clickPos out of bounds: ");        
+                    Serial.print(clickPos);
+                    Serial.print(" from retrigClickDivider ");        
+                    Serial.print(aNote.retrigClickDivider);
+                    Serial.print(" with swingOffset ");        
+                    Serial.print(swingOffset);
+                    Serial.print(" at count ");
+                    Serial.println(count);
+                }
+*/
+                bool noteQualifies = false;
+
+                if(clickPos <= 24) 
+                    noteQualifies = true;
+                else
+                    if(retrigLegato)
+                        noteQualifies = true;
+//                  else
+//                      LOOK FOR MUTES (NOT JUST HOLDS)
+
+                if(noteQualifies)
+                    activeStepClicks.addClickNote(  aNote, 
+                                                    activeNotes.getTrack(),
+                                                    duration, 
+                                                    activeNotes.getStep(), 
+                                                    clickPos);
 #ifdef DEBUG
                 Serial.print("Retrig adds- ");
                 Serial.print("Step: ");

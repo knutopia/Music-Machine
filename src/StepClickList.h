@@ -36,8 +36,8 @@ class StepClickList
     int getMasterStep();
     PerClickNoteList getClickNoteList(byte a_click, int a_step);
     bool getClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
-//  bool transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step);
     bool transferClickNoteList(PerClickNoteList& target, byte a_click, int a_step);
+    bool transferClickNoteArray(byte a_click, int a_step);
     byte getClickStep();
     PerClickNoteList* getNotes();
     void dropNotesBeforeStepAndRewind(int aStep);

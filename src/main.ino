@@ -18,6 +18,7 @@
 #include "PerClickNoteList.h"
 #include "StepClickList.h"
 #include "NoteOffList.h"
+#include "NotePerClick.h"
 #include "Track.h"
 #include "TrackList.h"
 #include "InOutHelper.h"
@@ -120,6 +121,9 @@ LinkedNoteList activeNotes;
 StepClickList activeStepClicks;
 NoteOffList playingNotes;
 PerClickNoteList notesToTrig;
+
+//To replace PerClickNoteList:
+volatile notePerClick notesToPlay[TRACKCOUNT];
 
 //Helper
 void listCounts()
@@ -488,6 +492,117 @@ void prepNextClick()
     bool prepNextStep = false;
     bool clickPlayed;
     unsigned long note_trigger_time;
+    
+    noInterrupts();
+        clickPlayed = vb_clickHappened;
+    interrupts();
+
+    if(clickPlayed)
+    {
+        noInterrupts();
+            vb_clickHappened = false;
+            note_trigger_time = v_note_trigger_time;
+            v_note_trigger_time = 0;
+        interrupts();
+    
+        // track noteOffs
+        if(note_trigger_time != 0)
+        {
+            notePerClick notesPlayed[TRACKCOUNT];
+
+            noInterrupts();
+            for(int i = 0; i < TRACKCOUNT; i++)
+            {
+                if(notesToPlay[i].active)
+                {
+                    note trigNote;
+
+                    trigNote.retrigClickDivider = notesToPlay[i].clickNote.retrigClickDivider;
+                    trigNote.unmuted = notesToPlay[i].clickNote.unmuted;
+                    trigNote.playIt = notesToPlay[i].clickNote.playIt;
+                    trigNote.pitchVal = notesToPlay[i].clickNote.pitchVal;
+                    trigNote.pitchFreq = notesToPlay[i].clickNote.pitchFreq;
+                    trigNote.durationMS = notesToPlay[i].clickNote.durationMS;
+                    trigNote.hold = notesToPlay[i].clickNote.hold;
+                    trigNote.duration = notesToPlay[i].clickNote.duration;
+                    trigNote.retrigs = notesToPlay[i].clickNote.retrigs;
+                    trigNote.ticks = notesToPlay[i].clickNote.ticks;
+                    trigNote.accent = notesToPlay[i].clickNote.accent;
+                    trigNote.velocity = notesToPlay[i].clickNote.velocity;
+                    trigNote.swingTicks = notesToPlay[i].clickNote.swingTicks;
+                    trigNote.holdsAfter = notesToPlay[i].clickNote.holdsAfter;
+
+                    notesPlayed[i].clickNote = trigNote;
+                    notesPlayed[i].durationMS = notesToPlay[i].durationMS;
+                    notesPlayed[i].track = notesToPlay[i].track;
+                    notesPlayed[i].active = notesToPlay[i].active;
+                } else {
+                    notesPlayed[i].active = false;
+                }
+            }
+            interrupts();
+
+            for(int i = 0; i < TRACKCOUNT; i++)
+            {
+                if(notesPlayed[i].active && notesPlayed[i].clickNote.playIt)
+                {
+/*
+                    Serial.print("playingNotes.append track");
+                    Serial.print(notesPlayed[i].track);
+                    Serial.print(" played note ");
+                    Serial.println(notesPlayed[i].clickNote.pitchVal);
+*/
+                    playingNotes.append(notesPlayed[i].track, 
+                                        notesPlayed[i].clickNote.pitchVal, 
+                                        notesPlayed[i].durationMS + note_trigger_time);
+                }
+
+                //for the step indicators...
+                if(notesPlayed[i].track == 1)
+                {
+                    inout.setRunningStepIndicators(prevPlaybackStep, 
+                                                   notesPlayed[i].durationMS + note_trigger_time);      
+                }
+            }
+        }
+
+        // track step completion
+        g_midiClickCount++;
+
+        if (g_midiClickCount >= MIDICLOCKDIVIDER)
+        {
+            g_midiClickCount = 0;
+            currentPlayingStep = g_activeGlobalStep;
+            prepNextStep = true;
+    #ifdef DEBUG                                    
+            Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
+            Serial.println(g_activeGlobalStep);
+    #endif
+        }
+
+        // acquire notes for next click
+
+//      if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
+        if(activeStepClicks.transferClickNoteArray(g_midiClickCount, currentPlayingStep))
+        {
+        }
+        activeStepClicks.readRewind();
+
+        if(prepNextStep)
+        {
+//          vb_prep_next_step = true;
+            prep_next_note_direct();
+        }
+    }
+}
+
+/*
+void prepNextClick()
+{
+    static int currentPlayingStep = 0;
+    bool prepNextStep = false;
+    bool clickPlayed;
+    unsigned long note_trigger_time;
 
     noInterrupts();
         clickPlayed = vb_clickHappened;
@@ -554,7 +669,9 @@ void prepNextClick()
 
         // acquire notes for next click
         if(&notesToTrig != NULL)
-            notesToTrig.purge();
+        {
+                notesToTrig.purge();
+        }
         else
             Serial.println("prepNextClick: NULL notesToTrig");
 
@@ -574,6 +691,7 @@ void prepNextClick()
         }
     }
 }
+*/
 
 /*
 void prep_next_note()
@@ -819,7 +937,9 @@ void followNoteOff()
             Serial.print("followNoteOff on track ");
             Serial.print(playingNotes.readTrack());
             Serial.print(" at index ");
-            Serial.println(foo);
+            Serial.print(foo);
+            Serial.print(" with midiNote ");
+            Serial.println(playingNotes.readMidiNote());
 #endif
             synth.endNote(playingNotes.readTrack(), 
                             playingNotes.readMidiNote());
@@ -855,7 +975,7 @@ void handleRewindButton()
         playpath.resetStep();
 
         activeNotes.purge();
-        notesToTrig.purge();
+//      notesToTrig.purge();
         activeStepClicks.purge();
     }
 }

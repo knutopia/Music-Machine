@@ -1,12 +1,14 @@
 #include "StepClickList.h"
 #include "PerClickNoteList.h"
 #include "InOutHelper.h"
+#include "NotePerClick.h"
 
 //#define DEBUG true
 #define LISTCOUNT true
 
 extern StepClickList activeStepClicks;
 extern InOutHelper inout;
+extern volatile notePerClick notesToPlay[];
 
 StepClickList::StepClickList()
 {
@@ -35,7 +37,8 @@ StepClickList::~StepClickList()
         head = die->next;
         die->next = NULL;
         die->prev = NULL;
-        delete die->notes;
+        if(die->notes != NULL)
+            delete die->notes;
         delete die;
         die = head;
 
@@ -81,7 +84,8 @@ void StepClickList::purge()
         head = die->next;
         die->next = NULL;
         die->prev = NULL;
-        delete die->notes;
+        if(die->notes != NULL)
+            delete die->notes;
         delete die;
         die = head;
 
@@ -133,6 +137,7 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 #endif
 
     rewind();
+    int sentry = 0;
     while( hasValue() && !done)
     {
 #ifdef DEBUG        
@@ -184,6 +189,11 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
             }
         }
         next();
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("AddCN count stuck");
+            break;
+        }
     }
     if (!done)
     {
@@ -484,6 +494,102 @@ bool StepClickList::transferClickNoteList(PerClickNoteList& target, byte a_click
     return found;
 }
 
+bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
+{
+    checkIntegrity("transferClickNoteArray");
+
+    // clear out notes to play first...
+    for(int i = 0; i < TRACKCOUNT; i++)
+        notesToPlay[i].active = false;
+
+    bool found = false;
+
+    readRewind();
+    int sentryO = 0;
+
+    // ...then look for step & click match...
+    while(hasReadValue())
+    {
+        if(readCur->masterStep == a_step
+            && a_click == readCur->clickStep)
+        {
+#ifdef DEBUG
+            Serial.print("Matching ");
+            Serial.println(a_step);
+#endif
+            // ...and refill if there are notes queued
+            if(readCur->notes == NULL)
+            {
+                inout.ShowErrorOnLCD("tfrCNA notes NULL");
+                break;
+            }
+
+            readCur->notes->rewind();
+            for(int i = 0; i < TRACKCOUNT; i++)
+            {
+                if(readCur->notes->hasValue())
+                {
+                    noInterrupts();
+                        notesToPlay[i].clickNote.retrigClickDivider = readCur->notes->getNote().retrigClickDivider;
+                        notesToPlay[i].clickNote.unmuted = readCur->notes->getNote().unmuted;
+                        notesToPlay[i].clickNote.playIt = readCur->notes->getNote().playIt;
+                        notesToPlay[i].clickNote.pitchVal = readCur->notes->getNote().pitchVal;
+                        notesToPlay[i].clickNote.pitchFreq = readCur->notes->getNote().pitchFreq;
+                        notesToPlay[i].clickNote.durationMS = readCur->notes->getNote().durationMS;
+                        notesToPlay[i].clickNote.hold = readCur->notes->getNote().hold;
+                        notesToPlay[i].clickNote.duration = readCur->notes->getNote().duration;
+                        notesToPlay[i].clickNote.retrigs = readCur->notes->getNote().retrigs;
+                        notesToPlay[i].clickNote.ticks = readCur->notes->getNote().ticks;
+                        notesToPlay[i].clickNote.accent = readCur->notes->getNote().accent;
+                        notesToPlay[i].clickNote.velocity = readCur->notes->getNote().velocity;
+                        notesToPlay[i].clickNote.swingTicks = readCur->notes->getNote().swingTicks;
+                        notesToPlay[i].clickNote.holdsAfter = readCur->notes->getNote().holdsAfter;
+
+                        notesToPlay[i].durationMS = readCur->notes->getDurationMS();
+                        notesToPlay[i].track = readCur->notes->getTrack();
+                        notesToPlay[i].active = true;
+                    interrupts();
+                    readCur->notes->next();
+/*
+                    Serial.print("transferClickNoteArray active ");
+                    Serial.print(i);
+                    Serial.print(" at step ");
+                    Serial.print(a_step);
+                    Serial.print(" click ");
+                    Serial.println(a_click);
+*/
+                } else {
+                    noInterrupts();
+                        notesToPlay[i].active = false;
+                    interrupts();
+/*
+                    Serial.print("transferClickNoteArray off ");
+                    Serial.print(i);
+                    Serial.print(" at step ");
+                    Serial.print(a_step);
+                    Serial.print(" click ");
+                    Serial.println(a_click);
+*/
+                }
+            }
+            dropReadCur();
+            rewind();
+            readRewind();
+
+            found = true;
+            break;
+        }
+        readNext();
+
+        if(++sentryO == 100)
+        {
+            inout.ShowErrorOnLCD("traCNAo stuck");
+            break;
+        }
+    }
+    return found;
+}
+
 /*
 
 bool StepClickList::transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step)
@@ -588,6 +694,7 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 #endif
 
     bool b = true;
+    int sentry = 0;
     while(b)
     {
         if (head == NULL)
@@ -630,6 +737,11 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
                 }
             }
         }
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("DNBSAR count stuck");
+            break;
+        }
     }
 /*        
     while(head != NULL && head->masterStep < aStep)
@@ -650,31 +762,37 @@ void StepClickList::dropHead()
     {
         stepClickNode *newHead = head->next;
         if(head->next == NULL)
-            Serial.print("dropHead head->next == NULL");
+//          Serial.print("dropHead head->next == NULL");
 
-        noInterrupts();
+//      noInterrupts();
             if (cur == head)
                 cur = newHead;
 
-            Serial.print("  @#$ dropHead deleting head->notes");
+//          Serial.print("  @#$ dropHead deleting head->notes");
             if(head->notes != NULL)
-                delete head->notes;
+            {
+                noInterrupts();
+                    delete head->notes;
+                interrupts();
+            }
             else
                 inout.ShowErrorOnLCD("SCL dh notes NULL");
-            Serial.print("  @#$ dropHead head->notes deleted");
-            delete head;
-            Serial.print("  @#$ dropHead head deleted");
+//          Serial.print("  @#$ dropHead head->notes deleted");
+            noInterrupts();
+                delete head;
+            interrupts();
+//          Serial.print("  @#$ dropHead head deleted");
             head = newHead;
-        interrupts();
+//      interrupts();
     } 
 //  else
 //      Serial.print("@#$ head == NULL");
 
-    Serial.print("  @#$before checkIntegrity ");
+//  Serial.print("  @#$before checkIntegrity ");
 
-    checkIntegrity("dropHead");
+//  checkIntegrity("dropHead");
 
-    Serial.println("  @#$ dropHead done");
+//  Serial.println("  @#$ dropHead done");
 }
 
 void StepClickList::rewind()
@@ -727,7 +845,7 @@ int StepClickList::count()
     {
         count++;
         next();
-        if(++sentry == 1000)
+        if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("SCL count stuck");
             break;

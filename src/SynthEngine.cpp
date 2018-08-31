@@ -137,7 +137,6 @@ void SynthEngine::playNote(byte aTrack, note aNote)
      } 
 }
 
-
 void SynthEngine::playTestClick()
 {
     Track2drum.frequency(550);
@@ -232,7 +231,9 @@ void SynthEngine::endNote(byte aTrack, byte aMidiNote)
 
       default:
         Serial.print("endNote: track choice defaulted ");
-        Serial.println(aTrack);
+        Serial.print(aTrack);
+        Serial.print(" midiPitch ");
+        Serial.println(aMidiNote);
     }
     endMidiNote(aTrack, aMidiNote);
 }

@@ -93,4 +93,6 @@ enum {FOURTEENBIT = 16384};
 
 enum {JOYSTICKINTERVAL = 50};
 
+enum {TRACKCOUNT = 2};
+
 #endif

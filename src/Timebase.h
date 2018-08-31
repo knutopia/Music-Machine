@@ -82,6 +82,7 @@ class Timebase
 
 //    static void midiClick();
       static void shortMidiClick();
+      static void arrayMidiClick();
 };
 
 #endif

@@ -544,6 +544,7 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
                         notesToPlay[i].clickNote.velocity = readCur->notes->getNote().velocity;
                         notesToPlay[i].clickNote.swingTicks = readCur->notes->getNote().swingTicks;
                         notesToPlay[i].clickNote.holdsAfter = readCur->notes->getNote().holdsAfter;
+                        notesToPlay[i].clickNote.mutesAfter = readCur->notes->getNote().mutesAfter;
 
                         notesToPlay[i].durationMS = readCur->notes->getDurationMS();
                         notesToPlay[i].track = readCur->notes->getTrack();

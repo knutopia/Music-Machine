@@ -517,10 +517,10 @@ void prepNextClick()
                 {
                     note trigNote;
 
-                    trigNote.retrigClickDivider = notesToPlay[i].clickNote.retrigClickDivider;
+                    trigNote.pitchVal = notesToPlay[i].clickNote.pitchVal;
+/*                  trigNote.retrigClickDivider = notesToPlay[i].clickNote.retrigClickDivider;
                     trigNote.unmuted = notesToPlay[i].clickNote.unmuted;
                     trigNote.playIt = notesToPlay[i].clickNote.playIt;
-                    trigNote.pitchVal = notesToPlay[i].clickNote.pitchVal;
                     trigNote.pitchFreq = notesToPlay[i].clickNote.pitchFreq;
                     trigNote.durationMS = notesToPlay[i].clickNote.durationMS;
                     trigNote.hold = notesToPlay[i].clickNote.hold;
@@ -531,7 +531,8 @@ void prepNextClick()
                     trigNote.velocity = notesToPlay[i].clickNote.velocity;
                     trigNote.swingTicks = notesToPlay[i].clickNote.swingTicks;
                     trigNote.holdsAfter = notesToPlay[i].clickNote.holdsAfter;
-
+                    trigNote.mutesAfter = notesToPlay[i].clickNote.mutesAfter;
+*/
                     notesPlayed[i].clickNote = trigNote;
                     notesPlayed[i].durationMS = notesToPlay[i].durationMS;
                     notesPlayed[i].track = notesToPlay[i].track;
@@ -902,6 +903,7 @@ void playbackTest()
 }
 */
 
+/*
 byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
 {
     // use getStepPosAfterNext to look ahead for holds. 
@@ -920,7 +922,7 @@ byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
     }
     return holdStepCount;
 }
-
+*/
 
 void followNoteOff()
 {

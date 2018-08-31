@@ -53,6 +53,7 @@ class StepSequence
     private:
         unsigned long calcNextNoteDuration(note aNote);
         byte assembleHolds(note aNote);
+        byte assembleMutes(note aNote);
 
 //      note m_noteStruct;
         byte m_notes[max_notes];

@@ -128,7 +128,7 @@ long Timebase::truncateSwingStepDuration(note aNote)
 {
     long retval = aNote.durationMS;
 
-    if(aNote.holdsAfter == 0 && aNote.swingTicks > 0)
+    if(aNote.holdsAfter == 0 && aNote.mutesAfter == 0 && aNote.swingTicks > 0)
     {
         float factor = ((float)(MIDICLOCKDIVIDER - aNote.swingTicks - 3.0) / (float)MIDICLOCKDIVIDER);
         long durAvail = referenceStepDuration * factor;
@@ -441,6 +441,7 @@ void Timebase::arrayMidiClick()
                 playNote.velocity = notesToPlay[i].clickNote.velocity;
                 playNote.swingTicks = notesToPlay[i].clickNote.swingTicks;
                 playNote.holdsAfter = notesToPlay[i].clickNote.holdsAfter;  
+                playNote.mutesAfter = notesToPlay[i].clickNote.mutesAfter;  
                 
                 synth.playNote(trigTrack, playNote);
             }

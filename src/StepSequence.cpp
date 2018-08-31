@@ -94,6 +94,34 @@ byte StepSequence::assembleHolds(note aNote)
     return holdStepCount;
 }
 
+byte StepSequence::assembleMutes(note aNote)
+{
+    // use getStepPosAfterNext to look ahead for holds. 
+    // count consecutive forward-holds, to pass into getStepDurationMS
+    byte muteStepCount = 0;
+    if(aNote.unmuted)
+    {
+        byte stepOffset = 1;
+        byte seqLength = getLength();
+        bool muteNext = true;
+        
+        while (muteNext) {
+            muteNext = !getMute(playpath.getStepPosForward(stepOffset, seqLength));
+            if (muteNext) {
+                muteStepCount++;
+                stepOffset++;
+
+                if(muteStepCount > 100)
+                {
+                    inout.ShowErrorOnLCD("assembleMutes stuck");
+                    break;
+                }
+            }
+        }
+    }
+    return muteStepCount;
+}
+
 void StepSequence::copySeqTo(StepSequence &destination) 
 {
     for(byte n = 0; n < max_notes; n++)
@@ -311,6 +339,7 @@ note StepSequence::getNoteParams(int _step)
         thisNote.velocity = m_velocity[_step];
         thisNote.swingTicks = metro.getSwingTicks();
         thisNote.holdsAfter = assembleHolds(thisNote);
+        thisNote.mutesAfter = assembleMutes(thisNote);
         thisNote.durationMS = calcNextNoteDuration(thisNote);
     }
     return thisNote;

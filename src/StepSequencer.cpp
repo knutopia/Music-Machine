@@ -196,8 +196,12 @@ void StepSequencer::updateStepClickList()
         if (aNote.retrigClickDivider != NORETRIGS)
         {
             bool retrigLegato = false;
+            bool retrigSoundOut = false;
+
             if(aNote.holdsAfter > 0)
                 retrigLegato = true;
+            if(aNote.mutesAfter > 0)
+                retrigSoundOut = true;
 
             for(uint8_t count = 0; count < aNote.retrigs; count++)
             {
@@ -227,13 +231,8 @@ void StepSequencer::updateStepClickList()
 */
                 bool noteQualifies = false;
 
-                if(clickPos <= 24) 
+                if(clickPos <= 24 || retrigLegato || retrigSoundOut) 
                     noteQualifies = true;
-                else
-                    if(retrigLegato)
-                        noteQualifies = true;
-//                  else
-//                      LOOK FOR MUTES (NOT JUST HOLDS)
 
                 if(noteQualifies)
                     activeStepClicks.addClickNote(  aNote, 

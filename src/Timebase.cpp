@@ -74,8 +74,10 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
     if (mult != speedMultiplier)
     {
 #ifdef DEBUG
-        Serial.print("uSM remainingRetrigCount ");
-        Serial.println(remainingRetrigCount);
+        Serial.print("updateSpeedMultiplier speedMultiplier ");
+        Serial.print(speedMultiplier);
+        Serial.print(" newval ");
+        Serial.println(mult);
 #endif
 
         // calculate the intervals when tempo changes
@@ -114,9 +116,9 @@ void Timebase::updateTimingIfNeeded()
 {
     if(resetRefTimer) 
     {
-#ifdef DEBUG
-        Serial.println("reseting reference time");
-#endif
+//#ifdef DEBUG
+        Serial.println("updateTimingIfNeeded triggered");
+//#endif
 
 //    resetRefTimetoMostRecentNote();   // if speed or multiplier changed
         resetRefTimer = false;

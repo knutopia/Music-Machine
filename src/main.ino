@@ -369,32 +369,55 @@ void loop()
     
     if(clickTrack > metro.midiClickInterval)
     {
+        if(clickTrack-metro.midiClickInterval > 100)
+        {
+            Serial.print(clickTrack-metro.midiClickInterval);
+            Serial.print(" ");
+            Serial.println(bTimeslice);
+        }
+
         if(playbackOn)
         {
             metro.arrayMidiClick();
             prepNextClick();
         }
-        clickTrack = clickTrack - metro.midiClickInterval;
+        if(clickTrack > metro.midiClickInterval)
+            clickTrack -= metro.midiClickInterval;
+        else
+            clickTrack = clickTrack % metro.midiClickInterval;
+
     } else {
 
         followNoteOff();
 
-        if (bTimeslice == 2)
+        bTimeslice = ++bTimeslice % 6;
+        switch (bTimeslice)
         {
-            inout.handleEncoders();
-        } else {
-            inout.handleStartStopButton();
-            inout.handleSelectButton();
-            inout.handleModeButtons();
-            inout.handleButtonHolds();
-            handleRewindButton();
-
-            inout.handleEncoderButtons();
-            inout.handleTrellis();
-            inout.handleLCDtimeouts();
-            synth.trackJoystick();
+            case 0:
+                inout.handleStartStopButton();
+                inout.handleSelectButton();
+                inout.handleModeButtons();
+                inout.handleButtonHolds();
+                handleRewindButton();
+                break;
+            case 1:
+                inout.handleEncoderButtons();
+                break;
+            case 2:
+                inout.handleTrellis();
+                break;
+            case 3:
+                inout.handleLCDtimeouts();
+                break;
+            case 4:
+                synth.trackJoystick();
+                break;
+            case 5:
+                inout.handleEncoders();
+                break;
+            default:
+                break;
         }
-        bTimeslice = ++bTimeslice % 3;
     }
 
     #ifdef MIDION

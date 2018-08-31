@@ -369,8 +369,11 @@ void loop()
     
     if(clickTrack > metro.midiClickInterval)
     {
-        metro.arrayMidiClick();
-        prepNextClick();
+        if(playbackOn)
+        {
+            metro.arrayMidiClick();
+            prepNextClick();
+        }
         clickTrack = clickTrack - metro.midiClickInterval;
     } else {
 
@@ -562,9 +565,9 @@ void prepNextClick()
                     note trigNote;
 
                     trigNote.pitchVal = notesToPlay[i].clickNote.pitchVal;
+                    trigNote.playIt = notesToPlay[i].clickNote.playIt;
 /*                  trigNote.retrigClickDivider = notesToPlay[i].clickNote.retrigClickDivider;
                     trigNote.unmuted = notesToPlay[i].clickNote.unmuted;
-                    trigNote.playIt = notesToPlay[i].clickNote.playIt;
                     trigNote.pitchFreq = notesToPlay[i].clickNote.pitchFreq;
                     trigNote.durationMS = notesToPlay[i].clickNote.durationMS;
                     trigNote.hold = notesToPlay[i].clickNote.hold;
@@ -944,27 +947,6 @@ void playbackTest()
         Serial.print("  notesToTrig is NULL ");
     }
     activeStepClicks.rewind();
-}
-*/
-
-/*
-byte assembleHolds() //REPLACE WITH SEQUENCER FUNCTION
-{
-    // use getStepPosAfterNext to look ahead for holds. 
-    // count consecutive forward-holds, to pass into getStepDurationMS
-    byte holdStepCount = 0;
-    byte stepOffset = 1;
-    byte seqLength = sequencer.getLength();
-    bool holdNext = true;
-    
-    while (holdNext) {
-      holdNext = sequencer.getHold(playpath.getStepPosForward(stepOffset, seqLength));
-      if (holdNext) {
-        holdStepCount++;
-        stepOffset++;
-      }
-    }
-    return holdStepCount;
 }
 */
 

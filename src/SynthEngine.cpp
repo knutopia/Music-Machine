@@ -430,37 +430,6 @@ void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
     }
 }
 
-/*
-void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
-{        
-    const char* param_name = patch.paramNames[param];
-
-    if (patch.isInt(param)) 
-    {
-      int current_parval = patch.getI(param);
-      int min_val = patch.getImin(param);
-      int max_val = patch.getImax(param);
-      int val_delta = max_val - min_val;
-
-      m_reference_Iparval = current_parval - m_previous_encB_value;
-      m_reference_Iparval = putInFullRangeI(m_reference_Iparval, val_delta, min_val, 1); //#####
-
-      inout.ShowSynParOnLCD(param_name, (int)patch.get(param));
-      
-    } else {
-      float current_parval = patch.get(param);
-      float min_val = patch.getMin(param);
-      float max_val = patch.getMax(param);
-      float val_delta = max_val - min_val;
-      float fvalue = putInFullRangeF((float)m_previous_encB_value / 10.0, val_delta, min_val, .1); //#####
-      m_reference_Fparval = current_parval - fvalue;
-      m_reference_Fparval = putInFullRangeF(m_reference_Fparval, val_delta, min_val, .1); //#####
-
-      inout.ShowSynParOnLCD(param_name, patch.get(param));
-    }
-}
-*/
-
 void SynthEngine::handleEncoderB(int value)
 {        
     switch (m_edit_state) {
@@ -531,17 +500,7 @@ float SynthEngine::putInFullRangeF(float fVar, float fRange, float fMin, float s
     int retVal = putInFullRangeI(iVar, iRange, iMin, iStepSize);
     return (float)retVal / 100.0;
 }
-/*
-float SynthEngine::putInFullRangeF(float fVar, float fRange, float fMin, float stepSize)
-{
-    int iVar = (int) round((10.0 * fVar));
-    int iRange = (int) round((10.0 * fRange));
-    int iMin = (int) round((10.0 * fMin));
-    int iStepSize = (int) round((10.0 * stepSize));
-    int retVal = putInFullRangeI(iVar, iRange, iMin, iStepSize);
-    return (float)retVal / 10.0;
-}
-*/
+
 void SynthEngine::setCurrentPatch(int index)
 {
     if(index >=0 && index < max_patches)

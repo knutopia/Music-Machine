@@ -550,26 +550,10 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
                         notesToPlay[i].active = true;
 //                  interrupts();
                     readCur->notes->next();
-/*
-                    Serial.print("transferClickNoteArray active ");
-                    Serial.print(i);
-                    Serial.print(" at step ");
-                    Serial.print(a_step);
-                    Serial.print(" click ");
-                    Serial.println(a_click);
-*/
                 } else {
 //                  noInterrupts();
                         notesToPlay[i].active = false;
 //                  interrupts();
-/*
-                    Serial.print("transferClickNoteArray off ");
-                    Serial.print(i);
-                    Serial.print(" at step ");
-                    Serial.print(a_step);
-                    Serial.print(" click ");
-                    Serial.println(a_click);
-*/
                 }
             }
             dropReadCur();
@@ -589,51 +573,6 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
     }
     return found;
 }
-
-/*
-
-bool StepClickList::transferClickNoteList(PerClickNoteList *target, byte a_click, int a_step)
-{
-    checkIntegrity("getClickNoteList");
-
-    bool found = false;
-
-    readRewind();
-    while(hasReadValue())
-    {
-        if(readCur->masterStep == a_step
-            && a_click == readCur->clickStep)
-        {
-#ifdef DEBUG
-            Serial.print("Matching ");
-            Serial.println(a_step);
-#endif
-            readCur->notes->rewind();
-            while(readCur->notes->hasValue())
-            {
-//              Serial.print("Looping ");
-
-                target->append(readCur->notes->getNote(),
-                              readCur->notes->getTrack(),
-                              readCur->notes->getDurationMS());
-//              Serial.print(readCur->notes->getNote().pitchVal);
-//              Serial.print(" to ");
-//              Serial.println(target->getNote().pitchVal);
-                readCur->notes->next();
-                target->next();
-            }
-            dropReadCur();
-            rewind();
-            readRewind();
-
-            found = true;
-            break;
-        }
-        readNext();
-    }
-    return found;
-}
-*/
 
 byte StepClickList::getClickStep()
 {
@@ -785,14 +724,7 @@ void StepClickList::dropHead()
             head = newHead;
 //      interrupts();
     } 
-//  else
-//      Serial.print("@#$ head == NULL");
-
-//  Serial.print("  @#$before checkIntegrity ");
-
 //  checkIntegrity("dropHead");
-
-//  Serial.println("  @#$ dropHead done");
 }
 
 void StepClickList::rewind()

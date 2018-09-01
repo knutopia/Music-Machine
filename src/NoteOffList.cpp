@@ -123,18 +123,7 @@ void NoteOffList::dropNode()
                     cur = tail->prev;
                     cur->next = NULL;
                 }
-/*
-                volatile noteOffNode *prevNode = tail->prev;
-                if( prevNode != NULL)
-                {
-                    cur = prevNode;
-                    cur->next = NULL;
-                }
-                // alternative to...
-                cur = prevNode;
-                if(cur != NULL)
-                    cur->next = NULL;
-*/
+
                 delete tail;
                 tail = cur;
 //          interrupts();

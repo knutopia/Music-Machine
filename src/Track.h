@@ -20,7 +20,6 @@ class Track
       //Public constructor and methods
       Track();
       void begin(byte number);
-//    void begin(NoteGetter noteGetterRef, byte number);
       void begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number);
       note getNoteParams(int step, byte curSequence);
       note getNoteParams(int step);

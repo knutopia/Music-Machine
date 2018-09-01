@@ -184,57 +184,6 @@ void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
     if(head == NULL) // REPEATED in print section below...
         head = n;
 
-/*
-    Serial.println("Notelist appendNote");
-
-    if(head == NULL)
-    {
-        Serial.println(" :head was NULL");
-        head = n;
-    } else
-        Serial.println(" :head was Object");
-
-    if (cur == n)
-        Serial.println(" :cur == n");
-    else
-        Serial.println(" :cur != n");
-    if (cur == head)
-        Serial.println(" :cur == head");
-    else
-        Serial.println(" :cur != head");
-    if (cur == head)
-        Serial.println(" :cur == head");
-    else
-        Serial.println(" :cur != head");
-    if (cur == tail)
-        Serial.println(" :cur == tail");
-    else
-        Serial.println(" :cur != tail");
-    if (cur == NULL)
-        Serial.println(" :cur == NULL");
-    else
-        Serial.println(" :cur Object");
-    if (head == NULL)
-        Serial.println(" :head == NULL");
-    else
-        Serial.println(" :head Object");
-    if (n->next == NULL)
-        Serial.println(" :n->next == NULL");
-    else
-        Serial.println(" :n->next Object");
-    if (head->next == NULL)
-        Serial.println(" :head->next == NULL");
-    else
-        Serial.println(" :head->next Object");
-    if (n == n->next)
-        Serial.println(" :n->next circular");
-    else
-        Serial.println(" :n->next OK");
-    if (head == head->next)
-        Serial.println(" :head->next circular");
-    else
-        Serial.println(" :head->next OK");
-*/
     checkIntegrity("appendNote");
 }
 
@@ -326,19 +275,5 @@ int LinkedNoteList::count()
     }
     cur = buf;
     return count;
-
-/*
-    int retVal = 0;
-    rewind();
-    while( hasValue()){
-//        Serial.print("Count ");
-//        Serial.println(retVal);
-
-        retVal++;
-        checkIntegrity("count");
-        next();
-    }        
-    return retVal;
-*/
 }
 

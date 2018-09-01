@@ -35,7 +35,6 @@ extern Timebase metro;
 extern SynthEngine synth;
 extern int save_sequence_destination;
 extern bool save_to_SD_done;
-extern int playbackStep;
 
 //floating
 int putInRange(int iVar, int iRange)
@@ -289,26 +288,6 @@ void InOutHelper::ResetTrellis() {
 
     trellis.begin(0x70, 0x71);
 
-/*
-    //supposedly a faster i2c bus
-    TWBR = 12; 
-
-    for (uint8_t i = 0; i < numKeys; i++) {
-      trellis.setLED(i);
-      trellis.writeDisplay();
-      delay(10);
-    }
-    for (uint8_t i = 0; i < numKeys; i++) {
-      trellis.clrLED(i);
-      trellis.writeDisplay();
-      delay(10);
-    }
-    delay(20);
-    setupNewMode();
-    ShowModeOnLCD();
-    ShowBPMOnLCD(metro.getBPM());
-    ShowSwingOnLCD(metro.getSwing());
-*/
     for (uint8_t i = 0; i < numKeys; i++) {
       trellis.clrLED(i);
     }
@@ -571,14 +550,8 @@ void InOutHelper::HandlePerformanceEncoders() {
     // Encoder A for Transposition - a per-sequence-step edit
     newPosition = EncA.read();
 
-//  if (newPosition != oldPositionA) {
     if ((newPosition >= oldPositionA + 4) || (newPosition <= oldPositionA - 4)) 
     {
-//      Serial.print("posdelta: ");   
-//      Serial.println(newPosition - oldPositionA);   
-//      elapsedMicros encTime = 0;
-//      unsigned long encTimes[4];
-//      encTimes[0] = (unsigned long)encTime;
 
         if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
           newPosition = pitchChangeLowerBoundary * -4;
@@ -1306,9 +1279,6 @@ void InOutHelper::handleSelectButton()
           }     
       }
     } 
-//  else
-//    if (SelectButton.rose() && currentMode == pattern_select)
-//      ClearInfoOnLCD();
 }
 
 void InOutHelper::handleModeButtons()
@@ -1622,29 +1592,6 @@ void InOutHelper::RetrieveSequenceStates()
         Serial.print("mode: ");
         Serial.println(currentMode);
     }
-/*    
-    switch (currentMode) {
-      case step_mute:
-        for (i = 0; i < seqLength; i++) helperSteps[i] = !sequencer.getMute(i);
-        for (i = seqLength; i < seqMaxLength; i++) helperSteps[i] = false;
-        Serial.println("step mute");
-       break;
-      case step_hold:
-        for (i = 0; i < seqLength; i++) helperSteps[i] = sequencer.getHold(i);
-        for (i = seqLength; i < seqMaxLength; i++) helperSteps[i] = false;
-        Serial.println("step hold");
-       break;
-      case accent_edit:
-        for (i = 0; i < seqLength; i++) helperSteps[i] = sequencer.getAccent(i);
-        for (i = seqLength; i < seqMaxLength; i++) helperSteps[i] = false;
-        Serial.println("accent edit");
-      break;
-      default:
-        ShowErrorOnLCD("YOWZA uncaught mode in RetrieveSequenceStates");
-        Serial.print("mode: ");
-        Serial.println(currentMode);
-    }
-*/    
 }
 
 
@@ -1678,18 +1625,6 @@ void InOutHelper::ShowInfoOnLCD(const char info[])
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
 {
-/*
-    ClearInfoOnLCD();
-    lcd.setCursor(0, 2);
-    lcd.print(label);
-    lcd.setCursor(strlen(label), 2);
-    lcd.print(value);
-
-    char foo[10];
-    String str = String(value);
-    str.toCharArray(foo,10);
-    ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
-*/
     String sShow  = String(label) + String(value);
     int len = sShow.length();
     int remainderLen = ValueOrButtonOnLCDLength - len;
@@ -1704,18 +1639,6 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
 {  
-/*  
-    ClearInfoOnLCD();
-    lcd.setCursor(0, 2);
-    lcd.print(label);
-    lcd.setCursor(strlen(label), 2);
-    lcd.print(value);
-
-    char foo[10];
-    String str = String(value);
-    str.toCharArray(foo,10);
-    ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
-*/
     String sShow  = String(label) + String(value);
     int len = sShow.length();
     int remainderLen = ValueOrButtonOnLCDLength - len;
@@ -1992,29 +1915,6 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
     }
 
 }
-
-/*
-void InOutHelper::ShowSaveSeqMessage(int state, int seq)
-{
-    switch (seq)
-    {
-      case SHOWNOTHING:
-        break;
-      case ANNOUNCE:
-        ShowValueInfoOnLCD("Hold to save to seq ", seq);
-        break;
-      case ACTION:
-        ShowValueInfoOnLCD("Saving to seq ", seq);
-        break;
-      case DONE:
-        ShowValueInfoOnLCD("Saved to seq ", seq);
-        break;
-      case INACTIVE:
-        ClearInfoOnLCD();
-        break;
-    }
-}
-*/
 
 void InOutHelper::ShowStoreMessage(int state)
 {

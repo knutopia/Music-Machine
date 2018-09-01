@@ -95,10 +95,7 @@ const int encoderDebounceTime  = 5;     //Encoder debounce time
 const unsigned long SAMPLE_RATE = 16384;
 
 //Playback variables 
-int currentEditStep = 0;                //The current sequence edit position
 bool playbackOn = false;                //true when sequencer is running
-int playbackStep = 0;                   //The current playback step
-//int prevPlaybackStep = 0;
 bool startFromZero = true;              //Has reset been pressed ?
 
 //Global Time Management object:
@@ -190,7 +187,6 @@ void ChangePatternLengthCb(int patternLength) {
 void ChangeSequenceNumberCb(int seqNum) {
   
     sequencer.setCurrentSequence(seqNum);
-//  playpath.setPath(sequencer.getPath());
     inout.ShowSequenceNumberOnLCD(seqNum);
     inout.ShowPathNumberOnLCD(sequencer.getPath());
     sequencer.printSequence();
@@ -206,9 +202,6 @@ void ChangeTrackCb(int trackNum) {
 
     Serial.print("  result: ");
     Serial.println(sequencer.getCurrentTrack());
-
-//  playpath.setPath(sequencer.getPath());
-//  sequencer.printSequence();
 }
 
 void ChangeSaveSequenceDestinationCb(int seqNum) {
@@ -355,8 +348,6 @@ void setup()
                 SynthButtonCb,
                 ChangeTrackCb);
                 
-//  playpath.setPath(sequencer.getPath());
-
     Serial.print("Start2 Mem: ");
     Serial.println(FreeMem());
     inout.ShowValueInfoOnLCD("Start2:", (int)FreeMem() );
@@ -435,92 +426,6 @@ void loop()
 //  inout.showLoopTimer();
 }
 
-/*
-
-void loop()
-{
-    static byte bTimeslice = 0;
-    
-    if (bTimeslice == 2)
-    {
-        inout.handleEncoders();
-    } else {
-        inout.handleStartStopButton();
-        inout.handleSelectButton();
-        inout.handleModeButtons();
-        inout.handleButtonHolds();
-        handleRewindButton();
-
-        inout.handleEncoderButtons();
-        inout.handleTrellis();
-        inout.handleLCDtimeouts();
-        synth.trackJoystick();
-    }
-    bTimeslice = ++bTimeslice % 3;
-
-    followNoteOff();
-    prepNextClick();
-
-    #ifdef MIDION
-      while (usbMIDI.read()) {
-        // ignore incoming messages
-      }
-    #endif
-//  inout.showLoopTimer();
-}
-*/
-
-/*
-void prep_next_note()
-{
-    bool prepNextStep;
-
-    noInterrupts();
-        prepNextStep = vb_prep_next_step;
-    interrupts();
-
-    if(prepNextStep) {    // this is triggered right after the interrupt
-                            // started playing the current note
-        noInterrupts();            
-            vb_prep_next_step = false; 
-//          g_note_off_time = v_note_off_time;
-        interrupts();
-
-        inout.ShowMemoryOnLCD((int)FreeMem());
-        inout.ShowPlaybackStepOnLCD(g_activeGlobalStep);
-
-        Serial.print("prep_next_note after ");
-        Serial.print(g_activeGlobalStep);
-        Serial.print("  mem: ");
-        Serial.println(FreeMem());
-
-        // adjust speed if tempo or multiplier have changed
-        metro.updateTimingIfNeeded();
-
-    //    b_note_on = true;
-
-        // show step indicator for just-started note N-1
-
-        Serial.print("setRunningStepIndicators time remaining ");
-        Serial.println(g_note_off_time - micros());
-        inout.setRunningStepIndicators(playbackStep, g_note_off_time);      
-
-                                // schedule the next note's start time
-                                // as prepped previously
-        
-        // gather info about the following note N+1
-        byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-        playbackStep = playpath.getAndAdvanceStepPos(seqLength);
-
-        prepNoteGlobals();
-        Serial.println(" Note prepped.");
-
-        // change synth patch ?
-        synth.prepPatchIfNeeded();
-    }
-}
-*/
-
 void prep_next_note_direct()
 {
     inout.ShowMemoryOnLCD((int)FreeMem());
@@ -536,9 +441,7 @@ void prep_next_note_direct()
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();
     
-//  byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-//  prevPlaybackStep = playbackStep;
-//  playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+    // forward we march
     sequencer.AdvanceStepPositions();
 
     // queue the next notes, drop previous ones
@@ -663,248 +566,22 @@ void prepNextClick()
     }
 }
 
-/*
-void prepNextClick()
-{
-    static int currentPlayingStep = 0;
-    bool prepNextStep = false;
-    bool clickPlayed;
-    unsigned long note_trigger_time;
-
-    noInterrupts();
-        clickPlayed = vb_clickHappened;
-    interrupts();
-
-    if(clickPlayed)
-    {
-        noInterrupts();
-            vb_clickHappened = false;
-            note_trigger_time = v_note_trigger_time;
-            v_note_trigger_time = 0;
-        interrupts();
-    
-        // track noteOffs
-        if(note_trigger_time != 0)
-        {
-
-            int sentry = 0;
-            notesToTrig.rewind();
-            while(notesToTrig.hasValue())
-            {
-                note trigNote =         notesToTrig.getNote();
-                unsigned long trigDur = notesToTrig.getDurationMS();
-                byte trigTrack =        notesToTrig.getTrack();
-
-                if(trigNote.playIt)
-                {
-                    playingNotes.append(trigTrack, 
-                                        trigNote.pitchVal, 
-                                        note_trigger_time + trigDur);
-                }
-
-                //for the step indicators...
-                if(trigTrack ==1)
-                {
-                    g_note_off_time = note_trigger_time + trigDur;
-                    inout.setRunningStepIndicators(prevPlaybackStep, g_note_off_time);      
-                }
-                notesToTrig.next();
-
-                if(++sentry == 100)
-                {
-                    inout.ShowErrorOnLCD("prepNC stuck");
-                    break;
-                }
-
-            }
-            notesToTrig.rewind();
-        }
-
-        // track step completion
-        g_midiClickCount++;
-
-        if (g_midiClickCount >= MIDICLOCKDIVIDER)
-        {
-            g_midiClickCount = 0;
-            currentPlayingStep = g_activeGlobalStep;
-            prepNextStep = true;
-    #ifdef DEBUG                                    
-            Serial.print("&&&&&& prep_next set, g_activeGlobalStep is ");
-            Serial.println(g_activeGlobalStep);
-    #endif
-        }
-
-        // acquire notes for next click
-        if(&notesToTrig != NULL)
-        {
-                notesToTrig.purge();
-        }
-        else
-            Serial.println("prepNextClick: NULL notesToTrig");
-
-        // THIS was THE CULPRIT \/ \/ \/ \/ \/ \/
-        if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
-        {
-            notesToTrig.rewind();        
-            notesToTrig.readRewind();
-        }
-        activeStepClicks.readRewind();
-        // THIS was THE CULPRIT /\ /\ /\ /\ /\ /\ 
-
-        if(prepNextStep)
-        {
-//          vb_prep_next_step = true;
-            prep_next_note_direct();
-        }
-    }
-}
-*/
-
-/*
-void prep_next_note()
-{
-    static byte currentStepTick = 1;
-    
-    if(vb_prep_next_step) {    // this is triggered right after the interrupt
-                              // started playing the current note                              
-      vb_prep_next_step = false; 
-      g_note_off_time = v_note_off_time;
-
-      Serial.println("prep_next_note");
-
-      // adjust speed if tempo or multiplier have changed
-      metro.updateTimingIfNeeded();
-
-//    inout.ShowValueInfoOnLCD("st: ", nextNote.swingTicks);
-
-      // swing index tracking;
-      metro.advanceStepSwingIndex();
-      // two state flags referring to the just-started note
-      b_note_on = true;
-
-      // show step indicator for just-started note N-1
-      inout.setRunningStepIndicators(playbackStep, g_note_off_time);      
-
-                              // schedule the next note's start time
-                              // as prepped previously
-      
-      // gather info about the following note N+1
-      byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-      byte stepPlayTickCount = sequencer.getTicks(playbackStep);
-//    byte remainingRetrigs = metro.getAndCountdownRetrigs();
-
-//    Serial.print("RRT: ");
-//    Serial.println(remainingRetrigs);
-
-      if (currentStepTick < stepPlayTickCount) {  // Next tick
-          currentStepTick++;
-//        metro.resetRemainingRetrigs();
-          Serial.print(" A ");
-      } 
-      else {                                      // Next step
-
-          playbackStep = playpath.getAndAdvanceStepPos(seqLength);
-
-          currentStepTick = 1;
-
-          if (playpath.checkForSequenceStart()) 
-            metro.resetStepSwingIndex();
-
-          prepNoteGlobals();
-          Serial.print(" B ");
-      }
-      // make next note an accent ?
-      synth.prepAccent(nextNote.accent);
-
-      // change synth patch ?
-      synth.prepPatchIfNeeded();
-#ifdef DEBUG
-      Serial.print("#note dur: ");
-      Serial.println(g_note_off_time - micros());
-#endif
-    }
-
-    if (vb_prep_retrig)
-    {
-      vb_prep_retrig = false;
-      g_note_off_time = v_note_off_time;
-
-//    b_led1_on_state = true;
-      b_note_on = true;
-
-      // show step indicator for just-started note N-1
-//    inout.setRunningStepIndicators(playbackStep, g_note_off_time);      
-#ifdef DEBUG
-      Serial.print("#retrig dur: ");
-      Serial.println(g_note_off_time - micros());
-#endif
-    }
-}
-*/
-
-/*
-void prep_first_step()
-{
-    if(startFromZero)
-    {
-        startFromZero = false;
-
-        if(playbackStep >= sequencer.getLength())
-        {
-        inout.ShowErrorOnLCD("YOWZA prep_first_step");
-        Serial.print("step:");
-        Serial.print(playbackStep);
-        Serial.print(" len:");
-        Serial.print(sequencer.getLength());
-        Serial.print(" >> ");
-
-        playbackStep = 0;
-        }
-
-        // gather info about the first note
-        byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-
-        if (playbackStep == 0)
-            playbackStep = playpath.getDontAdvanceStepPos(seqLength);
-        else
-           playbackStep = playpath.getAndAdvanceStepPos(seqLength);
-        
-
-        prepNoteGlobals();
-    }
-}
-*/
-
 void prepNoteGlobals()
 {
     // TRY THIS>>>
-//  Serial.print("before activeStepClicks drop");
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
-//  Serial.print(", activeStepClicks drop done ");
 
     g_activeGlobalStep++;
 
-//  Serial.println(activeNotes.count());
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
-//  Serial.println(" dropNotesBeforeStepAndRewind -> ");
-//  Serial.println(activeNotes.count());
-
-//  Serial.print(", activeNotes drop done ");
     sequencer.updateNoteList();
-//  Serial.println(" updateNoteList --> ");
-//  Serial.println(activeNotes.count());
-
-//  Serial.print(", updateNoteList done ");
     activeNotes.rewind();
     sequencer.updateStepClickList();
-//  Serial.println(" updateStepClickList done");
 
 #ifdef DEBUG
     Serial.print("###### playingNotes count: ");
     Serial.println(playingNotes.count());
 #endif
-
-//  playbackTest();
 }
 
 void trackListSizes()
@@ -918,58 +595,6 @@ void trackListSizes()
     Serial.print("size synth: ");
     Serial.println(sizeof(synth));
 }
-
-/*
-void playbackTest()
-{
-    Serial.print("playbackTest:  ");
-    Serial.println(g_activeGlobalStep);
-
-    PerClickNoteList* notesToTrig;
-    activeStepClicks.rewind();
-#ifdef DEBUG
-    trackListSizes();
-#endif
-    if((notesToTrig = activeStepClicks.getClickNoteList(0, g_activeGlobalStep)) != NULL)
-    {
-        Serial.print("size notesToTrig:      ");
-        Serial.println(sizeof(notesToTrig));
-
-        notesToTrig->rewind();
-        while(notesToTrig->hasValue())
-        {
-            note trigNote = notesToTrig->getNote();
-            unsigned long trigDur = notesToTrig->getDurationMS();
-            Serial.print("  trigNote.pitchVal ");
-            Serial.print(trigNote.pitchVal);
-            Serial.print("  notesToTrig->getTrack ");
-            Serial.println(notesToTrig->getTrack());
-            Serial.print("  notesToTrig->getDurationMS ");
-            Serial.println(notesToTrig->getDurationMS());
-            Serial.print("  trigNote.playIt ");
-            Serial.println(trigNote.playIt);
-
-            byte trigTrack = notesToTrig->getTrack();
-            if(trigNote.playIt)
-                synth.playNote(trigTrack, trigNote);
-
-            // DIRTY
-            if( trigTrack == 1)
-            {            
-                unsigned long now = micros();
-                v_note_off_time = now + trigDur;
-                g_note_off_time = v_note_off_time;
-            }
-            notesToTrig->next();
-        }
-    }
-    else
-    {
-        Serial.print("  notesToTrig is NULL ");
-    }
-    activeStepClicks.rewind();
-}
-*/
 
 void followNoteOff()
 {
@@ -1018,11 +643,9 @@ void handleRewindButton()
         if(playbackOn == true) stopPlayback();
         synth.allNotesOff();
         sequencer.resetStepPositions();
-//      playbackStep = 0;
         startFromZero = true;
         inout.RemoveStepIndicatorOnLCD();
         inout.ShowModeOnLCD();
-//      playpath.resetStep();
 
         activeNotes.purge();
 //      notesToTrig.purge();
@@ -1035,7 +658,6 @@ void stopPlayback()
 {
      metro.stopMidiTimer();
      playbackOn = false;
-//   vb_prep_next_step = false;
 }
 
 
@@ -1809,11 +1431,6 @@ void testStepClickList()
     list.addClickNote(noteTwo, 2, 2400, 2, 1);
     list.addClickNote(noteThree, 3, 3400, 2, 2);
 
-/*
-    list.addClickNote(&noteOne, 1, 1400, 1, 1);
-    list.addClickNote(&noteTwo, 2, 2400, 2, 1);
-    list.addClickNote(&noteThree, 3, 3400, 2, 2);
-*/
     Serial.println("Added 3 more.");
 
     list.rewind();

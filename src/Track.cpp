@@ -15,16 +15,6 @@ void Track::begin(byte number)
       trackNumber = number;
 }
 
-/*
-void Track::begin(NoteGetter noteGetterRef, byte number)
-{
-      b_IsActive = false;
-      getNoteCb = noteGetterRef;
-      trackNumber = number;
-      currentSequenceIndex = 0;
-}
-*/
-
 void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number)
 {
       trackType = STEPSEQUENCE;

@@ -5,10 +5,10 @@
 #include "InOutHelper.h"
 #include <Encoder.h>
 //#include <Wire.h>
-//#include <LiquidCrystalFast.h>
 #include <Bounce2.h>
 #include "Adafruit_Trellis.h"
 #include "pins_arduino.h"     
+//#include <LiquidCrystalFast.h>
 #include "Adafruit_LiquidCrystal.h"
 
 #include "Path.h"
@@ -576,18 +576,18 @@ void InOutHelper::HandlePerformanceEncoders() {
     {
 //      Serial.print("posdelta: ");   
 //      Serial.println(newPosition - oldPositionA);   
-        elapsedMicros encTime = 0;
-        unsigned long encTimes[4];
-        encTimes[0] = (unsigned long)encTime;
+//      elapsedMicros encTime = 0;
+//      unsigned long encTimes[4];
+//      encTimes[0] = (unsigned long)encTime;
 
         if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
           newPosition = pitchChangeLowerBoundary * -4;
           EncA.write(newPosition);
-          encTimes[0] = (unsigned long)encTime;
+//        encTimes[0] = (unsigned long)encTime;
         } else if(newPosition > pitchChangeUpperBoundary * 4) {
           newPosition = pitchChangeUpperBoundary * 4;
           EncA.write(newPosition);
-          encTimes[0] = (unsigned long)encTime;
+//        encTimes[0] = (unsigned long)encTime;
         }
         transposition = newPosition / 4;
 
@@ -596,21 +596,22 @@ void InOutHelper::HandlePerformanceEncoders() {
           sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
           prevTransposition = transposition;
         }
-        encTimes[1] = (unsigned long)encTime;
+//      encTimes[1] = (unsigned long)encTime;
 
         ShowValueInfoOnLCD("Transpose: ", transposition);
-        encTimes[2] = (unsigned long)encTime;
+//      encTimes[2] = (unsigned long)encTime;
         SetLCDinfoTimeout();
-        encTimes[3] = (unsigned long)encTime;
+//      encTimes[3] = (unsigned long)encTime;
         
         oldPositionA = newPosition;
-
+/*
         for(int f=0; f<4; f++)
         {
           Serial.print(encTimes[f]);
           Serial.print(" ");
         }
         Serial.println();
+*/
     }
 
     // Encoder B for Note Duration - a per-sequence-step edit
@@ -2083,15 +2084,17 @@ void InOutHelper::showStepInfoOnLCD(int step)
     byte retrig_count = 0;
     byte pitch_count = 0;
     byte dur_count = 0;
-
+     
     if (!sequencer.notesArrayEmpty(selectedSteps)) {
       for (int i=0; i < 16; i++) {
         if (selectedSteps[i]) {
-            byte foo = sequencer.getNote(i);
+            note curNote = sequencer.getNoteParams(i);
+            
+            byte foo = curNote.pitchVal;
             if (foo != pitch) pitch_count++;
             pitch = (foo > pitch) ? pitch : foo;
             
-            float foof = sequencer.getDuration(i);
+            float foof = curNote.duration;
             if (foof != dur) dur_count++;
             dur = (foof > dur) ? dur : foof;
             
@@ -2099,44 +2102,40 @@ void InOutHelper::showStepInfoOnLCD(int step)
             if (foo != prob) prob_count++;
             prob = (foo > prob) ? prob : foo;
 
-            foo = sequencer.getTicks(i);
+            foo = curNote.ticks;
             if (foo != ticks) ticks_count++;
             ticks = (foo > ticks) ? ticks : foo;
 
-            foo = sequencer.getRetrig(i);
+            foo = curNote.retrigs;
             if (foo != retrig) retrig_count++;
             retrig = (foo > retrig) ? retrig : foo;
         }
       }
-     
 
-      ClearInfoOnLCD();
       lcd.setCursor(0, 1);
-      lcd.print("Pr Rp Rt Not Dur");
+      lcd.print("Pr Rp Rt Not Dur  ");
 
       String out = String(prob);
       if (prob_count >1) out.append("+");
-      lcd.setCursor(0, 2);
-      lcd.print(out);
-  
-      out = String(ticks);
-      if (ticks_count >1) out.append("+");
-      lcd.setCursor(3, 2);
-      lcd.print(out);
-  
-      out = String(retrig);
-      if (retrig_count >1) out.append("+");
-      lcd.setCursor(6, 2);
-      lcd.print(out);
-  
-      out = midiToNoteName(pitch);
-      if (pitch_count >1) out.append("+");
-      lcd.setCursor(9, 2);
-      lcd.print(out);
+      while(out.length() < 3) out.append(" ");
 
-      out = String(dur);
+      out.append(String(ticks));
+      if (ticks_count >1) out.append("+");
+      while(out.length() < 6) out.append(" ");
+  
+      out.append(String(retrig));
+      if (retrig_count >1) out.append("+");
+      while(out.length() < 9) out.append(" ");
+  
+      out.append(midiToNoteName(pitch));
+      if (pitch_count >1) out.append("+");
+      while(out.length() < 13) out.append(" ");
+  
+      out.append(String(dur));
       if (dur_count >1) out.append("+");
-      lcd.setCursor(13, 2);
+      while(out.length() < 18) out.append(" ");
+  
+      lcd.setCursor(0, 2);
       lcd.print(out);
 
       ValueOrButtonOnLCDLength = 18;

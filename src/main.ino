@@ -366,16 +366,18 @@ void setup()
 void loop()
 {
     static byte bTimeslice = 0;
+    static int loopcount = 0;
     
     if(clickTrack > metro.midiClickInterval)
     {
-        if(clickTrack-metro.midiClickInterval > 100)
+/*
+        if(clickTrack-metro.midiClickInterval > 2000 && bTimeslice == 2)
         {
             Serial.print(clickTrack-metro.midiClickInterval);
             Serial.print(" ");
             Serial.println(bTimeslice);
         }
-
+*/
         if(playbackOn)
         {
             metro.arrayMidiClick();
@@ -386,7 +388,10 @@ void loop()
         else
             clickTrack = clickTrack % metro.midiClickInterval;
 
+//      Serial.println(loopcount);
+//      loopcount = 0;
     } else {
+//      loopcount++;
 
         followNoteOff();
 

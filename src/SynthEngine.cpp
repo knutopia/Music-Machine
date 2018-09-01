@@ -102,13 +102,17 @@ void SynthEngine::begin()
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.8);
   sgtl5000_1.lineOutLevel(13);
-  sgtl5000_1.autoVolumeControl(2,1,0,-18,0.5,2.0);
+//sgtl5000_1.autoVolumeControl(2,1,0,-18,0.5,2.0);
 //  sgtl5000_1.autoVolumeEnable();
 
   Serial.println("SynthEngine begin ");
   retrievePatch(m_current_patch);
   activatePatch(m_current_patch);
 
+  VCAenvelope.delay(0);
+  VCAenvelope2.delay(0);
+  VCAenvelope.hold(0);
+  VCAenvelope2.hold(0);
   OSC1.amplitude(255); //TODO: REMOVE
   OSC2.amplitude(255);
   SubOSC.amplitude(255);
@@ -855,6 +859,7 @@ void SynthEngine::trackJoystick()
     //          turboFilter.resonance((float)joyY / 1024.0 * 4.3 + 0.7);
     //      m_joy_reso = constrain((float)joyY / 1024.0 * 4.3 + 0.7, .7, 5);
     //      m_joy_subVCO = constrain((float)joyY / 1024.0, 0, 1);
+
             m_joy_reso = constrain((float)joyY / (float)FOURTEENBIT * 4.3 + 0.7, .7, 5);
             m_joy_subVCO = constrain((float)joyY / (float)FOURTEENBIT, 0, 1);
 

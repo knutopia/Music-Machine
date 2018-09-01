@@ -53,7 +53,7 @@ class StepSequencer
 
       int getCurrentSequence();
       byte getCurrentTrack();
-      byte getCurrentStep();
+      byte getPreviousStep();
       byte getLowestSelectedNote(boolean selectedNotes[]);
       byte getHighestSelectedNote(boolean selectedNotes[]);
       byte getLowestSelectedVelocity(boolean selectedNotes[]);

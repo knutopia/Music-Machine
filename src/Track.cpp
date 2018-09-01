@@ -304,9 +304,9 @@ byte Track::getCurrentSequenceIndex()
       return currentSequenceIndex;
 }
 
-byte Track::getPlaybackStep()
+byte Track::getPrevPlaybackStep()
 {
-      return playbackStep;
+      return prevPlaybackStep;
 }
 
 byte Track::getMaxSequenceIndex()

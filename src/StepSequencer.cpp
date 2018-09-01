@@ -602,9 +602,9 @@ byte StepSequencer::getCurrentTrack()
     return activeEditTrack->getNumber();
 }
 
-byte StepSequencer::getCurrentStep()
+byte StepSequencer::getPreviousStep()
 {
-    return activeEditTrack->getPlaybackStep();
+    return activeEditTrack->getPrevPlaybackStep();
 }
 
 byte StepSequencer::getLowestSelectedNote(boolean selectedNotes[])

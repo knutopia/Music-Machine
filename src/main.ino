@@ -627,7 +627,7 @@ void prepNextClick()
                 //for the step indicators...
                 if(notesPlayed[i].track == 1)
                 {
-                    inout.setRunningStepIndicators(sequencer.getCurrentStep(), 
+                    inout.setRunningStepIndicators(sequencer.getPreviousStep(), 
                                                    notesPlayed[i].durationMS + note_trigger_time);      
                 }
             }

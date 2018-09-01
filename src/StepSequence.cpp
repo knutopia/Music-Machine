@@ -5,7 +5,7 @@
 #include "InOutHelper.h"
 
 extern Timebase metro;
-extern Path playpath;
+//extern Path playpath;
 extern int midiTranspose;
 extern InOutHelper inout;
 
@@ -67,7 +67,7 @@ unsigned long StepSequence::calcNextNoteDuration(note aNote)
     return retVal;
 }
 
-byte StepSequence::assembleHolds(note aNote)
+byte StepSequence::assembleHolds(note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -79,7 +79,7 @@ byte StepSequence::assembleHolds(note aNote)
         bool holdNext = true;
         
         while (holdNext) {
-            holdNext = getHold(playpath.getStepPosForward(stepOffset, seqLength));
+            holdNext = getHold(aPath.getStepPosForward(stepOffset, seqLength));
             if (holdNext) {
                 holdStepCount++;
                 stepOffset++;
@@ -94,7 +94,7 @@ byte StepSequence::assembleHolds(note aNote)
     return holdStepCount;
 }
 
-byte StepSequence::assembleMutes(note aNote)
+byte StepSequence::assembleMutes(note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -106,7 +106,7 @@ byte StepSequence::assembleMutes(note aNote)
         bool muteNext = true;
         
         while (muteNext) {
-            muteNext = !getMute(playpath.getStepPosForward(stepOffset, seqLength));
+            muteNext = !getMute(aPath.getStepPosForward(stepOffset, seqLength));
             if (muteNext) {
                 muteStepCount++;
                 stepOffset++;
@@ -316,7 +316,7 @@ retrigDivisions StepSequence::getRetrigDivider(int retrigs)
     return retVal;
 }
 
-note StepSequence::getNoteParams(int _step)
+note StepSequence::getNoteParams(int _step, Path aPath)
 {
     note thisNote;
 
@@ -338,8 +338,8 @@ note StepSequence::getNoteParams(int _step)
         thisNote.accent = m_accent[_step];
         thisNote.velocity = m_velocity[_step];
         thisNote.swingTicks = metro.getSwingTicks();
-        thisNote.holdsAfter = assembleHolds(thisNote);
-        thisNote.mutesAfter = assembleMutes(thisNote);
+        thisNote.holdsAfter = assembleHolds(thisNote, aPath);
+        thisNote.mutesAfter = assembleMutes(thisNote, aPath);
         thisNote.durationMS = calcNextNoteDuration(thisNote);
     }
     return thisNote;

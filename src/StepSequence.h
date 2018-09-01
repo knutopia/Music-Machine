@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "Enum.h"
 #include "Note.h"
+#include "Path.h"
 
 class StepSequence
 {
@@ -30,7 +31,7 @@ class StepSequence
         byte getVelocity(int _step);
         bool playItOrNot(int _step);
         retrigDivisions getRetrigDivider(int count);
-        note getNoteParams(int _step);
+        note getNoteParams(int _step, Path aPath);
         byte getLength();
         int getMaxLength();
         byte getPath();
@@ -52,8 +53,8 @@ class StepSequence
 
     private:
         unsigned long calcNextNoteDuration(note aNote);
-        byte assembleHolds(note aNote);
-        byte assembleMutes(note aNote);
+        byte assembleHolds(note aNote, Path aPath);
+        byte assembleMutes(note aNote, Path aPath);
 
 //      note m_noteStruct;
         byte m_notes[max_notes];

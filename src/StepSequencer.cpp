@@ -60,12 +60,10 @@ void StepSequencer::begin()
     activeEditTrack->setCurrentSequenceIndex(0);
 }
 
-void StepSequencer::updateNoteList(int stepInPattern)
+void StepSequencer::updateNoteList()
 {
     // get notes for step, per track
     // use global step and step in pattern where appropriate
-    // include nextNote = sequencer.getNoteParams(playbackStep);
-    // replace prepNoteGlobals(); in main
 
     //step through active tracks
     //get note, do processing per track type (swingticks, duration)
@@ -108,7 +106,7 @@ void StepSequencer::updateNoteList(int stepInPattern)
         if (cur_trackRef != NULL)
         {
 //          cur_note = cur_trackRef->getNoteParams(stepInPattern, (byte)m_currentSequence);
-            cur_note = cur_trackRef->getNoteParams(stepInPattern);
+            cur_note = cur_trackRef->getNoteParams();
             cur_track = m_activeTracks.getTrackNumber();
             activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
         }
@@ -263,6 +261,57 @@ void StepSequencer::updateStepClickList()
 
     }
 //  activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+}
+
+void StepSequencer::AdvanceStepPositions()
+{
+    if(&m_activeTracks == NULL) inout.ShowErrorOnLCD("advSP: m_ac NULL");
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("advSP: m_ac noval");
+
+    int sentry = 0;
+    while( m_activeTracks.hasValue())
+    {
+        m_activeTracks.getTrackRef()->advanceStepPosition();
+        m_activeTracks.next();
+    }
+}
+
+void StepSequencer::resetStepPositions()
+{
+   if(&m_activeTracks == NULL) inout.ShowErrorOnLCD("resetSP: m_ac NULL");
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("resetSP: m_ac noval");
+
+    int sentry = 0;
+    while( m_activeTracks.hasValue())
+    {
+        m_activeTracks.getTrackRef()->resetStepPosition();
+        m_activeTracks.next();
+    }
+}
+
+void StepSequencer::prepFirstStep()
+{
+   if(&m_activeTracks == NULL) inout.ShowErrorOnLCD("pFStep: m_ac NULL");
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("pFStep: m_ac noval");
+
+    int sentry = 0;
+    while( m_activeTracks.hasValue())
+    {
+        m_activeTracks.getTrackRef()->prepFirstStep();
+        m_activeTracks.next();
+    }
 }
 
 bool StepSequencer::playItOrNot(int _step) //make obsolete
@@ -422,6 +471,7 @@ bool StepSequencer::toggle_pattern_recall() // TODO ...handle m_sequence_root
             indexedRootSeq->copySeqTo(curSeq);
 
             activeEditTrack->setRecallBufferActive(true);
+            activeEditTrack->updatePath();
             Serial.print(" Restoring root ");          
             Serial.println(curIndex);          
         } else {
@@ -429,6 +479,7 @@ bool StepSequencer::toggle_pattern_recall() // TODO ...handle m_sequence_root
             recall_buffer.copySeqTo(curSeq);
 
             activeEditTrack->setRecallBufferActive(false);
+            activeEditTrack->updatePath();
             Serial.print(" Recalling edit ");          
             Serial.println(curIndex);       
         }
@@ -525,13 +576,19 @@ byte StepSequencer::getVelocity(int _step) // kg
 note StepSequencer::getNoteParams(int _step) // kg
 {
 //  return m_sequence[m_currentSequence].getNoteParams(_step);
-    return activeEditTrack->getCurrentSequenceRef()->getNoteParams(_step);
+//  return activeEditTrack->getCurrentSequenceRef()->getNoteParams(_step);
+    return activeEditTrack->getNoteParams(_step);
 }
 
 byte StepSequencer::getPath() // kg
 {
 //  return m_sequence[m_currentSequence].getPath();
     return activeEditTrack->getCurrentSequenceRef()->getPath();
+}
+
+char* StepSequencer::getPathName()
+{
+    return activeEditTrack->getPathName();
 }
 
 int StepSequencer::getCurrentSequence() // TODO
@@ -543,6 +600,11 @@ int StepSequencer::getCurrentSequence() // TODO
 byte StepSequencer::getCurrentTrack()
 {
     return activeEditTrack->getNumber();
+}
+
+byte StepSequencer::getCurrentStep()
+{
+    return activeEditTrack->getPlaybackStep();
 }
 
 byte StepSequencer::getLowestSelectedNote(boolean selectedNotes[])
@@ -820,7 +882,7 @@ void StepSequencer::setVelocity(int _step, byte velocity)
 void StepSequencer::setPath(byte path)
 {
 //  m_sequence[m_currentSequence].setPath(path);
-    activeEditTrack->getCurrentSequenceRef()->setPath(path);
+    activeEditTrack->setPath(path);
 }
 
 void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // ADDRESSed

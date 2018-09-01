@@ -29,7 +29,7 @@ Adafruit_LiquidCrystal lcd(34, 35, 33); // SPI
 extern int currentMode;
 extern speedFactor speedMultiplier;
 extern const char *modeNames[];
-extern Path playpath;
+//extern Path playpath;
 extern StepSequencer sequencer;
 extern Timebase metro;
 extern SynthEngine synth;
@@ -1080,9 +1080,9 @@ void InOutHelper::PathModeTrellisButtonPressed(int i)
 {
      SimpleIndicatorModeTrellisButtonPressed(i);
      
-     playpath.setPath(i % STEPSOFFSET); // do we need    ?
+//   playpath.setPath(i % STEPSOFFSET); // do we need    ?
      sequencer.setPath(i % STEPSOFFSET);// both of these ?
-     ShowInfoOnLCD(playpath.getPathName());
+     ShowInfoOnLCD(sequencer.getPathName());
      SetLCDinfoTimeout();
      ShowPathNumberOnLCD(i % STEPSOFFSET);
 }
@@ -1215,7 +1215,7 @@ void InOutHelper::handleSelectButton()
               ShowValueInfoOnLCD("Recalling edit ", sequencer.getCurrentSequence());
               SetLCDinfoTimeout();
             }
-            playpath.setPath(sequencer.getPath());
+//          playpath.setPath(sequencer.getPath());
           }
           break;
         case pattern_save:
@@ -1564,7 +1564,6 @@ bool InOutHelper::checkRewindButton()
 // Setters
 void InOutHelper::setRunningStepIndicators(int step, unsigned long led_off_time)
 {
-//  static int prev_step;
     latestPlaybackStep = step;
     
     if (stepsToCheck[latestPlaybackStep] == false) {//it's not on manually, so turn it on to show the step.        
@@ -1577,8 +1576,6 @@ void InOutHelper::setRunningStepIndicators(int step, unsigned long led_off_time)
         ShowStepOnLCD(latestPlaybackStep, true); // LCD with modifier
     }
     
-//  prev_step = latestPlaybackStep;
-
 #ifdef DEBUG
     Serial.print("step ");
     Serial.print(step);

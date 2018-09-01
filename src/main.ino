@@ -98,14 +98,14 @@ const unsigned long SAMPLE_RATE = 16384;
 int currentEditStep = 0;                //The current sequence edit position
 bool playbackOn = false;                //true when sequencer is running
 int playbackStep = 0;                   //The current playback step
-int prevPlaybackStep = 0;
+//int prevPlaybackStep = 0;
 bool startFromZero = true;              //Has reset been pressed ?
 
 //Global Time Management object:
 Timebase metro;
 
 //Global Path Manager object:
-Path playpath;
+//Path playpath;
 
 //Global StepSequencer object:
 StepSequencer sequencer;
@@ -190,7 +190,7 @@ void ChangePatternLengthCb(int patternLength) {
 void ChangeSequenceNumberCb(int seqNum) {
   
     sequencer.setCurrentSequence(seqNum);
-    playpath.setPath(sequencer.getPath());
+//  playpath.setPath(sequencer.getPath());
     inout.ShowSequenceNumberOnLCD(seqNum);
     inout.ShowPathNumberOnLCD(sequencer.getPath());
     sequencer.printSequence();
@@ -207,7 +207,7 @@ void ChangeTrackCb(int trackNum) {
     Serial.print("  result: ");
     Serial.println(sequencer.getCurrentTrack());
 
-    playpath.setPath(sequencer.getPath());
+//  playpath.setPath(sequencer.getPath());
 //  sequencer.printSequence();
 }
 
@@ -277,7 +277,9 @@ void StartStopCb()
 #ifdef DEBUG
       timeTracker = millis();
 #endif
-      prep_first_step();
+      sequencer.prepFirstStep();
+      prepNoteGlobals();
+
 //    g_midiClickCount = MIDICLOCKDIVIDER;
       g_midiClickCount = 0;
       vb_clickHappened = true;
@@ -353,7 +355,7 @@ void setup()
                 SynthButtonCb,
                 ChangeTrackCb);
                 
-    playpath.setPath(sequencer.getPath());
+//  playpath.setPath(sequencer.getPath());
 
     Serial.print("Start2 Mem: ");
     Serial.println(FreeMem());
@@ -529,30 +531,17 @@ void prep_next_note_direct()
     Serial.print(g_activeGlobalStep);
     Serial.print("  mem: ");
     Serial.println(FreeMem());
-8?
-
-//  listCounts();
+*/
 
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();
-
-//    b_note_on = true;
-
-    // show step indicator for just-started note N-1
-
-/*
-    Serial.print("setRunningStepIndicators time remaining ");
-    Serial.println(g_note_off_time - micros());
-    inout.setRunningStepIndicators(playbackStep, g_note_off_time);      
-*/
-                            // schedule the next note's start time
-                            // as prepped previously
     
-    // gather info about the following note N+1
-    byte seqLength = sequencer.getLength(); // truncate step to available sequence length
-    prevPlaybackStep = playbackStep;
-    playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+//  byte seqLength = sequencer.getLength(); // truncate step to available sequence length
+//  prevPlaybackStep = playbackStep;
+//  playbackStep = playpath.getAndAdvanceStepPos(seqLength);
+    sequencer.AdvanceStepPositions();
 
+    // queue the next notes, drop previous ones
     prepNoteGlobals();
 
 #ifdef DEBUG
@@ -638,7 +627,7 @@ void prepNextClick()
                 //for the step indicators...
                 if(notesPlayed[i].track == 1)
                 {
-                    inout.setRunningStepIndicators(prevPlaybackStep, 
+                    inout.setRunningStepIndicators(sequencer.getCurrentStep(), 
                                                    notesPlayed[i].durationMS + note_trigger_time);      
                 }
             }
@@ -853,6 +842,7 @@ void prep_next_note()
 }
 */
 
+/*
 void prep_first_step()
 {
     if(startFromZero)
@@ -883,6 +873,7 @@ void prep_first_step()
         prepNoteGlobals();
     }
 }
+*/
 
 void prepNoteGlobals()
 {
@@ -899,7 +890,7 @@ void prepNoteGlobals()
 //  Serial.println(activeNotes.count());
 
 //  Serial.print(", activeNotes drop done ");
-    sequencer.updateNoteList(playbackStep);
+    sequencer.updateNoteList();
 //  Serial.println(" updateNoteList --> ");
 //  Serial.println(activeNotes.count());
 
@@ -1026,11 +1017,12 @@ void handleRewindButton()
     {      
         if(playbackOn == true) stopPlayback();
         synth.allNotesOff();
-        playbackStep = 0;
+        sequencer.resetStepPositions();
+//      playbackStep = 0;
         startFromZero = true;
         inout.RemoveStepIndicatorOnLCD();
         inout.ShowModeOnLCD();
-        playpath.resetStep();
+//      playpath.resetStep();
 
         activeNotes.purge();
 //      notesToTrig.purge();

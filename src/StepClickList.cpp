@@ -232,8 +232,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     n->masterStep = aMasterStep;
     n->clickStep = aClickStep;
     n->notes = new PerClickNoteList();  
-    
-    noInterrupts();
+    //  noInterrupts();
         if(tail != NULL)
             tail->next = n; // point previously last node to new one
         tail = n;           // point tail at new node
@@ -243,7 +242,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
         if(head == NULL)
             head = n;
-    interrupts();
+    //  interrupts();
     checkIntegrity("append");
 }
 
@@ -259,34 +258,34 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 
     if (tail == NULL)
     {
-        noInterrupts();
+//      noInterrupts();
             tail = cur;
-        interrupts();
+//      interrupts();
     }
 
     if (cur == NULL)
     {
-        noInterrupts();
+//      noInterrupts();
             cur = head;
-        interrupts();
+//      interrupts();
     }
     
     if (cur == NULL)
     {
-        noInterrupts();
+//      noInterrupts();
             cur = n;
             head = n;
-        interrupts();
+//      interrupts();
     } else
     {
         if(cur == head)
         {
             n->next = head;
-            noInterrupts();
+//          noInterrupts();
                 head->prev = n;
                 head = n;
                 cur = n;
-            interrupts();
+//          interrupts();
         } else
         {
             if(cur->prev != NULL)
@@ -294,10 +293,10 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
                 stepClickNode *prev = cur->prev;
                 prev->next = n;
             } 
-            noInterrupts();
+//          noInterrupts();
                 cur->prev = n;
                 cur = n;
-            interrupts();
+//          interrupts();
         }
     }
     checkIntegrity("insertBefore");
@@ -529,7 +528,7 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
             {
                 if(readCur->notes->hasValue())
                 {
-                    noInterrupts();
+//                  noInterrupts();
                         notesToPlay[i].clickNote.retrigClickDivider = readCur->notes->getNote().retrigClickDivider;
                         notesToPlay[i].clickNote.unmuted = readCur->notes->getNote().unmuted;
                         notesToPlay[i].clickNote.playIt = readCur->notes->getNote().playIt;
@@ -549,7 +548,7 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
                         notesToPlay[i].durationMS = readCur->notes->getDurationMS();
                         notesToPlay[i].track = readCur->notes->getTrack();
                         notesToPlay[i].active = true;
-                    interrupts();
+//                  interrupts();
                     readCur->notes->next();
 /*
                     Serial.print("transferClickNoteArray active ");
@@ -560,9 +559,9 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
                     Serial.println(a_click);
 */
                 } else {
-                    noInterrupts();
+//                  noInterrupts();
                         notesToPlay[i].active = false;
-                    interrupts();
+//                  interrupts();
 /*
                     Serial.print("transferClickNoteArray off ");
                     Serial.print(i);
@@ -820,7 +819,7 @@ void StepClickList::next()
 
 volatile void StepClickList::readNext()
 {
-        checkIntegrity("next");
+        checkIntegrity("readNext");
         
         if( readCur != NULL )
                 readCur = readCur->next;

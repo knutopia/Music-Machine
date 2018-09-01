@@ -6,6 +6,7 @@
 #include "Enum.h"
 #include "Note.h"
 #include "StepSequence.h"
+#include "Path.h"
 
 // Callback
 typedef note (*NoteGetter) (int step);
@@ -23,14 +24,23 @@ class Track
       void begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number);
       note getNoteParams(int step, byte curSequence);
       note getNoteParams(int step);
+      note getNoteParams();
       void activate();
       void deactivate();
       void setName(char *namePar);
       bool setCurrentSequenceIndex(byte newIndex);
+      void advanceStepPosition();
+      void resetStepPosition();
+      void prepFirstStep();
+      void setPath(byte path);
+      void updatePath();
+
       char* getName();
       byte getNumber();
       byte getCurrentSequenceIndex();
       byte getMaxSequenceIndex();
+      byte getPlaybackStep();
+      char* getPathName();
       StepSequence* getCurrentSequenceRef();
       StepSequence* getSequenceRef(int index);
       StepSequence* getRootSequenceRef(int index);
@@ -54,6 +64,9 @@ class Track
 //    byte currentPattern = 0;
       char *trackName;
       byte trackNumber;
+      Path trackPath;
+      byte playbackStep = 0;
+      byte prevPlaybackStep = 0;
 };
 
 #endif

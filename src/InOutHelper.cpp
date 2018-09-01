@@ -576,13 +576,18 @@ void InOutHelper::HandlePerformanceEncoders() {
     {
 //      Serial.print("posdelta: ");   
 //      Serial.println(newPosition - oldPositionA);   
+        elapsedMicros encTime = 0;
+        unsigned long encTimes[4];
+        encTimes[0] = (unsigned long)encTime;
 
         if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
           newPosition = pitchChangeLowerBoundary * -4;
           EncA.write(newPosition);
+          encTimes[0] = (unsigned long)encTime;
         } else if(newPosition > pitchChangeUpperBoundary * 4) {
           newPosition = pitchChangeUpperBoundary * 4;
           EncA.write(newPosition);
+          encTimes[0] = (unsigned long)encTime;
         }
         transposition = newPosition / 4;
 
@@ -591,11 +596,21 @@ void InOutHelper::HandlePerformanceEncoders() {
           sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
           prevTransposition = transposition;
         }
+        encTimes[1] = (unsigned long)encTime;
 
         ShowValueInfoOnLCD("Transpose: ", transposition);
+        encTimes[2] = (unsigned long)encTime;
         SetLCDinfoTimeout();
+        encTimes[3] = (unsigned long)encTime;
         
         oldPositionA = newPosition;
+
+        for(int f=0; f<4; f++)
+        {
+          Serial.print(encTimes[f]);
+          Serial.print(" ");
+        }
+        Serial.println();
     }
 
     // Encoder B for Note Duration - a per-sequence-step edit
@@ -1665,6 +1680,7 @@ void InOutHelper::ShowInfoOnLCD(const char info[])
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
 {
+/*
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
     lcd.print(label);
@@ -1675,10 +1691,22 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
     String str = String(value);
     str.toCharArray(foo,10);
     ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
+*/
+    String sShow  = String(label) + String(value);
+    int len = sShow.length();
+    int remainderLen = ValueOrButtonOnLCDLength - len;
+
+    lcd.setCursor(0, 2);
+    lcd.print(sShow);
+    if (remainderLen > 0)
+      for(int f = 0; f < remainderLen; f++)
+        lcd.print(" ");
+    ValueOrButtonOnLCDLength = len;
 }
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
 {  
+/*  
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
     lcd.print(label);
@@ -1689,6 +1717,17 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
     String str = String(value);
     str.toCharArray(foo,10);
     ValueOrButtonOnLCDLength = strlen(label) + strlen(foo);
+*/
+    String sShow  = String(label) + String(value);
+    int len = sShow.length();
+    int remainderLen = ValueOrButtonOnLCDLength - len;
+
+    lcd.setCursor(0, 2);
+    lcd.print(sShow);
+    if (remainderLen > 0)
+      for(int f = 0; f < remainderLen; f++)
+        lcd.print(" ");
+    ValueOrButtonOnLCDLength = len;
 }
 
 void InOutHelper::ShowSynParOnLCD(const char label[], int value)

@@ -524,10 +524,12 @@ void prep_next_note_direct()
     inout.ShowMemoryOnLCD((int)FreeMem());
     inout.ShowPlaybackStepOnLCD(g_activeGlobalStep);
 
+/*
     Serial.print("prep_next_note after ");
     Serial.print(g_activeGlobalStep);
     Serial.print("  mem: ");
     Serial.println(FreeMem());
+8?
 
 //  listCounts();
 
@@ -568,24 +570,24 @@ void prepNextClick()
     bool clickPlayed;
     unsigned long note_trigger_time;
     
-    noInterrupts();
+//  noInterrupts();
         clickPlayed = vb_clickHappened;
-    interrupts();
+//  interrupts();
 
     if(clickPlayed)
     {
-        noInterrupts();
+//      noInterrupts();
             vb_clickHappened = false;
             note_trigger_time = v_note_trigger_time;
             v_note_trigger_time = 0;
-        interrupts();
+//      interrupts();
     
         // track noteOffs
         if(note_trigger_time != 0)
         {
             notePerClick notesPlayed[TRACKCOUNT];
 
-            noInterrupts();
+//          noInterrupts();
             for(int i = 0; i < TRACKCOUNT; i++)
             {
                 if(notesToPlay[i].active)
@@ -616,7 +618,7 @@ void prepNextClick()
                     notesPlayed[i].active = false;
                 }
             }
-            interrupts();
+//          interrupts();
 
             for(int i = 0; i < TRACKCOUNT; i++)
             {

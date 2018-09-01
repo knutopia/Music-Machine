@@ -753,9 +753,9 @@ void InOutHelper::handleTrellis() {
       
       if (trellis_led_dirty)
       {
-      noInterrupts();
+//    noInterrupts();
           trellis.writeDisplay();
-      interrupts();
+//    interrupts();
         trellis_led_dirty = false;
       }
   }

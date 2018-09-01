@@ -229,14 +229,20 @@ void SaveToSdCb()
      if (!save_to_SD_done) {
         //Turn off playback
         stopPlayback();
+        synth.allNotesOff();
+
         inout.ShowStoreMessage(START);
-        //Store to EEPROM
-//      storeDataToEEPROM();
         writeToSDcard();
-//      readSeqFromSDcard();
-//      readSndFromSDcard();
         inout.ShowStoreMessage(STOP);
         save_to_SD_done = true;
+
+        sequencer.resetStepPositions();
+        startFromZero = true;
+        inout.RemoveStepIndicatorOnLCD();
+        inout.ShowModeOnLCD();
+
+        activeNotes.purge();
+        activeStepClicks.purge();
       }
 }
 
@@ -271,13 +277,17 @@ void StartStopCb()
       timeTracker = millis();
 #endif
       sequencer.prepFirstStep();
+      Serial.println("   first step prepped");
       prepNoteGlobals();
+      Serial.println("   globals good");
 
 //    g_midiClickCount = MIDICLOCKDIVIDER;
       g_midiClickCount = 0;
       vb_clickHappened = true;
       prepNextClick();
+      Serial.println("   next click prepped");
       metro.startPlayingRightNow();
+      Serial.println("   playing now");
     }  
 }
 

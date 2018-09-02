@@ -2,7 +2,6 @@
 #include "InOutHelper.h"
 
 extern InOutHelper inout;
-extern bool startFromZero;
 Track::Track()
 {
 
@@ -178,34 +177,31 @@ void Track::resetStepPosition()
 
 void Track::prepFirstStep()
 {
-      if(startFromZero)
+
+      if(currentSequence != NULL)
       {
-            startFromZero = false;
-
-            if(currentSequence != NULL)
+            byte seqLength = currentSequence->getLength(); // truncate step to available sequence length
+            if(playbackStep >= seqLength)
             {
-                  byte seqLength = currentSequence->getLength(); // truncate step to available sequence length
-                  if(playbackStep >= seqLength)
-                  {
-                        inout.ShowErrorOnLCD("YOWZA prepFirstStep");
-                        Serial.print("step:");
-                        Serial.print(playbackStep);
-                        Serial.print(" len:");
-                        Serial.print(seqLength);
-                        Serial.print("on track ");
-                        Serial.print(trackNumber);
+                  inout.ShowErrorOnLCD("YOWZA prepFirstStep");
+                  Serial.print("step:");
+                  Serial.print(playbackStep);
+                  Serial.print(" len:");
+                  Serial.print(seqLength);
+                  Serial.print("on track ");
+                  Serial.print(trackNumber);
 
-                        playbackStep = 0;
-                  }
+                  playbackStep = 0;
+            }
 
-                  if (playbackStep == 0)
-                        playbackStep = trackPath.getDontAdvanceStepPos(seqLength);
-                  else
-                        playbackStep = trackPath.getAndAdvanceStepPos(seqLength);
-            } else
-                  inout.ShowErrorOnLCD("prepFS cS NULL");
-      }
+            if (playbackStep == 0)
+                  playbackStep = trackPath.getDontAdvanceStepPos(seqLength);
+            else
+                  playbackStep = trackPath.getAndAdvanceStepPos(seqLength);
+      } else
+            inout.ShowErrorOnLCD("prepFS cS NULL");
 }
+
 
 void Track::setPath(byte path)
 {

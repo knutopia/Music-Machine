@@ -251,43 +251,48 @@ void StartStopCb()
 {
     if(playbackOn == true)
     {
-      stopPlayback();
+        stopPlayback();
 #ifdef MIDION
         usbMIDI.sendRealTime(usbMIDI.Stop);
 #endif
-      Serial.println("  button off: ");
+        Serial.println("  button off: ");
 
-      synth.reportPerformance();
-      inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
-      inout.SetLCDinfoTimeout();
+        synth.reportPerformance();
+        inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
+        inout.SetLCDinfoTimeout();
     } else {
 
 #ifdef DEBUG
-      testLinkedNoteList();
-      testLinkedTrackList();
-      testPerClickNoteList();
-      testStepClickList();
+    testLinkedNoteList();
+    testLinkedTrackList();
+    testPerClickNoteList();
+    testStepClickList();
 #endif
 
-      playbackOn = true;
-      Serial.println("  button on: ");
-      
-      //Midi timer
+    playbackOn = true;
+    Serial.println("  button on: ");
+    
+    //Midi timer
 #ifdef DEBUG
-      timeTracker = millis();
+    timeTracker = millis();
 #endif
-      sequencer.prepFirstStep();
-      Serial.println("   first step prepped");
-      prepNoteGlobals();
-      Serial.println("   globals good");
 
-//    g_midiClickCount = MIDICLOCKDIVIDER;
-      g_midiClickCount = 0;
-      vb_clickHappened = true;
-      prepNextClick();
-      Serial.println("   next click prepped");
-      metro.startPlayingRightNow();
-      Serial.println("   playing now");
+    if(startFromZero)
+    {
+        startFromZero = false;
+
+        sequencer.prepFirstStep();
+        Serial.println("   first step prepped");
+        prepNoteGlobals();
+        Serial.println("   globals good");
+    }
+
+    g_midiClickCount = 0;
+    vb_clickHappened = true;
+    prepNextClick();
+    Serial.println("   next click prepped");
+    metro.startPlayingRightNow();
+    Serial.println("   playing now");
     }  
 }
 

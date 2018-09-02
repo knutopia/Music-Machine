@@ -17,6 +17,7 @@ extern LinkedNoteList activeNotes;
 extern StepClickList activeStepClicks;
 extern Timebase metro;
 extern InOutHelper inout;
+extern bool startFromZero;
 
 //Public constructor and methods
 StepSequencer::StepSequencer()
@@ -313,6 +314,8 @@ void StepSequencer::prepFirstStep()
         m_activeTracks.next();
     }
 }
+
+
 
 bool StepSequencer::playItOrNot(int _step) //make obsolete
 {

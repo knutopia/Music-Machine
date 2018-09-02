@@ -18,6 +18,7 @@ extern StepClickList activeStepClicks;
 extern Timebase metro;
 extern InOutHelper inout;
 extern bool startFromZero;
+extern bool shiftActive;
 
 //Public constructor and methods
 StepSequencer::StepSequencer()
@@ -40,18 +41,20 @@ void StepSequencer::begin()
 
     int forceInitForSequence = m_sequence[0].getLength();
 
-    int len = m_beat_sequence[0].getLength();
-    for(int n = 0; n < len; n++)
+    for(int s=0; s < max_sequences; s++)
     {
-        m_beat_sequence[0].setDuration(n, 0.1);
-        m_beat_sequence[0].setNote(n, 20);
+        int len = m_beat_sequence[s].getLength();
+        for(int n = 0; n < len; n++)
+        {
+            m_beat_sequence[s].setDuration(n, 0.1);
+            m_beat_sequence[s].setNote(n, 20+random(12));
+        }
+        for(int n = 0; n < len; n+=4)
+            m_beat_sequence[s].setDuration(n, 0.5);
     }
-    for(int n = 0; n < len; n+=4)
-        m_beat_sequence[0].setDuration(n, 0.5);
-    
 
     tmpTrack1.begin(m_sequence, m_sequence_root, max_sequences, (byte)1);
-    tmpTrack2.begin(m_beat_sequence, m_beat_sequence_root, 1, (byte)2);
+    tmpTrack2.begin(m_beat_sequence, m_beat_sequence_root, max_sequences, (byte)2);
     m_beat_sequence[0].copySeqTo(m_beat_sequence_root[0]);
 
     m_activeTracks.appendTrack(1, &tmpTrack1);
@@ -854,8 +857,39 @@ void StepSequencer::setTransposition(byte transposition)
 
 void StepSequencer::setLength(byte _length)
 {
-//  m_sequence[m_currentSequence].setLength(_length);
-    activeEditTrack->getCurrentSequenceRef()->setLength(_length);
+    if(!shiftActive)
+    {
+        if(activeEditTrack != NULL)
+            activeEditTrack->getCurrentSequenceRef()->setLength(_length);
+        else {
+            Serial.println("setLength activeEditTrack is NULL");
+            inout.ShowInfoOnLCD("setLength aET NULL");
+            inout.SetLCDinfoTimeout();
+        }
+    } else {
+        
+        m_activeTracks.rewind();
+        int sentry = 0;
+        while( m_activeTracks.hasValue())
+        {
+            Track* aTrack = m_activeTracks.getTrackRef();
+            if(aTrack != NULL)
+                aTrack->getCurrentSequenceRef()->setLength(_length);
+            else {
+                Serial.println("setLength aTrack is NULL");
+                inout.ShowInfoOnLCD("setLength aT NULL");
+                inout.SetLCDinfoTimeout();
+                break;
+            }
+            m_activeTracks.next();
+            
+            if(++sentry == 100)
+            {
+                inout.ShowErrorOnLCD("setLength stuck");
+                break;
+            }
+        }
+    }
 }
 
 void StepSequencer::setAccent(int _step, byte accent)
@@ -885,34 +919,99 @@ void StepSequencer::setVelocity(int _step, byte velocity)
 void StepSequencer::setPath(byte path)
 {
 //  m_sequence[m_currentSequence].setPath(path);
-    activeEditTrack->setPath(path);
+    if(!shiftActive)
+    {
+        if(activeEditTrack != NULL)
+            activeEditTrack->setPath(path);
+        else {
+            Serial.println("setPath activeEditTrack is NULL");
+            inout.ShowInfoOnLCD("setPath aET NULL");
+            inout.SetLCDinfoTimeout();
+        }
+    } else {
+
+        m_activeTracks.rewind();
+        int sentry = 0;
+        while( m_activeTracks.hasValue())
+        {
+            Track* aTrack = m_activeTracks.getTrackRef();
+            if(aTrack != NULL)
+                aTrack->setPath(path);
+            else {
+                Serial.println("setPath aTrack is NULL");
+                inout.ShowInfoOnLCD("setPath aT NULL");
+                inout.SetLCDinfoTimeout();
+                break;
+            }
+            m_activeTracks.next();
+            
+            if(++sentry == 100)
+            {
+                inout.ShowErrorOnLCD("setPath stuck");
+                break;
+            }
+        }
+    }
 }
 
 void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // ADDRESSed
 {
-//  if(index >= 0 && index < max_sequences && index != m_currentSequence)
-
-    if(index >= 0 && index < max_sequences && index != activeEditTrack->getCurrentSequenceIndex()) 
+    if(!shiftActive)
     {
-//      m_currentSequence = index;
-//      m_recall_buffer_active = false;
-        
-        if(activeEditTrack != NULL)
+        if(index >= 0 && index < max_sequences && index != activeEditTrack->getCurrentSequenceIndex()) 
         {
-            bool seqCess = activeEditTrack->setCurrentSequenceIndex(index);
-            activeEditTrack->setRecallBufferActive(false);
-            if( !seqCess)
+    //      m_currentSequence = index;
+    //      m_recall_buffer_active = false;
+            
+            if(activeEditTrack != NULL)
             {
-                Serial.print("setCurrentSequenceIndex failed with index ");
+                bool seqCess = activeEditTrack->setCurrentSequenceIndex(index);
+                activeEditTrack->setRecallBufferActive(false);
+                if( !seqCess)
+                {
+                    Serial.print("setCurrentSequenceIndex failed with index ");
+                    Serial.println(index);
+                    inout.ShowValueInfoOnLCD("setCurSeqIfail", index);
+                    inout.SetLCDinfoTimeout();
+                }
+            } else {
+                Serial.print("setCurrentSequence activeEditTrack is NULL");
                 Serial.println(index);
-                inout.ShowValueInfoOnLCD("setCurSeqIfail", index);
+                inout.ShowInfoOnLCD("setCurSeq aET NULL");
                 inout.SetLCDinfoTimeout();
             }
-        } else {
-            Serial.print("setCurrentSequence activeEditTrack is NULL");
-            Serial.println(index);
-            inout.ShowInfoOnLCD("setCurSeq fail NULL");
-            inout.SetLCDinfoTimeout();
+        }
+    } else {
+
+        m_activeTracks.rewind();
+        int sentry = 0;
+        while( m_activeTracks.hasValue())
+        {
+            Track* aTrack = m_activeTracks.getTrackRef();
+            if(aTrack != NULL)
+            {
+                bool seqCess = aTrack->setCurrentSequenceIndex(index);
+                aTrack->setRecallBufferActive(false);
+                if( !seqCess)
+                {
+                    Serial.print("setCurrentSequenceIndex failed with index ");
+                    Serial.println(index);
+                    inout.ShowValueInfoOnLCD("setCurSeqIfail", index);
+                    inout.SetLCDinfoTimeout();
+                }
+            } else {
+                Serial.println("setCurrentSequence aTrack is NULL");
+                inout.ShowInfoOnLCD("setCS aT NULL");
+                inout.SetLCDinfoTimeout();
+                break;
+            }
+            m_activeTracks.next();
+            
+            if(++sentry == 100)
+            {
+                inout.ShowErrorOnLCD("setPath stuck");
+                break;
+            }
         }
     }
 }

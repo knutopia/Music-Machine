@@ -35,6 +35,7 @@ extern Timebase metro;
 extern SynthEngine synth;
 extern int save_sequence_destination;
 extern bool save_to_SD_done;
+extern bool shiftActive;
 
 //floating
 int putInRange(int iVar, int iRange)
@@ -1220,6 +1221,13 @@ void InOutHelper::handleSelectButton()
             }
           }
           break;
+        case path_select:
+        case length_edit:
+          {
+            shiftActive = !shiftActive;
+            ShowShiftOnLCD();
+          }
+          break;
         default:
           {
             switch (stepSelectionMode) {
@@ -1710,6 +1718,16 @@ void InOutHelper::ShowModeOnLCD()
     lcd.print("                 ");
     lcd.setCursor(0, 1);
     lcd.print(modeNames[currentMode]);
+}
+
+void InOutHelper::ShowShiftOnLCD()
+{
+    lcd.setCursor(17, 3);
+
+    if(shiftActive)
+        lcd.print("^");
+    else    
+        lcd.print(" ");
 }
 
 

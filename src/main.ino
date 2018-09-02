@@ -126,6 +126,8 @@ volatile notePerClick notesToPlay[TRACKCOUNT];
 //To replace timer
 elapsedMicros clickTrack;
 
+bool shiftActive = false;
+
 //Helper
 void listCounts()
 {
@@ -443,7 +445,7 @@ void loop()
 
 void prep_next_note_direct()
 {
-    inout.ShowMemoryOnLCD((int)FreeMem());
+//  inout.ShowMemoryOnLCD((int)FreeMem());
     inout.ShowPlaybackStepOnLCD(g_activeGlobalStep);
 
 /*

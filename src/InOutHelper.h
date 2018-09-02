@@ -71,6 +71,7 @@ class InOutHelper
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);
     void ShowModeOnLCD();
+    void ShowShiftOnLCD();
     void ShowBPMOnLCD(int bpm);
     void handleLCDtimeouts();
     String midiToNoteName(int note);

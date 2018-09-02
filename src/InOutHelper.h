@@ -71,6 +71,7 @@ class InOutHelper
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);
     void ShowModeOnLCD();
+    void ShowBPMOnLCD(int bpm);
     void handleLCDtimeouts();
     String midiToNoteName(int note);
     void showLoopTimer();
@@ -114,7 +115,6 @@ class InOutHelper
     void ClearInfoOnLCD();
     void ClearLabelRowInfoOnLCD();
     void ShowStepStateOnLCD(int index, boolean stepButtonPressed);
-    void ShowBPMOnLCD(int bpm);
     void ShowSwingOnLCD(int swing);
     void ShowStepOnLCD(int step, bool isActive);
     void showStepInfoOnLCD(int step);

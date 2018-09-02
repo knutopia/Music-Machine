@@ -46,14 +46,13 @@ Timebase::Timebase()
 
 void Timebase::reset()
 {
-//  swingValue = 0;
     swingMidiClicks = 0;
     remainingRetrigCount = 0;
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
+    effectiveBpm = bpm * speedMultiplier;
     resetMidiTimer();
-//  resetSwingCountDown();
 }
 
 // React to input ("Setters")
@@ -64,7 +63,9 @@ void Timebase::updateTempo(int newBPM)
     if (bpm != newBPM)
     {
         bpm = newBPM;
-//      recalcTimings();
+        effectiveBpm = bpm * speedMultiplier;
+        inout.ShowBPMOnLCD(effectiveBpm);
+  
         resetRefTimer = true;
     }
 }
@@ -82,7 +83,8 @@ void Timebase::updateSpeedMultiplier(speedFactor mult)
 
         // calculate the intervals when tempo changes
         speedMultiplier = mult;
-//      recalcTimings();
+        effectiveBpm = bpm * speedMultiplier;
+        inout.ShowBPMOnLCD(effectiveBpm);
         resetRefTimer = true;
     }
 }
@@ -100,6 +102,11 @@ void Timebase::updateSwing(int newClicks)
 int Timebase::getBPM()
 {
     return bpm;
+}
+
+int Timebase::getEffectiveBPM()
+{
+    return effectiveBpm;
 }
 
 int Timebase::getSwing()

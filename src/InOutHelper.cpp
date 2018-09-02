@@ -184,7 +184,7 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   delay(20);
   setupNewMode();
   ShowModeOnLCD();
-  ShowBPMOnLCD(metro.getBPM());
+  ShowBPMOnLCD(metro.getEffectiveBPM());
   ShowSwingOnLCD(metro.getSwing());
   ShowPathNumberOnLCD(sequencer.getPath());
   ShowTrackNumberOnLCD(sequencer.getCurrentTrack());
@@ -310,7 +310,7 @@ void InOutHelper::ResetTrellis() {
     currentMode = step_edit;
     setupNewMode();
     ShowModeOnLCD();         
-    ShowBPMOnLCD(metro.getBPM());
+    ShowBPMOnLCD(metro.getEffectiveBPM());
     ShowSwingOnLCD(metro.getSwing());
     step_indicator_led_active = true; // ???
 }
@@ -642,7 +642,7 @@ void InOutHelper::HandlePerformanceEncoders() {
         prevBeatsPerMinute = beatsPerMinute;
       }
   
-      ShowBPMOnLCD(beatsPerMinute);
+//    ShowBPMOnLCD(beatsPerMinute);
       oldPositionD = newPosition;
       }
 }

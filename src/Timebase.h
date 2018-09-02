@@ -24,6 +24,7 @@ class Timebase
       //"Getters"
 
       int getBPM();
+      int getEffectiveBPM();
       int getSwing();
       u_int8_t getSwingMidiClicks();
       void updateTimingIfNeeded();
@@ -52,6 +53,7 @@ class Timebase
 
       //Class data members:
       int bpm = 120; 
+      int effectiveBpm = 120;
       speedFactor speedMultiplier = NORMAL; // DEGLOBALIZE
       
       unsigned long referenceTime;              // starting timestamp to calculate step time target from

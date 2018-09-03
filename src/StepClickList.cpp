@@ -281,8 +281,10 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
 
 void StepClickList::append(int aMasterStep, byte aClickStep)
 {
+#ifdef DEBUG
     Serial.print("append: ");
     print();
+#endif
 
     stepClickNode *n = new stepClickNode();
 //  stepClickNode *n;

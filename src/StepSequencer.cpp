@@ -1083,7 +1083,7 @@ void StepSequencer::printSequence()
     Serial.print("Sequence ");
 //  Serial.print(m_currentSequence);
     Serial.print(activeEditTrack->getCurrentSequenceIndex());
-    Serial.println(" on track ");
+    Serial.print(" on track ");
     Serial.println(activeEditTrack->getNumber());
 //  m_sequence[m_currentSequence].printSequence();
     activeEditTrack->getCurrentSequenceRef()->printSequence();

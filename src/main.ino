@@ -473,6 +473,8 @@ void prep_next_note_direct()
 //  inout.ShowMemoryOnLCD((int)FreeMem());
     inout.ShowPlaybackStepOnLCD(g_activeGlobalStep);
 
+    Serial.print(" pnnd1");
+
 /*
     Serial.print("prep_next_note after ");
     Serial.print(g_activeGlobalStep);
@@ -486,8 +488,12 @@ void prep_next_note_direct()
     // forward we march
     sequencer.AdvanceStepPositions();
 
+    Serial.print(" pnnd2");
+
     // queue the next notes, drop previous ones
     prepNoteGlobals();
+
+    Serial.print(" pnnd3");
 
 #ifdef DEBUG
     Serial.println(" Note prepped.");
@@ -495,6 +501,9 @@ void prep_next_note_direct()
 
     // change synth patch ?
     synth.prepPatchIfNeeded();
+
+    Serial.print(" pnnd4");
+
 }
 
 void prepNextClick()
@@ -553,7 +562,6 @@ void prepNextClick()
                 }
             }
 //          interrupts();
-
             for(int i = 0; i < TRACKCOUNT; i++)
             {
                 if(notesPlayed[i].active && notesPlayed[i].clickNote.playIt)
@@ -599,8 +607,12 @@ void prepNextClick()
         }
         activeStepClicks.readRewind();
 
+        Serial.print(" pnc 7");
+
         if(prepNextStep)
             prep_next_note_direct();
+
+        Serial.print(" pnc 8");        
     }
 }
 
@@ -609,12 +621,25 @@ void prepNoteGlobals()
     // TRY THIS>>>
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 
+    Serial.print(" pNG1");
+
     g_activeGlobalStep++;
 
     activeNotes.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
+
+    Serial.print(" pNG2");
+
     sequencer.updateNoteList();
+
+    Serial.print(" pNG3");
+
     activeNotes.rewind();
+
+    Serial.print(" pNG4");
+
     sequencer.updateStepClickList();
+
+    Serial.print(" pNG5");
 
 #ifdef DEBUG
     Serial.print("###### playingNotes count: ");
@@ -637,38 +662,41 @@ void trackListSizes()
 void followNoteOff()
 {
     int foo = 0;
-    int sentry = 0;
-    playingNotes.readRewind();
+    if(&playingNotes != NULL)
+    {
+        playingNotes.readRewind();
 
-    while(playingNotes.hasReadValue())
-    {        
-        if(playingNotes.readNoteOffTime() < micros())
-        {
+        int sentry = 0;
+        while(playingNotes.hasReadValue())
+        {        
+            if(playingNotes.readNoteOffTime() < micros())
+            {
 
-#ifdef DEBUG
-            Serial.print("followNoteOff on track ");
-            Serial.print(playingNotes.readTrack());
-            Serial.print(" at index ");
-            Serial.print(foo);
-            Serial.print(" with midiNote ");
-            Serial.println(playingNotes.readMidiNote());
-#endif
-            synth.endNote(playingNotes.readTrack(), 
-                            playingNotes.readMidiNote());
+    #ifdef DEBUG
+                Serial.print("followNoteOff on track ");
+                Serial.print(playingNotes.readTrack());
+                Serial.print(" at index ");
+                Serial.print(foo);
+                Serial.print(" with midiNote ");
+                Serial.println(playingNotes.readMidiNote());
+    #endif
+                synth.endNote(playingNotes.readTrack(), 
+                                playingNotes.readMidiNote());
 
-#ifdef DEBUG
-            playingNotes.printList();
-            Serial.println();
-#endif            
-            playingNotes.dropNode();
-        }
-        playingNotes.readNext();
-        foo++;
+    #ifdef DEBUG
+                playingNotes.printList();
+                Serial.println();
+    #endif            
+                playingNotes.dropNode();
+            }
+            playingNotes.readNext();
+            foo++;
 
-        if(++sentry == 100)
-        {
-            inout.ShowErrorOnLCD("followNO stuck");
-            break;
+            if(++sentry == 100)
+            {
+                inout.ShowErrorOnLCD("followNO stuck");
+                break;
+            }
         }
     }
 }
@@ -679,15 +707,29 @@ void handleRewindButton()
     if (inout.checkRewindButton()) 
     {      
         if(playbackOn == true) stopPlayback();
+        Serial.print("1 ");
         synth.allNotesOff();
+        Serial.print("2 ");
         sequencer.resetStepPositions();
+        Serial.print("3 ");
         startFromZero = true;
+        Serial.print("4 ");
         inout.RemoveStepIndicatorOnLCD();
+        Serial.print("5 ");
         inout.ShowModeOnLCD();
+        Serial.print("6 ");
 
-        activeNotes.purge();
-//      notesToTrig.purge();
-        activeStepClicks.purge();
+        if(&activeNotes != NULL)
+            activeNotes.purge();
+        else
+            inout.ShowErrorOnLCD("handleRB aN NULL");
+        Serial.print("7 ");
+
+        if(&activeStepClicks != NULL)
+            activeStepClicks.purge();
+        else
+            inout.ShowErrorOnLCD("handleRB aSC NULL");
+        Serial.print("8 ");
     }
 }
 

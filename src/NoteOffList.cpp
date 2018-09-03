@@ -48,11 +48,28 @@ void NoteOffList::checkIntegrity(char caller[])
         {
             Serial.print("NoteOffList next error called from ");
             Serial.println(caller);
+            printList();
         }
         if(cur == cur->prev)
         {
             Serial.println("NoteOffList prev loop !");
             Serial.print(caller);
+            printList();
+        }
+    }
+    if(readCur != NULL)
+    {
+        if(readCur == readCur->next)
+        {
+            Serial.print("NoteOffList readCur next error called from ");
+            Serial.println(caller);
+            printList();
+        }
+        if(readCur == readCur->prev)
+        {
+            Serial.println("NoteOffList readCur prev loop !");
+            Serial.print(caller);
+            printList();
         }
     }
 }
@@ -63,6 +80,14 @@ void NoteOffList::printList()
     Serial.println("NoteOffList: ");
 
     volatile noteOffNode *n = cur;
+    Serial.print(" head: ");
+    Serial.print((int)head);
+    Serial.print(" cur: ");
+    Serial.print((int)cur);
+    Serial.print(" tail: ");
+    Serial.print((int)tail);
+    Serial.print(" readCur: ");
+    Serial.println((int)readCur);
 
     rewind();
     while( hasValue())
@@ -178,6 +203,7 @@ void NoteOffList::append(byte aTrackNum, byte aMidiNote, unsigned long anOffTime
 
 void NoteOffList::rewind()
 {
+        checkIntegrity("rewind");
         cur = head;
 }
 
@@ -215,19 +241,20 @@ int NoteOffList::hasReadValue()
 
 void NoteOffList::readRewind()
 {
+        checkIntegrity("readRewind");
         readCur = head;
 }
 
 void NoteOffList::readNext()
 {
-        checkIntegrity("next");
+        checkIntegrity("readNext");
         if( readCur != NULL )
                 readCur = readCur->next;
 }
 
 int NoteOffList::count()
 {
-
+    checkIntegrity("count");
     int count = 0;
     volatile noteOffNode *buf = cur;
     rewind();

@@ -64,12 +64,14 @@ void StepClickList::begin(CbWhenStuck panicCbPointer)
 
 void StepClickList::purge()
 {
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.print("StepClickList purge");
-#endif
+    print();
+//#endif
 
     stepClickNode *die = head;
 
+    int sentry = 0;
     while(die) 
     {
         head = die->next;
@@ -80,9 +82,15 @@ void StepClickList::purge()
         delete die;
         die = head;
 
-#ifdef DEBUG
+//#ifdef DEBUG
         Serial.print("die ");
-#endif
+//#endif
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("SCL purge stuck");
+            PanicCb();
+            break;
+        }
     }
 
     head = NULL;
@@ -90,9 +98,9 @@ void StepClickList::purge()
     tail = NULL;
     readCur = NULL;
 
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.println("done");
-#endif
+//#endif
 }
 
 bool StepClickList::checkIntegrity(char caller[])
@@ -251,6 +259,10 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
 void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 {
+//#ifdef DEBUG
+            Serial.println("insertBefore");
+            print();
+//#endif
     stepClickNode *n = new stepClickNode();
     n->masterStep = aMasterStep;
     n->clickStep = aClickStep;
@@ -301,7 +313,8 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 //          interrupts();
         }
     }
-    bool integrity = checkIntegrity("insertBefore");
+    if(!checkIntegrity("insertBefore"))
+        print();
 }
 
 

@@ -49,9 +49,9 @@ PerClickNoteList::~PerClickNoteList()
 
 void PerClickNoteList::purge()
 {
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.print("PerClickNoteList purge ");
-#endif
+//#endif
 
     notePerClick *die = head;
 
@@ -72,9 +72,9 @@ void PerClickNoteList::purge()
     tail = NULL;
     readCur = NULL;
 
-#ifdef DEBUG
+//#ifdef DEBUG
     Serial.println("done");
-#endif    
+//#endif    
 }
 
 void PerClickNoteList::checkIntegrity(char caller[])

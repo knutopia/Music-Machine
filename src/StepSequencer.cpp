@@ -36,9 +36,10 @@ StepSequencer::StepSequencer()
 #endif
 }
 
-void StepSequencer::begin()
+void StepSequencer::begin(CbWhenStuck panicCbPointer)
 {
-
+    PanicCb = panicCbPointer;
+    
     int forceInitForSequence = m_sequence[0].getLength();
 
     for(int s=0; s < max_sequences; s++)

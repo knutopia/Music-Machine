@@ -6,6 +6,8 @@
 #include "Note.h"
 #include "PerClickNoteList.h"
 
+typedef void (*CbWhenStuck) ();
+
 // List of clicks in a master step, 
 // holding all notes to play in that click
 // assembled from the individual tracks in the sequencer
@@ -24,9 +26,10 @@ class StepClickList
    public:
     StepClickList();
     ~StepClickList();
-    
+
+    void begin(CbWhenStuck panicCbPointer);    
     void purge();
-    void checkIntegrity(char caller[]);
+    bool checkIntegrity(char caller[]);
     void addClickNote(note aNote, byte aTrack, 
                       unsigned long aDuration, 
                       int aMasterStep, 
@@ -50,8 +53,13 @@ class StepClickList
     int hasValue();
     volatile int hasReadValue();
     int count();
+    void print();
 
 private:
+
+    // Callback
+    CbWhenStuck PanicCb;
+
     stepClickNode *head;
     stepClickNode *cur;
     stepClickNode *tail;

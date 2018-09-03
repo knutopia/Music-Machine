@@ -30,6 +30,8 @@ extern note nextNote;
 extern long g_step_duration;
 
 unsigned long Timebase::midiClickInterval;
+unsigned long Timebase::loopCutoff;
+
 bool Timebase::bMidiTimerOn = false;
 volatile int Timebase::midiClickCount;
 volatile int Timebase::swingCountdown = -1;
@@ -52,6 +54,8 @@ void Timebase::reset()
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
     effectiveBpm = bpm * speedMultiplier;
+    loopCutoff = midiClickInterval - constrain(midiClickInterval / 4, 1000, 15000);
+
     resetMidiTimer();
 }
 
@@ -231,6 +235,11 @@ void Timebase::recalcTimings()
     referenceStepDuration = BPMCONSTANT / bpm / speedMultiplier;
     g_step_duration = referenceStepDuration;
     midiClickInterval = BPMCONSTANT / bpm / speedMultiplier / MIDICLOCKDIVIDER;
+    loopCutoff = midiClickInterval - constrain(midiClickInterval / 4, 1000, 15000);
+
+    Serial.println("");
+    Serial.print("midiClickInterval ");
+    Serial.println(midiClickInterval);
 }
 
 void Timebase::startPlayingRightNow()

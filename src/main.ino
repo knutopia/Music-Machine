@@ -126,6 +126,7 @@ volatile notePerClick notesToPlay[TRACKCOUNT];
 //To replace timer
 elapsedMicros clickTrack;
 
+//To track global modifiers
 bool shiftActive = false;
 
 //Helper
@@ -139,6 +140,20 @@ void listCounts()
     Serial.print(notesToTrig.count());
     Serial.print("  playingNotes: ");
     Serial.println(playingNotes.count());
+}
+
+//Callback for sequencer problems
+void EmergencyCb()
+{
+    if(playbackOn == true) stopPlayback();
+    synth.allNotesOff();
+    sequencer.resetStepPositions();
+    startFromZero = true;
+    inout.RemoveStepIndicatorOnLCD();
+    inout.ShowModeOnLCD();
+
+//  activeNotes.purge();
+//  activeStepClicks.purge();
 }
 
 //Callbacks for inputs
@@ -339,7 +354,8 @@ void setup()
     analogReadAveraging(32);
     analogReadResolution(14);
     setupSDcard();
-    sequencer.begin();
+    sequencer.begin(EmergencyCb);
+    activeStepClicks.begin(EmergencyCb);
 
     Serial.println("Reading sequences from SD");
     readSeqFromSDcard();
@@ -376,7 +392,7 @@ void setup()
 void loop()
 {
     static byte bTimeslice = 0;
-    static int loopcount = 0;
+//  static int loopcount = 0;
     
     if(clickTrack > metro.midiClickInterval)
     {
@@ -398,6 +414,9 @@ void loop()
         else
             clickTrack = clickTrack % metro.midiClickInterval;
 
+//      Serial.print(clickTrack);
+//      Serial.print(" ");
+
 //      Serial.println(loopcount);
 //      loopcount = 0;
     } else {
@@ -405,33 +424,39 @@ void loop()
 
         followNoteOff();
 
-        bTimeslice = ++bTimeslice % 6;
-        switch (bTimeslice)
+        if(clickTrack < metro.loopCutoff)
         {
-            case 0:
-                inout.handleStartStopButton();
-                inout.handleSelectButton();
-                inout.handleModeButtons();
-                inout.handleButtonHolds();
-                handleRewindButton();
-                break;
-            case 1:
-                inout.handleEncoderButtons();
-                break;
-            case 2:
-                inout.handleTrellis();
-                break;
-            case 3:
-                inout.handleLCDtimeouts();
-                break;
-            case 4:
-                synth.trackJoystick();
-                break;
-            case 5:
-                inout.handleEncoders();
-                break;
-            default:
-                break;
+            bTimeslice = ++bTimeslice % 6;
+            switch (bTimeslice)
+            {
+                case 0:
+                    inout.handleStartStopButton();
+                    inout.handleSelectButton();
+                    inout.handleModeButtons();
+                    inout.handleButtonHolds();
+                    handleRewindButton();
+                    break;
+                case 1:
+                    inout.handleEncoderButtons();
+                    break;
+                case 2:
+                    inout.handleTrellis();
+                    break;
+                case 3:
+                    inout.handleLCDtimeouts();
+                    break;
+                case 4:
+                    synth.trackJoystick();
+                    break;
+                case 5:
+                    inout.handleEncoders();
+                    break;
+                default:
+                    break;
+            } 
+        } else {
+            inout.handleStartStopButton();
+            handleRewindButton();
         }
     }
 
@@ -568,18 +593,14 @@ void prepNextClick()
         }
 
         // acquire notes for next click
-
-//      if(activeStepClicks.transferClickNoteList(notesToTrig, g_midiClickCount, currentPlayingStep))
-        if(activeStepClicks.transferClickNoteArray(g_midiClickCount, currentPlayingStep))
+        if(!activeStepClicks.transferClickNoteArray(g_midiClickCount, currentPlayingStep))
         {
+//          Serial.print(" No. ");
         }
         activeStepClicks.readRewind();
 
         if(prepNextStep)
-        {
-//          vb_prep_next_step = true;
             prep_next_note_direct();
-        }
     }
 }
 

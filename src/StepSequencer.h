@@ -11,6 +11,8 @@
 #include "LinkedNoteList.h"
 #include "StepClickList.h"
 
+typedef void (*CbWhenStuck) ();
+
 class StepSequencer
 {
     struct ActiveTrack {
@@ -24,7 +26,7 @@ class StepSequencer
     
       //Public constructor and methods
       StepSequencer();
-      void begin();
+      void begin(CbWhenStuck panicCbPointer);
       bool playItOrNot(int _step);
 //    void prime_edit_buffers();
 //    void reset_edit_seq(int seqnum);
@@ -105,6 +107,9 @@ class StepSequencer
 
     private:
     
+      // Callback
+      CbWhenStuck PanicCb;
+
       // These two moved into Track:
 //    int m_currentSequence;     // index of currently active sequence
 //    bool m_recall_buffer_active; // is there something in the recall buffer ?

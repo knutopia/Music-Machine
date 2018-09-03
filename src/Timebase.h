@@ -45,6 +45,8 @@ class Timebase
 
       // exposed to use in main loop
       static unsigned long midiClickInterval;
+      static unsigned long loopCutoff;
+
       static void arrayMidiClick();
 
     private:

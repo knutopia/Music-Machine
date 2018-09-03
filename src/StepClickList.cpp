@@ -64,10 +64,10 @@ void StepClickList::begin(CbWhenStuck panicCbPointer)
 
 void StepClickList::purge()
 {
-//#ifdef DEBUG
+#ifdef DEBUG
     Serial.print("StepClickList purge");
     print();
-//#endif
+#endif
 
     stepClickNode *die = head;
 
@@ -82,9 +82,9 @@ void StepClickList::purge()
         delete die;
         die = head;
 
-//#ifdef DEBUG
+#ifdef DEBUG
         Serial.print("die ");
-//#endif
+#endif
         if(++sentry == 100)
         {
             inout.ShowErrorOnLCD("SCL purge stuck");
@@ -98,9 +98,9 @@ void StepClickList::purge()
     tail = NULL;
     readCur = NULL;
 
-//#ifdef DEBUG
+#ifdef DEBUG
     Serial.println("done");
-//#endif
+#endif
 }
 
 bool StepClickList::checkIntegrity(char caller[])
@@ -110,15 +110,56 @@ bool StepClickList::checkIntegrity(char caller[])
     {
         if(cur == cur->next)
         {
-            Serial.print("StepClickList next error called from ");
+            Serial.print(" !!! StepClickList next error called from ");
             Serial.println(caller);
             retVal = false;
         }
         if(cur == cur->prev)
         {
-            Serial.print("StepClickList prev error called from ");
+            Serial.print(" !!! StepClickList prev error called from ");
             Serial.println(caller);
             retVal = false;
+        }
+        if(cur->masterStep > 10000000)
+        {
+            Serial.print(" !!! StepClickList masterStep error called from ");
+            Serial.println(caller);
+
+            Serial.print("  cur: ");
+            Serial.print((int)cur);
+            Serial.print("  masterStep: ");
+            Serial.print(cur->masterStep);
+
+            retVal = false;
+        }
+        if(cur->masterStep == -1)
+        {
+            Serial.print(" !!! StepClickList masterStep -1 error called from ");
+            Serial.println(caller);
+
+            Serial.print("  cur: ");
+            Serial.print((int)cur);
+            Serial.print("  masterStep: ");
+            Serial.print(cur->masterStep);
+
+            retVal = false;
+        }
+        if(tail != NULL && head != NULL)
+        {
+            if(tail->next == head)
+            {
+                Serial.print(" !!! StepClickList tail->next == head error called from ");
+                Serial.println(caller);
+
+                retVal = false;
+            }
+            if(head->prev == tail)
+            {
+                Serial.print(" !!! StepClickList head->prev == tail error called from ");
+                Serial.println(caller);
+
+                retVal = false;
+            }
         }
     }
     return retVal;
@@ -126,6 +167,9 @@ bool StepClickList::checkIntegrity(char caller[])
 
 void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
 {
+    if(!checkIntegrity("addClickNote start"))
+        print();
+
     // 1) traverse the list to find the right master step
     // 2) find the right click
     // 3) if it's not there, add it
@@ -135,8 +179,11 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
     // same track on same clickstep on monophonic tracks
     bool done = false;
 #ifdef DEBUG
+    Serial.println("");
     Serial.print("addClickNote: aNote is ");
-    Serial.println((unsigned int) &aNote);
+    Serial.print((unsigned int) &aNote);
+    Serial.print(" with masterStep ");
+    Serial.println(aMasterStep);
     print();
 #endif
 
@@ -228,11 +275,15 @@ void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuratio
                 cur->notes->append(aNote, aTrack, aDuration);
         }
     }
-    bool integrity = checkIntegrity("addClickNote");
+    if(!checkIntegrity("addClickNote end"))
+        print();
 }
 
 void StepClickList::append(int aMasterStep, byte aClickStep)
 {
+    Serial.print("append: ");
+    print();
+
     stepClickNode *n = new stepClickNode();
 //  stepClickNode *n;
     n->masterStep = aMasterStep;
@@ -240,10 +291,11 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
     n->notes = new PerClickNoteList();  
     //  noInterrupts();
         if(tail != NULL)
-        {
             tail->next = n; // point previously last node to new one
-            n->prev = tail; // point new node at previously last one
-        }
+
+        n->prev = tail; // point new node at previously last one
+        n->next = NULL; // last one, so no next... to avoid it being undefined
+
         tail = n;           // point tail at new node
 
         if(cur == NULL)
@@ -251,6 +303,7 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
         if(head == NULL)
             head = n;
+
     //  interrupts();
     if(!checkIntegrity("append"))
         print();
@@ -259,10 +312,10 @@ void StepClickList::append(int aMasterStep, byte aClickStep)
 
 void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 {
-//#ifdef DEBUG
+#ifdef DEBUG
             Serial.println("insertBefore");
             print();
-//#endif
+#endif
     stepClickNode *n = new stepClickNode();
     n->masterStep = aMasterStep;
     n->clickStep = aClickStep;
@@ -320,7 +373,7 @@ void StepClickList::insertBefore(int aMasterStep, byte aClickStep)
 
 int StepClickList::getMasterStep()
 {
-    int retVal;
+    int retVal = -1;
 
     bool integrity = checkIntegrity("getMasterStep");
 
@@ -583,11 +636,13 @@ bool StepClickList::transferClickNoteArray(byte a_click, int a_step)
         if(++sentryO == 100)
         {
             inout.ShowErrorOnLCD("traCNAo stuck");
+            print();
             found = false;
             PanicCb();
             break;
         }
     }
+    integrity = checkIntegrity("transferClickNoteArray end");
     return found;
 }
 
@@ -624,7 +679,7 @@ PerClickNoteList* StepClickList::getNotes()
 void StepClickList::dropReadCur()
 {
 #ifdef DEBUG    
-    Serial.println("dropReadCur");
+    Serial.println("dropReadCur ");
     print();
 #endif
 
@@ -636,11 +691,19 @@ void StepClickList::dropReadCur()
             if(head != NULL)
                 head->prev = NULL;
         }
-
         if( readCur == tail)
         {
             tail = readCur->prev;
+            if(tail != NULL)
+                tail->next = NULL;
         }
+        if(readCur->prev != NULL)
+            readCur->prev->next = readCur->next;
+        if(readCur->next != NULL)
+            readCur->next->prev = readCur->prev;
+
+        if(cur == readCur)
+            cur = head;
 
         delete readCur->notes;
         delete readCur;
@@ -650,7 +713,8 @@ void StepClickList::dropReadCur()
     Serial.print("after dropReadCur: ");
     print();
 #endif
-    bool integrity = checkIntegrity("dropReadCur");
+    if(!checkIntegrity("dropReadCur"))
+        print();
 }
 
 void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
@@ -658,6 +722,7 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
 #ifdef DEBUG    
     Serial.print("dropNotesBeforeStepAndRewind before ");
     Serial.println(aStep);
+    print();
 #endif
 
     bool b = true;
@@ -710,17 +775,10 @@ void StepClickList::dropNotesBeforeStepAndRewind(int aStep)
             break;
         }
     }
-/*        
-    while(head != NULL && head->masterStep < aStep)
-    {
-        Serial.print("dropping before ");
-        Serial.println(aStep);
-        dropHead();
-    }
-*/
     cur = head;
 
-    bool integrity = checkIntegrity("dropNotesBeforeStepAndRewind");
+    if(!checkIntegrity("dropNotesBeforeStepAndRewind"))
+        print();
 }
 
 void StepClickList::dropHead()
@@ -732,61 +790,64 @@ void StepClickList::dropHead()
     if (head != NULL)
     {
         stepClickNode *newHead = head->next;
-        if(head->next == NULL)
-//          Serial.print("dropHead head->next == NULL");
 
-//      noInterrupts();
-            if (cur == head)
-                cur = newHead;
+        if (head == tail)
+            tail = NULL;
+
+        if(newHead != NULL)
+            newHead->prev = NULL;
+
+        if (cur == head)
+            cur = newHead;
 
 //          Serial.print("  @#$ dropHead deleting head->notes");
-            if(head->notes != NULL)
-            {
-                noInterrupts();
-                    delete head->notes;
-                interrupts();
-            }
-            else
-                inout.ShowErrorOnLCD("SCL dh notes NULL");
+        if(head->notes != NULL)
+        {
+//          noInterrupts();
+                delete head->notes;
+//          interrupts();
+        }
+        else
+            inout.ShowErrorOnLCD("SCL dh notes NULL");
 //          Serial.print("  @#$ dropHead head->notes deleted");
-            noInterrupts();
-                delete head;
-            interrupts();
+
+        delete head;
 //          Serial.print("  @#$ dropHead head deleted");
-            head = newHead;
-//      interrupts();
+        head = newHead;
     } 
-//  bool integrity = checkIntegrity("dropHead");
+    if(!checkIntegrity("dropHead"))
+        print();
 }
 
 void StepClickList::rewind()
 {
-        cur = head;
-        
-        bool integrity = checkIntegrity("rewind");
+    cur = head;
+    
+//  bool integrity = checkIntegrity("rewind");
 }
 
 volatile void StepClickList::readRewind()
 {
-        readCur = head;
-        
-        bool integrity = checkIntegrity("rewind");
+    readCur = head;
+    
+//  if(!checkIntegrity("readRewind"))
+//      print();
 }
 
 void StepClickList::next()
 {
-        bool integrity = checkIntegrity("next");
-        
-        if( cur != NULL )
-                cur = cur->next;
+//  bool integrity = checkIntegrity("next");
+
+    if( cur != NULL )
+        cur = cur->next;
 }
 
 volatile void StepClickList::readNext()
 {
-        bool integrity = checkIntegrity("readNext");
-        
-        if( readCur != NULL )
-                readCur = readCur->next;
+    bool integrity = checkIntegrity("readNext");
+
+    if( readCur != NULL )
+        readCur = readCur->next;
 }
 
 int StepClickList::hasValue()
@@ -821,9 +882,7 @@ int StepClickList::count()
 
 void StepClickList::print()
 {
-
     stepClickNode *buf = cur;
-    rewind();
     Serial.println("StepClickList print: ");
         Serial.print("  cur: ");
         Serial.print((int)cur);
@@ -831,6 +890,10 @@ void StepClickList::print()
         Serial.print((int)head);
         Serial.print("  tail: ");
         Serial.print((int)tail);
+        Serial.print("  readCur: ");
+        Serial.print((int)readCur);
+    rewind();
+    int sentry = 0;
     while(hasValue()){
         Serial.println();
         Serial.print("  masterStep: ");
@@ -839,7 +902,7 @@ void StepClickList::print()
         Serial.print(cur->clickStep);
         Serial.print("  notes: ");
         Serial.print((int)cur->notes);
-        Serial.print("  cur: ");
+        Serial.print("  curnode: ");
         Serial.print((int)cur);
         Serial.print("  prev: ");
         Serial.print((int)cur->prev);
@@ -849,6 +912,13 @@ void StepClickList::print()
         if(!checkIntegrity("print"))
             break;
         next();
+
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("SCL print stuck");
+            break;
+        }
     }    
     Serial.println();
+    cur = buf;
 }

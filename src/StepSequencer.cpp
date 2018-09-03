@@ -265,7 +265,6 @@ void StepSequencer::updateStepClickList()
         }
 
     }
-//  activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 }
 
 void StepSequencer::AdvanceStepPositions()

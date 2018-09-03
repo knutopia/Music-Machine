@@ -287,8 +287,11 @@ void StartStopCb()
 #endif
 
     playbackOn = true;
-    Serial.println("  button on: ");
-    
+    Serial.println("");
+    Serial.println("  button on: ----------------------------------------");
+    Serial.println("");
+    activeStepClicks.print();
+
     //Midi timer
 #ifdef DEBUG
     timeTracker = millis();
@@ -307,7 +310,11 @@ void StartStopCb()
     g_midiClickCount = 0;
     vb_clickHappened = true;
     prepNextClick();
+
     Serial.println("   next click prepped");
+    
+    activeStepClicks.print();
+
     metro.startPlayingRightNow();
     Serial.println("   playing now");
     }  
@@ -619,6 +626,8 @@ void prepNextClick()
 void prepNoteGlobals()
 {
     // TRY THIS>>>
+//  Serial.println("before dropNotesBeforeStepAndRewind:");
+//  activeStepClicks.print();
     activeStepClicks.dropNotesBeforeStepAndRewind(g_activeGlobalStep);
 
     Serial.print(" pNG1");

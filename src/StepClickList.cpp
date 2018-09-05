@@ -110,18 +110,21 @@ bool StepClickList::checkIntegrity(char caller[])
     {
         if(cur == cur->next)
         {
+            inout.ShowErrorOnLCD("SCL next Error", caller);
             Serial.print(" !!! StepClickList next error called from ");
             Serial.println(caller);
             retVal = false;
         }
         if(cur == cur->prev)
         {
+            inout.ShowErrorOnLCD("SCL prev Error", caller);
             Serial.print(" !!! StepClickList prev error called from ");
             Serial.println(caller);
             retVal = false;
         }
         if(cur->masterStep > 10000000)
         {
+            inout.ShowErrorOnLCD("SCL masterStep Error", caller);
             Serial.print(" !!! StepClickList masterStep error called from ");
             Serial.println(caller);
 
@@ -134,6 +137,7 @@ bool StepClickList::checkIntegrity(char caller[])
         }
         if(cur->masterStep == -1)
         {
+            inout.ShowErrorOnLCD("SCL masterStep -1 Er", caller);
             Serial.print(" !!! StepClickList masterStep -1 error called from ");
             Serial.println(caller);
 
@@ -148,6 +152,7 @@ bool StepClickList::checkIntegrity(char caller[])
         {
             if(tail->next == head)
             {
+                inout.ShowErrorOnLCD("SCL tailN Error", caller);
                 Serial.print(" !!! StepClickList tail->next == head error called from ");
                 Serial.println(caller);
 
@@ -155,6 +160,7 @@ bool StepClickList::checkIntegrity(char caller[])
             }
             if(head->prev == tail)
             {
+                inout.ShowErrorOnLCD("SCL tailP Error", caller);
                 Serial.print(" !!! StepClickList head->prev == tail error called from ");
                 Serial.println(caller);
 

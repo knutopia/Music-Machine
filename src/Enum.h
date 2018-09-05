@@ -40,7 +40,7 @@ enum holdActionProcess {SHOWNOTHING = 1000, ANNOUNCE = 3000, ACTION = 5000, DONE
 
 enum {BUTTONHOLDTIME = 1000};
 
-enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET};
+enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET, SAVETOSD};
 
 enum speedFactor {NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4};
 

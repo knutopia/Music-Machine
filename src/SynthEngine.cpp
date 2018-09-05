@@ -101,7 +101,7 @@ void SynthEngine::begin()
   
   sgtl5000_1.enable();
   sgtl5000_1.volume(0.8);
-  sgtl5000_1.lineOutLevel(13);
+  sgtl5000_1.lineOutLevel(29);
 //sgtl5000_1.autoVolumeControl(2,1,0,-18,0.5,2.0);
 //  sgtl5000_1.autoVolumeEnable();
 
@@ -166,7 +166,7 @@ void SynthEngine::playPercNote(note aNote)
     else
     {
       usbMIDI.sendNoteOn(aNote.pitchVal, 127, 2);
-      Serial.println("Midi accent");
+//    Serial.println("Midi accent");
     }
 #endif
 
@@ -214,7 +214,7 @@ void SynthEngine::playSynthNote(note aNote)
     else
     {
       usbMIDI.sendNoteOn(aNote.pitchVal, 127, MIDISENDCHANNEL);
-      Serial.println("Midi accent");
+//    Serial.println("Midi accent");
     }
 #endif
     m_Midi_NoteforOff = aNote.pitchVal;
@@ -561,6 +561,7 @@ void SynthEngine::saveToPatch(int p)
   m_edit_patch.copyPatchTo(m_patches[p]);
   setCurrentPatch(p);
 }
+
 
 void SynthEngine::activatePatch(int p)
 {

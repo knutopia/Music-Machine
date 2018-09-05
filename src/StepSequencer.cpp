@@ -382,6 +382,34 @@ void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
     }
 }
 
+void StepSequencer::save_all_sequences()
+{
+    byte curSeqNumBuf = activeEditTrack->getCurrentSequenceIndex();
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("s_a_s m_ac noval");
+
+    while(m_activeTracks.hasValue())
+    {
+        activeEditTrack = m_activeTracks.getTrackRef();
+        if(activeEditTrack != NULL)
+        {
+            for(int f = 0; f < max_sequences; f++)
+            {
+                activeEditTrack->setCurrentSequenceIndex(f);
+                save_sequence(f);
+            }
+        } else
+            inout.ShowErrorOnLCD("s_a_s aET NULL");
+        m_activeTracks.next();
+    }
+    setCurrentTrack(curTrackNumBuf);
+    setCurrentSequence(curSeqNumBuf);
+}
+
 void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESSed
 {
 //  m_sequence[seqnum].copySeqTo(m_sequence_root[seqnum]);
@@ -405,6 +433,10 @@ void StepSequencer::copy_edit_buffers_to_roots()
     Track* bufTrack = activeEditTrack;
 
     m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("c_e_b_t_r m_ac noval");
+
     int sentry = 0;
     while( m_activeTracks.hasValue())
     {
@@ -870,6 +902,10 @@ void StepSequencer::setLength(byte _length)
         
         m_activeTracks.rewind();
         int sentry = 0;
+
+        if ( !m_activeTracks.hasValue())
+            inout.ShowErrorOnLCD("sL m_ac noval");
+
         while( m_activeTracks.hasValue())
         {
             Track* aTrack = m_activeTracks.getTrackRef();
@@ -932,6 +968,10 @@ void StepSequencer::setPath(byte path)
 
         m_activeTracks.rewind();
         int sentry = 0;
+
+        if ( !m_activeTracks.hasValue())
+            inout.ShowErrorOnLCD("sP m_ac noval");
+
         while( m_activeTracks.hasValue())
         {
             Track* aTrack = m_activeTracks.getTrackRef();
@@ -985,6 +1025,10 @@ void StepSequencer::setCurrentSequence(int index) //TODO: SET ALL TRACKS ?? // A
 
         m_activeTracks.rewind();
         int sentry = 0;
+
+        if ( !m_activeTracks.hasValue())
+            inout.ShowErrorOnLCD("sCS m_ac noval");
+
         while( m_activeTracks.hasValue())
         {
             Track* aTrack = m_activeTracks.getTrackRef();

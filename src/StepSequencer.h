@@ -31,6 +31,7 @@ class StepSequencer
 //    void prime_edit_buffers();
 //    void reset_edit_seq(int seqnum);
       void save_sequence(int destination);
+      void save_all_sequences();
       void save_edit_seq_to_root(int seqnum);
       void copy_edit_buffers_to_roots();
       void swap_edit_root_seqs(int seqnum);

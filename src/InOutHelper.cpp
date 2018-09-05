@@ -677,8 +677,13 @@ void InOutHelper::handleButtonHoldTiming(holdableButton buttn, bool pressed) {
             holdActionState = INACTIVE;
           }        
           break;
-        case PLAYBUTTON: 
         case REWINDBUTTON: 
+          if (currentHoldAction == SAVETOSD) {
+            currentHoldAction = NONE;
+            holdActionState = INACTIVE;
+          }        
+          break;
+        case PLAYBUTTON: 
         case SELECTBUTTON: 
         case MUTEMODEBUTTON: 
         case ACCENTEDITMODEBUTTON: 
@@ -1439,10 +1444,20 @@ void InOutHelper::handleButtonHolds()
           currentHoldAction = TRESET;
           if (trackActionHoldTime(held, TRESET))
               ResetTrellis();
+      } else {
+
+        held = GetHoldableButtonPressed(REWINDBUTTON);
+        if (held > 0) {
+            currentHoldAction = SAVETOSD;
+            if (trackActionHoldTime(held, SAVETOSD))
+            {
+                sequencer.save_all_sequences();
+                SaveToSdCb();
+            }
+        }
       }
     }
   }
-  
 }
 
 
@@ -1532,10 +1547,17 @@ int InOutHelper::checkJoystickY()
 // Checkers
 bool InOutHelper::checkRewindButton()
 {
-  if (RewindButton.update() && RewindButton.fell()) {
-    return true;
-  }
-  else return false;
+    bool retVal = false;
+    if (RewindButton.update() && RewindButton.fell()) 
+    {
+        retVal = true;
+        handleButtonHoldTiming(REWINDBUTTON, true);
+    }
+    else 
+        if (RewindButton.rose())
+            handleButtonHoldTiming(REWINDBUTTON, false);
+
+    return retVal;
 }
 
 
@@ -1618,6 +1640,17 @@ void InOutHelper::ShowErrorOnLCD(char error[])
     lcd.setCursor(0, 0);
     lcd.print(error);
     Serial.println(error);
+}
+
+
+void InOutHelper::ShowErrorOnLCD(char error[], char context[])
+{
+    lcd.setCursor(0, 0);
+    lcd.print("                 ");
+    lcd.setCursor(0, 1);
+    lcd.print(context);
+    Serial.println(error);
+    Serial.println(context);
 }
 
 
@@ -1903,7 +1936,6 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
         break;
         
       case TRESET:
-        destination = save_sequence_destination;
         switch (state)
         {
           case SHOWNOTHING:
@@ -1927,6 +1959,30 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
         }        
         break;
                 
+      case SAVETOSD:
+        switch (state)
+        {
+          case SHOWNOTHING:
+            break;
+          case ANNOUNCE:
+            ShowInfoOnLCD("Hold: Save all to SD");
+            SetLCDinfoTimeout();
+            break;
+          case ACTION:
+            ShowInfoOnLCD("Saving to SD ");
+            SetLCDinfoTimeout();
+            break;
+          case DONE:
+            ShowInfoOnLCD("Saved.");
+            SetLCDinfoTimeout();
+            break;
+          case INACTIVE:
+          default:
+            ClearInfoOnLCD();
+            break;
+        }        
+        break;
+        
       default:
         ShowErrorOnLCD("OOPSIE SHA MSG");
         Serial.print("OOPSIE: invalid mode in InOutHelper::ShowHoldActionMessage");

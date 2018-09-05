@@ -95,6 +95,7 @@ void LinkedNoteList::checkIntegrity(char caller[])
     {
         if(cur == cur->next)
         {
+            inout.ShowErrorOnLCD("LNL next Error", caller);
             Serial.print("LinkedNoteList next error called from ");
             Serial.println(caller);
         }

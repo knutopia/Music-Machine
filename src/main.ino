@@ -385,15 +385,11 @@ void setup()
     activeStepClicks.begin(EmergencyCb);
 
     Serial.println("Reading sequences from SD");
-//  readSeqFromSDcard();
-
     tracksLoaded = sdCard.readTracksFromSDcard();
 
     sequencer.copy_edit_buffers_to_roots();
-//  sequencer.begin();
 
     Serial.println("Reading patches from SD");
-//  readSndFromSDcard();
     patchesLoaded = sdCard.readPatchesFromSDcard();
     
 

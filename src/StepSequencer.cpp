@@ -384,7 +384,6 @@ void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
 
 void StepSequencer::save_all_sequences()
 {
-    byte curSeqNumBuf = activeEditTrack->getCurrentSequenceIndex();
     byte curTrackNumBuf = activeEditTrack->getNumber();
 
     m_activeTracks.rewind();
@@ -393,21 +392,29 @@ void StepSequencer::save_all_sequences()
         inout.ShowErrorOnLCD("s_a_s m_ac noval");
 
     while(m_activeTracks.hasValue())
-    {
+    {        
         activeEditTrack = m_activeTracks.getTrackRef();
         if(activeEditTrack != NULL)
         {
+            byte curSeqNumBuf = activeEditTrack->getCurrentSequenceIndex();
+
             for(int f = 0; f < max_sequences; f++)
             {
                 activeEditTrack->setCurrentSequenceIndex(f);
                 save_sequence(f);
+
+                Serial.print("  saved seq ");
+                Serial.print(f);
+                Serial.print("  on track ");
+                Serial.print(m_activeTracks.getTrackNumber());
+                Serial.print(" to root");
             }
+            setCurrentSequence(curSeqNumBuf);
         } else
             inout.ShowErrorOnLCD("s_a_s aET NULL");
         m_activeTracks.next();
     }
     setCurrentTrack(curTrackNumBuf);
-    setCurrentSequence(curSeqNumBuf);
 }
 
 void StepSequencer::save_edit_seq_to_root(int seqnum) // ADDRESSed
@@ -1138,4 +1145,31 @@ bool StepSequencer::notesArrayEmpty(boolean notesArray[])
   bool retVal = true;
   for (int i=0; i < 16; i++) if (notesArray[i]) retVal = false;
   return retVal;
+}
+
+void StepSequencer::bufferAllTrackSeqIndices(bool bufOrRestore)
+{
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("bATSI m_ac noval");
+
+    int i = 0;
+    while(m_activeTracks.hasValue())
+    {        
+        activeEditTrack = m_activeTracks.getTrackRef();
+        if(activeEditTrack != NULL)
+        {
+            if (bufOrRestore) 
+                trackSeqNumBuf[i] = activeEditTrack->getCurrentSequenceIndex();
+            else
+                setCurrentSequence(trackSeqNumBuf[i]);
+        } else
+            inout.ShowErrorOnLCD("bATSI aET NULL");
+        m_activeTracks.next();
+        i++;
+    }
+    setCurrentTrack(curTrackNumBuf);
 }

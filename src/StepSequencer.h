@@ -89,7 +89,6 @@ class StepSequencer
       void AdvanceStepPositions();
       void resetStepPositions();
       void prepFirstStep();
-//    StepClickList getClickNoteList(int click);
 
 
       //Helper method
@@ -100,7 +99,7 @@ class StepSequencer
       void selectNextSequence();
       void printSequence();
       bool notesArrayEmpty(boolean notesArray[]);
-
+      void bufferAllTrackSeqIndices(bool bufOrRestore);
 
 // static LinkedNoteList activeNotes;
 // static StepClickList activeStepClicks;
@@ -125,6 +124,8 @@ class StepSequencer
       Track tmpTrack1;
       Track tmpTrack2;
       Track *activeEditTrack;
+      byte trackSeqNumBuf[TRACKCOUNT];
+
 };
 
 #endif

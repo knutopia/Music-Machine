@@ -95,4 +95,6 @@ enum {JOYSTICKINTERVAL = 50};
 
 enum {TRACKCOUNT = 2};
 
+enum bufferOrRestore {BUFFER = true, RESTORE = false};
+
 #endif

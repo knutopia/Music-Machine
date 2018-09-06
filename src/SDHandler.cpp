@@ -95,6 +95,7 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         myFile.print("Track = ");
         myFile.println(trackNum);
 
+        Serial.print("Storing");
         for(int c = 0; c< StepSequencer::max_sequences; c++)
         {
             //Select the sequence with index c
@@ -114,6 +115,7 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
             myFile.print("Path = ");
             myFile.println(sequencer.getPath());
             myFile.println(" ");
+
             for(int n = 0; n < sequencer.getMaxLength(); n++)
             {
                 myFile.print("NoteIndex = ");
@@ -140,12 +142,12 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
             }
             sequencer.swap_edit_root_seqs(c);
             myFile.println(" ");
-            Serial.print("Stored seq");
-            Serial.println(c);
-            Serial.println();
+            Serial.print(" seq");
+            Serial.print(c);
         } 
         myFile.close();
         success = true;
+        Serial.println();
         Serial.println("Sequence saving done.");
         Serial.println();
         sequencer.setCurrentTrack(trackBuf);
@@ -165,8 +167,9 @@ bool SDHandler::readTracksFromSDcard()
 
     char buffer[40]; // May need to be a bit bigger if you have long names
     byte index = 0;
+    
     int trackBuf = sequencer.getCurrentTrack();
-    int seqBuf = sequencer.getCurrentSequence();
+    sequencer.bufferAllTrackSeqIndices(BUFFER);
 
     Serial.print("readTracksFromSDcard: track before loading is ");
     Serial.println(trackBuf);
@@ -200,7 +203,7 @@ bool SDHandler::readTracksFromSDcard()
       success = true;
     }
     sequencer.setCurrentTrack(trackBuf);
-    sequencer.setCurrentSequence(seqBuf);
+    sequencer.bufferAllTrackSeqIndices(RESTORE);
     return success;
 }
 
@@ -280,8 +283,8 @@ bool SDHandler::writePatchesToSDcard()
           // Select the patch with index c
           // synth.setCurrentPatch(c);
 
-          Serial.print("Patch: ");
-          Serial.println(c);
+          Serial.print(" Patch: ");
+          Serial.print(c);
           
           myFile.println(" ");
           myFile.println(" ");
@@ -343,12 +346,12 @@ bool SDHandler::writePatchesToSDcard()
           }
 
           myFile.println(" ");
-          Serial.print("Stored patch ");
-          Serial.println(c);
-          Serial.println();
+          Serial.print(" stored ");
+//        Serial.print(c);
         } 
         myFile.close();
         success = true;
+        Serial.println();
         Serial.println("Sound patches saving done.");
         Serial.println();
     }      

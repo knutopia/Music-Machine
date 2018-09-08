@@ -249,9 +249,6 @@ void SaveToSdCb()
         stopPlayback();
         synth.allNotesOff();
 
-        inout.ShowStoreMessage(START);
-//      writeToSDcard();
-
         tracksBackedUp = sdCard.backupTrackFile();
         if(tracksBackedUp)
         {
@@ -266,7 +263,6 @@ void SaveToSdCb()
         if(patchesBackedUp)
             patchesSaved = sdCard.writePatchesToSDcard();
 
-        inout.ShowStoreMessage(STOP);
         save_to_SD_done = true;
 
         sequencer.resetStepPositions();

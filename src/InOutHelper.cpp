@@ -2005,6 +2005,7 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
 
 }
 
+/*
 void InOutHelper::ShowStoreMessage(int state)
 {
     static int roundRobin = 0;
@@ -2012,11 +2013,15 @@ void InOutHelper::ShowStoreMessage(int state)
     switch (state)
     {
       case START:
-        lcd.setCursor(0, 0);
-        lcd.print("                   ");
-        lcd.setCursor(0, 0);
-        lcd.print("Saving to SD Card");
-        roundRobin = 0;
+
+//      lcd.setCursor(0, 0);
+//      lcd.print("                   ");
+//      lcd.setCursor(0, 0);
+//      lcd.print("Saving to SD Card");
+//      roundRobin = 0;
+
+        ShowInfoOnLCD("Saving to SD Card");
+        SetLCDinfoTimeout();
         break;
 
       case BUSY:
@@ -2025,13 +2030,19 @@ void InOutHelper::ShowStoreMessage(int state)
         break;
 
       case STOP:
-        lcd.setCursor(0, 0);
-        lcd.print("                   ");
-        lcd.setCursor(0, 0);
-        lcd.print("Saving done.");
+
+//      lcd.setCursor(0, 0);
+//      lcd.print("                   ");
+//      lcd.setCursor(0, 0);
+//      lcd.print("Saving done.");
+
+        ShowInfoOnLCD("Saving done.");
+        SetLCDinfoTimeout();
+
         break;
     }
 }
+*/
 
 void InOutHelper::SetLCDinfoTimeout()
 {

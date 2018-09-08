@@ -68,7 +68,7 @@ class InOutHelper
     void ShowSequenceNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
-    void ShowStoreMessage(int state);
+//  void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);
     void ShowModeOnLCD();

@@ -371,14 +371,20 @@ void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
 
     StepSequence* curSeq = activeEditTrack->getCurrentSequenceRef();
     StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(destination);
-    if(curSeq != NULL && indexedRootSeq != NULL)
+    StepSequence* indexedEditSeq = activeEditTrack->getSequenceRef(destination);
+    if(curSeq != NULL && indexedRootSeq != NULL && indexedEditSeq != NULL)
     {
         curSeq->copySeqTo(indexedRootSeq);
+        curSeq->copySeqTo(indexedEditSeq);
+
     } else {
+        inout.ShowErrorOnLCD("save_seq NULL");
         Serial.print("save_sequence NULL error: curSeq = ");
         Serial.print((int)curSeq);
         Serial.print("  indexedRootSeq = ");
         Serial.println((int)indexedRootSeq);
+        Serial.print("  indexedEditSeq = ");
+        Serial.println((int)indexedEditSeq);
     }
 }
 

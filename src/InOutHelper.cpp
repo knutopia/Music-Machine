@@ -1076,6 +1076,13 @@ void InOutHelper::TrackSelectTrellisButtonPressed(int i)
           
           ShowTrackNumberOnLCD(curTrack);
           ShowPathNumberOnLCD(sequencer.getPath());
+
+          // back to step edit mode
+          currentMode = step_edit;
+          setupNewMode();
+          ShowModeOnLCD();        
+          selectionChanged = true;
+
       } else {
           LiteUpTrellisSteps(helperSteps);
       }
@@ -1204,6 +1211,12 @@ void InOutHelper::handleSelectButton()
               ShowValueInfoOnLCD("Saved to seq ", save_sequence_destination);
               SetLCDinfoTimeout();
               save_sequence_destination = -1;
+
+              currentMode = pattern_select;
+              setupNewMode();
+              ShowModeOnLCD();        
+              selectionChanged = true;
+
             } else {
               currentMode = pattern_select;
               setupNewMode();
@@ -1303,7 +1316,8 @@ void InOutHelper::handleModeButtons()
     if (PatternModeButton.update() && PatternModeButton.fell()) {
       if (currentMode == pattern_select) {
         currentMode = pattern_save;
-        selectOrSave = pattern_save;
+//      selectOrSave = pattern_save;
+        selectOrSave = pattern_select;
       } else
         if (currentMode == pattern_save) {
           currentMode = pattern_select;
@@ -1321,19 +1335,20 @@ void InOutHelper::handleModeButtons()
       if (PatternModeButton.rose()) {
         handleButtonHoldTiming(PATTERNMODEBUTTON, false);    
       }
-    
 
 
     if (StepEditModeButton.update() && StepEditModeButton.fell()) {
       if (currentMode == step_edit) {
         currentMode = track_select;
-        stepOrTrack = track_select;
+//      stepOrTrack = track_select;
+        stepOrTrack = step_edit;
       } else
         if (currentMode == track_select) {
           currentMode = step_edit;
           stepOrTrack = step_edit;
         } else
           currentMode = stepOrTrack;
+
       setupNewMode();
       ShowModeOnLCD();        
       selectionChanged = true;
@@ -1343,7 +1358,18 @@ void InOutHelper::handleModeButtons()
         handleButtonHoldTiming(STEPEDITMODEBUTTON, false);    
       }
 
-
+/*    
+    if (StepEditModeButton.update() && StepEditModeButton.fell()) {
+      currentMode = step_edit;
+      setupNewMode();
+      ShowModeOnLCD();        
+      selectionChanged = true;
+      handleButtonHoldTiming(STEPEDITMODEBUTTON, true);
+    } else
+      if (StepEditModeButton.rose()) {
+        handleButtonHoldTiming(STEPEDITMODEBUTTON, false);    
+      }
+*/
 
     if (MuteModeButton.update() && MuteModeButton.fell()) {
       if (currentMode == step_hold) {
@@ -1363,18 +1389,7 @@ void InOutHelper::handleModeButtons()
       if (MuteModeButton.rose()) {
         handleButtonHoldTiming(MUTEMODEBUTTON, false);    
       }
-/*    
-    if (StepEditModeButton.update() && StepEditModeButton.fell()) {
-      currentMode = step_edit;
-      setupNewMode();
-      ShowModeOnLCD();        
-      selectionChanged = true;
-      handleButtonHoldTiming(STEPEDITMODEBUTTON, true);
-    } else
-      if (StepEditModeButton.rose()) {
-        handleButtonHoldTiming(STEPEDITMODEBUTTON, false);    
-      }
-*/
+
     if (AccentEditModeButton.update() && AccentEditModeButton.fell()) {
       currentMode = accent_edit;
       setupNewMode();

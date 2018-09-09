@@ -197,12 +197,13 @@ void InOutHelper::setupNewMode() {
     switch (currentMode) {
       case pattern_select:
 
+/*
         for (uint8_t i = 0; i < 16; i++) {
           Serial.print(stepLedOffTimes[i]);
           Serial.print("  ");
           Serial.println(stepsToCheck[i]);
         }        
-        
+*/      
         StepButtonCb = updateSequenceNumberCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
         initTrackEncoder = true;
@@ -622,7 +623,7 @@ void InOutHelper::HandleTrackEncoderA() {
       {
           sequencer.setCurrentTrack(trackNum);  
 
-          ShowValueInfoOnLCD("!!!Track: ", trackNum);
+          ShowValueInfoOnLCD("Track: ", trackNum);
           SetLCDinfoTimeout();
 
           if(currentMode == track_select)
@@ -633,6 +634,8 @@ void InOutHelper::HandleTrackEncoderA() {
               trellis.clrLED(prevTrackNum - 1 + STEPSOFFSET);
               trellis_led_dirty = true;
           }
+          else // generally refresh the display to match changed track
+              setupNewMode();
 
           prevTrackNum = trackNum;
       }

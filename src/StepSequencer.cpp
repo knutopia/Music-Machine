@@ -110,10 +110,12 @@ void StepSequencer::updateNoteList()
 
         if (cur_trackRef != NULL)
         {
-//          cur_note = cur_trackRef->getNoteParams(stepInPattern, (byte)m_currentSequence);
-            cur_note = cur_trackRef->getNoteParams();
-            cur_track = m_activeTracks.getTrackNumber();
-            activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
+            if(!cur_trackRef->isMuted())
+            {
+                cur_note = cur_trackRef->getNoteParams();
+                cur_track = m_activeTracks.getTrackNumber();
+                activeNotes.appendNote(g_activeGlobalStep, cur_track, cur_note);
+            }
         }
         else
         {

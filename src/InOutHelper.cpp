@@ -544,7 +544,8 @@ void InOutHelper::HandleTranspositionEncoderA() {
     static byte pitchChangeUpperBoundary;
 
     if (selectionChanged) {
-      selectionChanged = false;
+//    preserve the flag for the performance encoders right afterwards
+//    selectionChanged = false;
 
       transposition = 0;
       prevTransposition = 0;
@@ -633,10 +634,12 @@ void InOutHelper::HandleTrackEncoderA() {
               trellis.setLED(trackNum - 1 + STEPSOFFSET);
               trellis.clrLED(prevTrackNum - 1 + STEPSOFFSET);
               trellis_led_dirty = true;
-          }
-          else // generally refresh the display to match changed track
+          } else // generally refresh the display to match changed track
+          {
+              ShowTrackNumberOnLCD(trackNum);
+              ShowPathNumberOnLCD(sequencer.getPath());
               setupNewMode();
-
+          }
           prevTrackNum = trackNum;
       }
       oldPositionA = newPosition;
@@ -647,13 +650,13 @@ void InOutHelper::HandleTrackEncoderA() {
 void InOutHelper::HandlePerformanceEncoders() {
     long newPosition;
     float newPosFloat;
-    static long oldPositionA  = 0;
+//  static long oldPositionA  = 0;
     static float oldPositionBfloat  = 0;
     static long oldPositionC  = 0;
     static long oldPositionD  = 0;
     static int beatsPerMinute = metro.getBPM();
     static int prevBeatsPerMinute;
-    static int transposition = 0;  // static or not ?
+//  static int transposition = 0;  // static or not ?
     static int prevTransposition;
     static int swingClicks = metro.getSwing();
 

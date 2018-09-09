@@ -100,7 +100,10 @@ class StepSequencer
       void printSequence();
       bool notesArrayEmpty(boolean notesArray[]);
       void bufferAllTrackSeqIndices(bool bufOrRestore);
-
+      void retrieveMutedTracks(bool arrayPointer[], int arrayLength);
+      bool setTrackMute(byte trackNum, bool muteFlag);
+      byte toggleCurrentTrackMute();
+      
 // static LinkedNoteList activeNotes;
 // static StepClickList activeStepClicks;
 

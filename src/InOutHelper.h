@@ -90,16 +90,20 @@ class InOutHelper
     void SetupSynthEditTrellis();
     void SetupSaveModeTrellis();
     void SetupTrackSelectModeTrellis();
-    
+    void SetupTrackMuteModeTrellis();
+
     void ProcessTrellisButtonRelease(uint8_t index);
     void ProcessTrellisButtonPress(uint8_t index);
     void UpdateTrellisStepIndicator(unsigned long time_now);
     void HandleSynthEncoders();
+    void HandleTranspositionEncoderA();
+    void HandleTrackEncoderA();
     void HandlePerformanceEncoders();
     unsigned long GetHoldableButtonPressed(holdableButton buttn);
     
     void SelectEditTrellisButtonPressed(int index);
     void TrackSelectTrellisButtonPressed(int index);
+    void TrackMuteTrellisButtonPressed(int index);
     void MuteModeTrellisButtonPressed(int index);
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);
@@ -200,6 +204,7 @@ class InOutHelper
     unsigned long lcdTimeoutLowerRow;
     unsigned long lcdTimeoutUpperRow;
     byte heldTrellisStep = 255;
+    bool initTrackEncoder = true;
 };
 
 #endif

@@ -24,8 +24,8 @@ class Track
       note getNoteParams(int step, byte curSequence);
       note getNoteParams(int step);
       note getNoteParams();
-      void activate();
-      void deactivate();
+      void unMute();
+      void mute();
       void setName(char *namePar);
       bool setCurrentSequenceIndex(byte newIndex);
       void advanceStepPosition();
@@ -45,6 +45,7 @@ class Track
       StepSequence* getRootSequenceRef(int index);
       void setRecallBufferActive(bool trueOrFalse);
       bool recallBufferIsActive();
+      bool isMuted();
       NoteGetter getNoteCb;
 
     private:
@@ -58,7 +59,7 @@ class Track
       byte currentSequenceIndex;
       byte maxSequenceIndex;
       instruments instrument;
-      bool b_IsActive = false;
+      bool b_isMuted = false;
       bool b_recallBufferIsActive = false;
 //    byte currentPattern = 0;
       char *trackName;

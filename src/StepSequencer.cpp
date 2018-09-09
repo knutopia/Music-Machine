@@ -1179,3 +1179,96 @@ void StepSequencer::bufferAllTrackSeqIndices(bool bufOrRestore)
     }
     setCurrentTrack(curTrackNumBuf);
 }
+
+void StepSequencer::retrieveMutedTracks(bool arrayPointer[], int arrayLength)
+{
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("rMTrcks m_ac noval");
+
+    int i = 0;
+    while(m_activeTracks.hasValue())
+    {        
+        activeEditTrack = m_activeTracks.getTrackRef();
+        if(activeEditTrack != NULL)
+        {
+            byte trackNum = activeEditTrack->getNumber();
+            bool muted = activeEditTrack->isMuted();
+            if(trackNum - 1 < arrayLength)
+                arrayPointer[trackNum - 1] = muted;
+            else {
+                inout.ShowErrorOnLCD("rMTrcks out of range");
+                Serial.print("retrieveMutedTracks mismatch trackNum ");
+                Serial.print(trackNum);
+                Serial.print(" to arraylength ");
+                Serial.println(arrayLength);
+                break;
+            }
+
+        } else {
+            inout.ShowErrorOnLCD("rMTrcks aET NULL");
+            break;
+        }
+        m_activeTracks.next();
+        i++;
+    }
+    setCurrentTrack(curTrackNumBuf);
+}
+
+
+bool StepSequencer::setTrackMute(byte aTrackNum, bool muteFlag)
+{
+    bool success = false;
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("sTrMu m_ac noval");
+
+    while(m_activeTracks.hasValue())
+    {        
+        Track* aTrack = m_activeTracks.getTrackRef();
+        if(aTrack != NULL)
+        {
+            if(aTrack->getNumber() == aTrackNum)
+            {
+                if(muteFlag)
+                    aTrack->mute();
+                else
+                    aTrack->unMute();
+                success = true;
+                break;
+            }
+        } else {
+            inout.ShowErrorOnLCD("sTrMu aTrack NULL");
+            break;
+        }
+        m_activeTracks.next();
+    }
+    setCurrentTrack(curTrackNumBuf);
+    return success;
+}
+
+
+byte StepSequencer::toggleCurrentTrackMute()
+{
+    bool isMuted = activeEditTrack->isMuted();
+    byte track = activeEditTrack->getNumber();
+
+    if(isMuted)
+    {
+        activeEditTrack->unMute();
+        inout.ShowValueInfoOnLCD("Unmuted track ", track);
+        inout.SetLCDinfoTimeout();
+    } else {
+        activeEditTrack->mute();
+        inout.ShowValueInfoOnLCD("Muted track ", track);
+        inout.SetLCDinfoTimeout();
+    }
+
+    return track;
+}

@@ -205,6 +205,7 @@ void InOutHelper::setupNewMode() {
         
         StepButtonCb = updateSequenceNumberCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupPatternSelectModeTrellis();
         break;      
       case pattern_save:
@@ -230,7 +231,14 @@ void InOutHelper::setupNewMode() {
       case track_select:
         StepButtonCb = updateTrackCb;    
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupTrackSelectModeTrellis();
+        break;      
+      case track_mute:
+        StepButtonCb = NULL;
+        StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
+        SetupTrackMuteModeTrellis();
         break;      
       case accent_edit:
         StepButtonCb = NULL; // selection handling as a callback instead ?
@@ -424,6 +432,14 @@ void InOutHelper::SetupTrackSelectModeTrellis() {
     ShowTrackNumberOnLCD(trackNum);
 }
 
+void InOutHelper::SetupTrackMuteModeTrellis() {
+    
+    stepsToCheck = helperSteps;      
+    ClearBoolSteps(helperSteps, 16);
+    sequencer.retrieveMutedTracks(helperSteps, 16);
+    LiteUpTrellisSteps(helperSteps);
+}
+
 
 //Loop handlers
 void InOutHelper::handleEncoders() {
@@ -431,7 +447,16 @@ void InOutHelper::handleEncoders() {
       case synth_edit:
           HandleSynthEncoders();
           break;
+
+      case pattern_select:
+      case track_select:
+      case track_mute:
+          HandleTrackEncoderA();
+          HandlePerformanceEncoders();
+          break;
+      
       default:
+          HandleTranspositionEncoderA();
           HandlePerformanceEncoders();
     }
 
@@ -508,27 +533,14 @@ void InOutHelper::HandleSynthEncoders() {
     }
 }
 
-
-void InOutHelper::HandlePerformanceEncoders() {
+void InOutHelper::HandleTranspositionEncoderA() {
     long newPosition;
     float newPosFloat;
     static long oldPositionA  = 0;
-    static float oldPositionBfloat  = 0;
-    static long oldPositionC  = 0;
-    static long oldPositionD  = 0;
-    static int beatsPerMinute = metro.getBPM();
-    static int prevBeatsPerMinute;
     static int transposition = 0;  // static or not ?
     static int prevTransposition;
-    static int swingClicks = metro.getSwing();
-
-    static int prevSwingTiming;
-    static float durationChange;
-    static float prevDurationChange;
     static byte pitchChangeLowerBoundary;
     static byte pitchChangeUpperBoundary;
-    static float durationChangeLowerBoundary;
-    static float durationChangeUpperBoundary;
 
     if (selectionChanged) {
       selectionChanged = false;
@@ -539,16 +551,9 @@ void InOutHelper::HandlePerformanceEncoders() {
       oldPositionA = 0;
       pitchChangeLowerBoundary = sequencer.getLowestSelectedNote(selectedSteps);
       pitchChangeUpperBoundary = 127 - sequencer.getHighestSelectedNote(selectedSteps);
-
-      durationChange = 0;
-      prevDurationChange = 0;
-      EncB.write(0);
-      oldPositionBfloat = 0;
-      durationChangeLowerBoundary = sequencer.getShortestSelectedNote(selectedSteps);
-      durationChangeUpperBoundary = 1.0 - sequencer.getLongestSelectedNote(selectedSteps);
     }
     
-    // Encoder A for Transposition - a per-sequence-step edit
+    // Encoder A for track selection
     newPosition = EncA.read();
 
     if ((newPosition >= oldPositionA + 4) || (newPosition <= oldPositionA - 4)) 
@@ -587,6 +592,126 @@ void InOutHelper::HandlePerformanceEncoders() {
         Serial.println();
 */
     }
+}
+
+
+void InOutHelper::HandleTrackEncoderA() {
+    long newPosition;
+    static long oldPositionA = 0;
+    static int prevTrackNum;
+    static byte lowerTrackBoundary = 1;
+    static byte upperTrackBoundary = TRACKCOUNT;
+
+    if (initTrackEncoder) {
+      initTrackEncoder = false;
+      prevTrackNum = sequencer.getCurrentTrack();
+      oldPositionA = prevTrackNum * 4;
+      EncA.write(oldPositionA);
+    }
+
+    // Encoder A for track selection
+    newPosition = EncA.read();
+    if ((newPosition <= oldPositionA - 4) || (newPosition >= oldPositionA + 4)) 
+    {  
+      int trackNum = constrain(sequencer.getCurrentTrack() 
+                               + (newPosition - oldPositionA) /4, 
+                               lowerTrackBoundary, 
+                               upperTrackBoundary);
+
+      if (trackNum != prevTrackNum)
+      {
+          sequencer.setCurrentTrack(trackNum);  
+
+          ShowValueInfoOnLCD("!!!Track: ", trackNum);
+          SetLCDinfoTimeout();
+
+          if(currentMode == track_select)
+          {
+              helperSteps[trackNum - 1] = true;
+              helperSteps[prevTrackNum - 1] = false;
+              trellis.setLED(trackNum - 1 + STEPSOFFSET);
+              trellis.clrLED(prevTrackNum - 1 + STEPSOFFSET);
+              trellis_led_dirty = true;
+          }
+
+          prevTrackNum = trackNum;
+      }
+      oldPositionA = newPosition;
+    }    
+}
+
+
+void InOutHelper::HandlePerformanceEncoders() {
+    long newPosition;
+    float newPosFloat;
+    static long oldPositionA  = 0;
+    static float oldPositionBfloat  = 0;
+    static long oldPositionC  = 0;
+    static long oldPositionD  = 0;
+    static int beatsPerMinute = metro.getBPM();
+    static int prevBeatsPerMinute;
+    static int transposition = 0;  // static or not ?
+    static int prevTransposition;
+    static int swingClicks = metro.getSwing();
+
+    static int prevSwingTiming;
+    static float durationChange;
+    static float prevDurationChange;
+    static byte pitchChangeLowerBoundary;
+    static byte pitchChangeUpperBoundary;
+    static float durationChangeLowerBoundary;
+    static float durationChangeUpperBoundary;
+
+    if (selectionChanged) {
+      selectionChanged = false;
+/*
+      transposition = 0;
+      prevTransposition = 0;
+      EncA.write(0);
+      oldPositionA = 0;
+      pitchChangeLowerBoundary = sequencer.getLowestSelectedNote(selectedSteps);
+      pitchChangeUpperBoundary = 127 - sequencer.getHighestSelectedNote(selectedSteps);
+*/
+      durationChange = 0;
+      prevDurationChange = 0;
+      EncB.write(0);
+      oldPositionBfloat = 0;
+      durationChangeLowerBoundary = sequencer.getShortestSelectedNote(selectedSteps);
+      durationChangeUpperBoundary = 1.0 - sequencer.getLongestSelectedNote(selectedSteps);
+    }
+/*    
+    // Encoder A for Transposition - a per-sequence-step edit
+    newPosition = EncA.read();
+
+    if ((newPosition >= oldPositionA + 4) || (newPosition <= oldPositionA - 4)) 
+    {
+
+        if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
+          newPosition = pitchChangeLowerBoundary * -4;
+          EncA.write(newPosition);
+//        encTimes[0] = (unsigned long)encTime;
+        } else if(newPosition > pitchChangeUpperBoundary * 4) {
+          newPosition = pitchChangeUpperBoundary * 4;
+          EncA.write(newPosition);
+//        encTimes[0] = (unsigned long)encTime;
+        }
+        transposition = newPosition / 4;
+
+        if (transposition != prevTransposition)
+        {
+          sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
+          prevTransposition = transposition;
+        }
+//      encTimes[1] = (unsigned long)encTime;
+
+        ShowValueInfoOnLCD("Transpose: ", transposition);
+//      encTimes[2] = (unsigned long)encTime;
+        SetLCDinfoTimeout();
+//      encTimes[3] = (unsigned long)encTime;
+        
+        oldPositionA = newPosition;
+    }
+*/
 
     // Encoder B for Note Duration - a per-sequence-step edit
     newPosFloat = (float)EncB.read() /100.0;
@@ -933,6 +1058,9 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
             case track_select:
               TrackSelectTrellisButtonPressed(i);
               break;
+            case track_mute:
+              TrackMuteTrellisButtonPressed(i);
+              break;
             case length_edit:
             case pattern_select:
               save_sequence_destination = -1;
@@ -1089,6 +1217,34 @@ void InOutHelper::TrackSelectTrellisButtonPressed(int i)
 }
 
 
+void InOutHelper::TrackMuteTrellisButtonPressed(int i) 
+{
+    byte track = 1 + ((byte)i % STEPSOFFSET);
+
+    if (helperSteps[i % STEPSOFFSET]) {
+        // successful if tracknumber valid, fewer tracks than helperSteps
+        bool success = sequencer.setTrackMute(track, false);
+        if(success)
+        {
+            helperSteps[i % STEPSOFFSET] = false;
+            trellis.clrLED(i);
+            ShowValueInfoOnLCD("Unmuted track ", track);
+            SetLCDinfoTimeout();
+        }
+    } else {
+        bool success = sequencer.setTrackMute(track, true);
+        if(success)
+        {
+            helperSteps[i % STEPSOFFSET] = true;
+            trellis.setLED(i);                  
+            ShowValueInfoOnLCD("Muted track ", track);
+            SetLCDinfoTimeout();
+        } else
+            trellis.clrLED(i);
+    }
+}
+
+
 void InOutHelper::SynthEditModeTrellisButtonPressed(int i)
 {
     SimpleIndicatorModeTrellisButtonPressed(i);
@@ -1151,7 +1307,29 @@ void InOutHelper::handleEncoderButtons()
         if (EncButC.update() && EncButC.fell()) EncC.write(0);  // not using these
         if (EncButD.update() && EncButD.fell()) EncD.write(0);  // two for synth edit
         break;
-        
+
+      case pattern_select:
+      case track_select:
+        if (EncButA.update() && EncButA.fell()) 
+        {
+            byte mutedTrack = sequencer.toggleCurrentTrackMute();
+        }
+        break;
+    
+      case track_mute:
+        if (EncButA.update() && EncButA.fell()) 
+        {
+            byte stepRef = sequencer.toggleCurrentTrackMute() - 1;
+            helperSteps[stepRef] = !helperSteps[stepRef];
+            if(helperSteps[stepRef])
+              trellis.setLED(stepRef + STEPSOFFSET);
+            else
+              trellis.clrLED(stepRef + STEPSOFFSET);
+
+            trellis_led_dirty = true;
+        }
+        break;
+      
       default:
         if (EncButA.update() && EncButA.fell()) EncA.write(0);
         if (EncButB.update() && EncButB.fell()) EncB.write(0);
@@ -1344,10 +1522,14 @@ void InOutHelper::handleModeButtons()
         stepOrTrack = step_edit;
       } else
         if (currentMode == track_select) {
-          currentMode = step_edit;
+          currentMode = track_mute;
           stepOrTrack = step_edit;
         } else
-          currentMode = stepOrTrack;
+          if (currentMode == track_mute) {
+            currentMode = step_edit;
+            stepOrTrack = step_edit;
+          } else
+            currentMode = stepOrTrack;
 
       setupNewMode();
       ShowModeOnLCD();        

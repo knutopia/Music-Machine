@@ -1,3 +1,5 @@
+//#define DEBUG true
+
 #include "Track.h"
 #include "InOutHelper.h"
 
@@ -20,7 +22,7 @@ void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], 
       sequences = sequencesPtr;
       rootSequences = rootSequencesPtr;
       maxSequenceIndex = sequencesCount - 1;
-      b_IsActive = false;
+      b_isMuted = false;
       trackNumber = number;
       currentSequenceIndex = 0;
       currentSequence = &sequences[0];
@@ -119,16 +121,26 @@ note Track::getNoteParams()
       return retNote;
 }
 
-void Track::activate()
+void Track::unMute()
 {
+      b_isMuted = false;
+
+#ifdef DEBUG
       Serial.print("Track ");
       Serial.print(trackNumber);
-      Serial.println(" active.");
+      Serial.println(" unmuted.");
+#endif
 }
 
-void Track::deactivate()
+void Track::mute()
 {
-  
+      b_isMuted = true;
+
+#ifdef DEBUG
+      Serial.print("Track ");
+      Serial.print(trackNumber);
+      Serial.println(" muted.");
+#endif
 }
 
 // Helpers
@@ -313,5 +325,10 @@ void Track::setRecallBufferActive(bool trueOrFalse)
 bool Track::recallBufferIsActive()
 {
       return b_recallBufferIsActive;
+}
+
+bool Track::isMuted()
+{
+      return b_isMuted;
 }
 

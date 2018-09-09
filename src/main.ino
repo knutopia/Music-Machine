@@ -77,6 +77,7 @@ const char *modeNames[] = {"foo1",
                            "Synth Edit",
                            "Save to SD", 
                            "Track Select",
+                           "Track Mute",
                            "foo2"};
 
 
@@ -870,7 +871,7 @@ void testLinkedTrackList()
             Serial.print(list.getTrackNumber());
             Serial.print("  Ping: ");
             trackCheck = list.getTrackRef();
-            trackCheck->activate();
+            trackCheck->unMute();
             list.next();
     }
     
@@ -883,7 +884,7 @@ void testLinkedTrackList()
             Serial.print(list.getTrackNumber());
             Serial.print("  Ping: ");
             trackCheck = list.getTrackRef();
-            trackCheck->activate();
+            trackCheck->unMute();
             list.next();
     }
     
@@ -896,7 +897,7 @@ void testLinkedTrackList()
             Serial.print(list.getTrackNumber());
             Serial.print("  Ping: ");
             trackCheck = list.getTrackRef();
-            trackCheck->activate();
+            trackCheck->unMute();
             list.next();
     }    
 }

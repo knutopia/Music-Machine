@@ -89,6 +89,7 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         int seqBuf = sequencer.getCurrentSequence();
         
         sequencer.setCurrentTrack(trackNum);
+        int storedTrackSeqBuf = sequencer.getCurrentSequence();
 
         myFile.println();
         myFile.println();
@@ -150,6 +151,8 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         Serial.println();
         Serial.println("Sequence saving done.");
         Serial.println();
+
+        sequencer.setCurrentSequence(storedTrackSeqBuf);
         sequencer.setCurrentTrack(trackBuf);
         sequencer.setCurrentSequence(seqBuf);
   

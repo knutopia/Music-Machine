@@ -162,10 +162,10 @@ void SynthEngine::playPercNote(note aNote)
 
 #ifdef MIDION
     if(!aNote.accent)
-      usbMIDI.sendNoteOn(aNote.pitchVal, 99, 2);  // 60 = C4
+      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, 2);  // 60 = C4
     else
     {
-      usbMIDI.sendNoteOn(aNote.pitchVal, 127, 2);
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, 2);
 //    Serial.println("Midi accent");
     }
 #endif
@@ -210,10 +210,10 @@ void SynthEngine::playSynthNote(note aNote)
 
 #ifdef MIDION
     if(!aNote.accent)
-      usbMIDI.sendNoteOn(aNote.pitchVal, 99, MIDISENDCHANNEL);  // 60 = C4
+      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, MIDISENDCHANNEL);  // 60 = C4
     else
     {
-      usbMIDI.sendNoteOn(aNote.pitchVal, 127, MIDISENDCHANNEL);
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, MIDISENDCHANNEL);
 //    Serial.println("Midi accent");
     }
 #endif

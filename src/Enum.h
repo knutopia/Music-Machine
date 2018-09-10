@@ -98,4 +98,6 @@ enum {TRACKCOUNT = 2};
 
 enum bufferOrRestore {BUFFER = true, RESTORE = false};
 
+enum midiVelocities {NORMALVEL = 1, ACCENTVEL = 127};
+
 #endif

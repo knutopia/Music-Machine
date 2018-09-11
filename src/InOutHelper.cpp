@@ -212,16 +212,19 @@ void InOutHelper::setupNewMode() {
       case pattern_save:
         StepButtonCb = updateSaveSequenceDestCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupPatternSaveModeTrellis();
         break;      
       case step_mute: 
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupMuteOrHoldModeTrellis();
         break;
       case step_hold:
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupMuteOrHoldModeTrellis();
         break;      
       case step_edit: 
@@ -244,21 +247,25 @@ void InOutHelper::setupNewMode() {
       case accent_edit:
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupAccentModeTrellis();
         break;
       case length_edit: 
         StepButtonCb = updatePatternLengthCb;
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupLengthModeTrellis();
         break;
       case path_select:
         StepButtonCb = NULL;
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupPathSelectModeTrellis();
         break;
       case synth_edit:
         StepButtonCb = updateSynthCb;
         StartStopButtonCb = startStopCb;
+        initTrackEncoder = true;
         SetupSynthEditTrellis();
         break;
       case save_to_sd:

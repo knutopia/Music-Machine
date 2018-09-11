@@ -1321,11 +1321,21 @@ void InOutHelper::handleEncoderButtons()
         break;
 
       case pattern_select:
+      case pattern_save:
       case track_select:
+      case length_edit:
+      case path_select:
+      case accent_edit:
+      case step_mute:
+      case step_hold:
+
         if (EncButA.update() && EncButA.fell()) 
         {
             byte mutedTrack = sequencer.toggleCurrentTrackMute();
         }
+        if (EncButB.update() && EncButB.fell()) EncB.write(0);
+        if (EncButC.update() && EncButC.fell()) EncC.write(0);
+        if (EncButD.update() && EncButD.fell()) EncD.write(0);
         break;
     
       case track_mute:
@@ -1340,6 +1350,9 @@ void InOutHelper::handleEncoderButtons()
 
             trellis_led_dirty = true;
         }
+        if (EncButB.update() && EncButB.fell()) EncB.write(0);
+        if (EncButC.update() && EncButC.fell()) EncC.write(0);
+        if (EncButD.update() && EncButD.fell()) EncD.write(0);
         break;
       
       default:

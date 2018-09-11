@@ -450,8 +450,14 @@ void InOutHelper::handleEncoders() {
           break;
 
       case pattern_select:
+      case pattern_save:
       case track_select:
       case track_mute:
+      case length_edit:
+      case path_select:
+      case accent_edit:
+      case step_mute:
+      case step_hold:
           HandleTrackEncoderA();
           HandlePerformanceEncoders();
           break;

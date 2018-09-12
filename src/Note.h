@@ -14,6 +14,8 @@ extern int g_activeGlobalStep;
 //extern LinkedNoteList activeNotes;
 
 struct note {
+    bool notEmpty = false;
+    
     retrigDivisions retrigClickDivider;
     bool unmuted;
     bool playIt;

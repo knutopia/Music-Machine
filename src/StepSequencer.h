@@ -110,6 +110,8 @@ class StepSequencer
 
     private:
     
+      bool checkActiveEditTrackRefandCurrentSeqRef();
+      
       // Callback
       CbWhenStuck PanicCb;
 

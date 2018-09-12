@@ -5,6 +5,7 @@
 
 extern InOutHelper inout;
 
+
 LinkedTrackList::LinkedTrackList()
 {
     head = NULL; // set head to NULL

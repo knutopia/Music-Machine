@@ -140,25 +140,34 @@ void Timebase::updateTimingIfNeeded()
 
 long Timebase::truncateSwingStepDuration(note aNote)
 {
-    long retval = aNote.durationMS;
+    long retVal = aNote.durationMS;
 
     if(aNote.holdsAfter == 0 && aNote.mutesAfter == 0 && aNote.swingTicks > 0)
     {
         float factor = ((float)(MIDICLOCKDIVIDER - aNote.swingTicks - 3.0) / (float)MIDICLOCKDIVIDER);
         long durAvail = referenceStepDuration * factor;
-        if(durAvail < retval)
-            retval = durAvail;
+        if(durAvail < retVal)
+            retVal = durAvail;
 
 //      inout.ShowValueInfoOnLCD("factor ", factor);
 
     }
-    return retval;
+
+    if(retVal == 0)
+    {
+        inout.ShowErrorOnLCD("truncSSD 0");
+        Serial.print("truncateSwingStepDuration retval 0  ");
+        Serial.print("aNote.swingTicks ");
+        Serial.println(aNote.swingTicks);
+    }   
+
+    return retVal;
 }
 
 long Timebase::getStepDurationMS(note aNote) // USE NOTE
 {
     // Using microseconds (not milliseconds)
-    unsigned long retVal;
+    unsigned long retVal = 0;
 
     // cases for note duration:
     // -A if simple note: 
@@ -201,6 +210,10 @@ long Timebase::getStepDurationMS(note aNote) // USE NOTE
 #endif
 
     }
+
+    if(retVal == 0)
+        inout.ShowErrorOnLCD("getStepDurationMS 0");
+
     return retVal;
 }
 

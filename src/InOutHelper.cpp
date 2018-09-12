@@ -1876,6 +1876,8 @@ void InOutHelper::ShowErrorOnLCD(char error[], char context[])
 {
     lcd.setCursor(0, 0);
     lcd.print("                 ");
+    lcd.setCursor(0, 0);
+    lcd.print(error);
     lcd.setCursor(0, 1);
     lcd.print(context);
     Serial.println(error);

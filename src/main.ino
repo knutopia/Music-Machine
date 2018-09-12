@@ -663,8 +663,6 @@ void prepNoteGlobals()
 
 //  Serial.print(" pNG3");
 
-    activeNotes.rewind();
-
 //  Serial.print(" pNG4");
 
     sequencer.updateStepClickList();

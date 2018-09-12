@@ -322,6 +322,7 @@ note StepSequence::getNoteParams(int _step, Path aPath)
 
     if(_step >=0 && _step < max_notes)
     {
+        thisNote.notEmpty = true;
         thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
         thisNote.unmuted = m_unmuted[_step];
         thisNote.playIt = playItOrNot(_step);
@@ -341,6 +342,13 @@ note StepSequence::getNoteParams(int _step, Path aPath)
         thisNote.holdsAfter = assembleHolds(thisNote, aPath);
         thisNote.mutesAfter = assembleMutes(thisNote, aPath);
         thisNote.durationMS = calcNextNoteDuration(thisNote);
+    }
+    else {
+        inout.ShowErrorOnLCD("gNPar out of range");
+        Serial.print("getNoteParams out of range, step ");
+        Serial.print(_step);
+        Serial.print(" path ");
+        Serial.println((int)&aPath);
     }
     return thisNote;
 }

@@ -10,7 +10,7 @@ extern SynthEngine synth;
 extern InOutHelper inout;
 extern StepClickList activeStepClicks;
 extern NoteOffList playingNotes;
-extern PerClickNoteList notesToTrig;
+//extern PerClickNoteList notesToTrig;
 extern volatile notePerClick notesToPlay[];
 extern elapsedMicros clickTrack;
 
@@ -310,6 +310,7 @@ void Timebase::resetMidiTimer()
 
 }
 
+/*
 void Timebase::shortMidiClick()
 {
 //  Serial.print("trying ");
@@ -346,6 +347,7 @@ void Timebase::shortMidiClick()
     }
     vb_clickHappened = true;
 }
+*/
 
 void Timebase::arrayMidiClick()
 {

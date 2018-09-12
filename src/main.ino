@@ -115,7 +115,7 @@ SynthEngine synth;
 LinkedNoteList activeNotes;
 StepClickList activeStepClicks;
 NoteOffList playingNotes;
-PerClickNoteList notesToTrig;
+// PerClickNoteList notesToTrig;
 
 //To replace PerClickNoteList:
 volatile notePerClick notesToPlay[TRACKCOUNT];
@@ -133,8 +133,8 @@ void listCounts()
     Serial.print(activeNotes.count());
     Serial.print("  activeStepClicks: ");
     Serial.print(activeStepClicks.count());
-    Serial.print("  notesToTrig: ");
-    Serial.print(notesToTrig.count());
+//  Serial.print("  notesToTrig: ");
+//  Serial.print(notesToTrig.count());
     Serial.print("  playingNotes: ");
     Serial.println(playingNotes.count());
 }

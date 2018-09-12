@@ -4,6 +4,7 @@
 
 extern StepSequencer sequencer;
 extern SynthEngine synth;
+extern InOutHelper inout;
 
 SDHandler::SDHandler()
 {

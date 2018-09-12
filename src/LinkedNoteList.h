@@ -23,7 +23,7 @@ public:
 
     void purge();
     void printActiveNote();
-    void checkIntegrity(char caller[]);
+    bool checkIntegrity(char caller[]);
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHeadNote();
     void prependNote(int aStep, byte aTrack, note aNote);
@@ -35,6 +35,7 @@ public:
     note getNote();
     int hasValue();
     int count();
+    void print();
 
 private:
     noteNode *head;

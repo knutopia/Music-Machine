@@ -40,36 +40,41 @@ NoteOffList::~NoteOffList()
 #endif
 }
 
-void NoteOffList::checkIntegrity(char caller[])
+bool NoteOffList::checkIntegrity(char caller[])
 {
+    bool retVal = true;
     if(cur != NULL)
     {
         if(cur == cur->next)
         {
+            inout.ShowErrorOnLCD("NOL cI next err");
             Serial.print("NoteOffList next error called from ");
             Serial.println(caller);
-            printList();
+            retVal = false;
         }
         if(cur == cur->prev)
         {
+            inout.ShowErrorOnLCD("NOL cI prev err");
             Serial.println("NoteOffList prev loop !");
             Serial.print(caller);
-            printList();
+            retVal = false;
         }
     }
     if(readCur != NULL)
     {
         if(readCur == readCur->next)
         {
+            inout.ShowErrorOnLCD("NOL cI rC>next err");
             Serial.print("NoteOffList readCur next error called from ");
             Serial.println(caller);
-            printList();
+            retVal = false;
         }
         if(readCur == readCur->prev)
         {
+            inout.ShowErrorOnLCD("NOL cI rC>prev err");
             Serial.println("NoteOffList readCur prev loop !");
             Serial.print(caller);
-            printList();
+            retVal = false;
         }
     }
 }
@@ -170,7 +175,9 @@ void NoteOffList::dropNode()
     Serial.println("dropNode done");
     printList();
 #endif
-    checkIntegrity("dropnode");
+
+    if(!checkIntegrity("dropnode"))
+        printList();
 }
 
 // add value at the end -kg
@@ -198,20 +205,25 @@ void NoteOffList::append(byte aTrackNum, byte aMidiNote, unsigned long anOffTime
     Serial.println("Append done");
     printList();
 #endif
-    checkIntegrity("append");
+    if(!checkIntegrity("append"))
+        printList();
 }
 
 void NoteOffList::rewind()
 {
-        checkIntegrity("rewind");
-        cur = head;
+    if(!checkIntegrity("rewind"))
+        printList();
+
+    cur = head;
 }
 
 void NoteOffList::next()
 {
-        checkIntegrity("next");
-        if( cur != NULL )
-                cur = cur->next;
+    if(!checkIntegrity("next"))
+        printList();
+
+    if( cur != NULL )
+            cur = cur->next;
 }
 
 byte NoteOffList::readTrack()
@@ -241,20 +253,26 @@ int NoteOffList::hasReadValue()
 
 void NoteOffList::readRewind()
 {
-        checkIntegrity("readRewind");
-        readCur = head;
+    if(!checkIntegrity("readRewind"))
+        printList();
+
+    readCur = head;
 }
 
 void NoteOffList::readNext()
 {
-        checkIntegrity("readNext");
-        if( readCur != NULL )
-                readCur = readCur->next;
+    if(!checkIntegrity("readNext"))
+        printList();
+
+    if( readCur != NULL )
+            readCur = readCur->next;
 }
 
 int NoteOffList::count()
 {
-    checkIntegrity("count");
+    if(!checkIntegrity("count"))
+        printList();
+
     int count = 0;
     volatile noteOffNode *buf = cur;
     rewind();

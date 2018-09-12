@@ -89,8 +89,9 @@ void LinkedNoteList::printActiveNote()
     Serial.println(cur->trackNote.swingTicks);
 }
 
-void LinkedNoteList::checkIntegrity(char caller[])
+bool LinkedNoteList::checkIntegrity(char caller[])
 {
+    bool retVal = true;
     if(cur != NULL)
     {
         if(cur == cur->next)
@@ -98,8 +99,44 @@ void LinkedNoteList::checkIntegrity(char caller[])
             inout.ShowErrorOnLCD("LNL next Error", caller);
             Serial.print("LinkedNoteList next error called from ");
             Serial.println(caller);
+            retVal = false;
         }
+        if(tail != NULL && head != NULL)
+        {
+            if(tail->next == head)
+            {
+                inout.ShowErrorOnLCD("LNL tailN Error", caller);
+                Serial.print(" !!! LinkedNoteList tail->next == head error called from ");
+                Serial.println(caller);
+                retVal = false;
+            }
+        }
+        if(cur->masterStep > 10000000)
+        {
+            inout.ShowErrorOnLCD("LNL masterStep Error", caller);
+            Serial.print(" !!! LinkedNoteList masterStep error called from ");
+            Serial.println(caller);
+            Serial.print("  cur: ");
+            Serial.print((int)cur);
+            Serial.print("  masterStep: ");
+            Serial.print(cur->masterStep);
+            retVal = false;
+        }    
+        if(cur->masterStep == -1)
+        {
+            inout.ShowErrorOnLCD("LNL masterStep -1 Er", caller);
+            Serial.print(" !!! LinkedNoteList masterStep -1 error called from ");
+            Serial.println(caller);
+
+            Serial.print("  cur: ");
+            Serial.print((int)cur);
+            Serial.print("  masterStep: ");
+            Serial.print(cur->masterStep);
+
+            retVal = false;
+        }    
     }
+    return retVal;
 }
 
 void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
@@ -110,7 +147,8 @@ void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
         rewind();
     }
     cur = head;
-    checkIntegrity("dropNotesBeforeStepAndRewind");
+    if(!checkIntegrity("dropNotesBeforeStepAndRewind"))
+        print();
 }
 
 void LinkedNoteList::dropHeadNote()
@@ -139,7 +177,8 @@ void LinkedNoteList::dropHeadNote()
 
         }
     }
-    checkIntegrity("dropHeadNote");
+    if(!checkIntegrity("dropHeadNote"))
+        print();
 }
 
 // This prepends a new value at the beginning of the list
@@ -157,7 +196,9 @@ void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
 
     if(tail == NULL)
             tail = n;
-    checkIntegrity("prependNote");
+
+    if(!checkIntegrity("prependNote"))
+        print();
 }
 
 // add value at the end -kg
@@ -185,7 +226,8 @@ void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
     if(head == NULL) // REPEATED in print section below...
         head = n;
 
-    checkIntegrity("appendNote");
+    if(!checkIntegrity("appendNote"))
+        print();
 }
 
 void LinkedNoteList::rewind()
@@ -205,7 +247,8 @@ void LinkedNoteList::next()
     else
         Serial.println("NULL cur on Notelist next");
         
-    checkIntegrity("next");
+    if(!checkIntegrity("next"))
+        print();
 }
 
 int LinkedNoteList::getStep()
@@ -240,6 +283,9 @@ note LinkedNoteList::getNote()
     {
         retVal = cur->trackNote;
 
+        if (&(cur->trackNote) == NULL)
+            inout.ShowErrorOnLCD("LNL getNote tN NULL");
+
 #ifdef DEBUG
         Serial.print(retVal.pitchVal);
         Serial.print("  track ");
@@ -248,7 +294,7 @@ note LinkedNoteList::getNote()
 //      Serial.println(cur->trackNote.duration);
 #endif
     } else
-        inout.ShowErrorOnLCD("LNL getNote NULL");
+        inout.ShowErrorOnLCD("LNL getNote cur NULL");
 
     return retVal; 
 }
@@ -278,3 +324,41 @@ int LinkedNoteList::count()
     return count;
 }
 
+void LinkedNoteList::print()
+{
+    noteNode *buf = cur;
+    Serial.println("LinkedNoteList print: ");
+        Serial.print("  cur: ");
+        Serial.print((int)cur);
+        Serial.print("  head: ");
+        Serial.print((int)head);
+        Serial.print("  tail: ");
+        Serial.print((int)tail);
+    rewind();
+    int sentry = 0;
+    while(hasValue()){
+        Serial.println();
+        Serial.print("  masterStep: ");
+        Serial.print(cur->masterStep);
+        Serial.print("  trackNote: ");
+        Serial.print((int)&(cur->trackNote));
+        Serial.print("  track: ");
+        Serial.print((int)cur->track);
+        Serial.print("  curnode: ");
+        Serial.print((int)cur);
+        Serial.print("  next: ");
+        Serial.print((int)cur->next);
+
+        if(!checkIntegrity("print"))
+            break;
+        next();
+
+        if(++sentry == 100)
+        {
+            inout.ShowErrorOnLCD("LNL print stuck");
+            break;
+        }
+    }    
+    Serial.println();
+    cur = buf;
+}

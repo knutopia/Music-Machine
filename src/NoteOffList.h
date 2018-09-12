@@ -22,7 +22,7 @@ public:
     // constructor
     NoteOffList();
     ~NoteOffList();
-    void checkIntegrity(char caller[]);
+    bool checkIntegrity(char caller[]);
     void printList();
     void dropNode();
     void append(byte aTrackNum, byte aMidiNote, unsigned long anOffTime);

@@ -88,7 +88,7 @@ class Timebase
       void recalcTimings();
 
 //    static void midiClick();
-      static void shortMidiClick();
+//    static void shortMidiClick();
 };
 
 #endif

@@ -585,6 +585,8 @@ void prepNextClick()
                 }
             }
 //          interrupts();
+
+            byte curTrack = sequencer.getCurrentTrack();
             for(int i = 0; i < TRACKCOUNT; i++)
             {
                 if(notesPlayed[i].active && notesPlayed[i].clickNote.playIt)
@@ -603,7 +605,8 @@ void prepNextClick()
                 //for the step indicators...
 //              if(notesPlayed[i].track == 1)
 //              if(notesPlayed[i].track == sequencer.getCurrentTrack())
-                if(i + 1 == sequencer.getCurrentTrack())
+//              if(i + 1 == sequencer.getCurrentTrack())
+                if(notesPlayed[i].track == curTrack)
                 {
                     inout.setRunningStepIndicators(sequencer.getPreviousStep(), 
                                                    notesPlayed[i].durationMS + note_trigger_time);      

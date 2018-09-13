@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // general

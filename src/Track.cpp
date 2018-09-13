@@ -2,7 +2,7 @@
 
 #include "Track.h"
 #include "InOutHelper.h"
-#include <typeinfo.h>
+//#include "typeinfo.h"
 
 extern InOutHelper inout;
 Track::Track()
@@ -47,17 +47,17 @@ note Track::getTrackNoteParams(int step, byte curSequence)
       {
             case STEPSEQUENCE:
                   if(curSequence < maxSequenceIndex)
-                        if(sequences[curSequence] != NULL)
+                        if(&sequences[curSequence] != NULL)
 //                      if(typeid(sequences[curSequence]) == typeid(retNote))
-                              retrievedNote = sequences[curSequence].getNoteParams(step, trackPath);
+                              retrievedNote = sequences[curSequence].getSequenceNoteParams(step, trackPath);
                         else
                         {
                               inout.ShowErrorOnLCD("gNP1 s[cS] FAIL");
                               break;
                         }
                   else
-                        if(sequences[curSequence] != NULL)
-                              retrievedNote = sequences[maxSequenceIndex].getNoteParams(step, trackPath);
+                        if(&sequences[maxSequenceIndex] != NULL)
+                              retrievedNote = sequences[maxSequenceIndex].getSequenceNoteParams(step, trackPath);
                         else
                         {
                               inout.ShowErrorOnLCD("gNP1 s[mSI] NULL");
@@ -72,11 +72,11 @@ note Track::getTrackNoteParams(int step, byte curSequence)
                   break;
       }
 #ifdef DEBUG
-      Serial.print("Track::getNoteParams retNote pitch is ");
-//    Serial.print((unsigned int) &retNote);
-      Serial.print(retNote.pitchVal);
+      Serial.print("Track::getNoteParams1 retrievedNote pitch is ");
+//    Serial.print((unsigned int) &retrievedNote);
+      Serial.print(retrievedNote.pitchVal);
       Serial.print(" swingTicks ");
-      Serial.print(retNote.swingTicks);
+      Serial.print(retrievedNote.swingTicks);
       Serial.print(" for step ");
       Serial.print(step);
       Serial.print(" of sequence ");
@@ -105,13 +105,7 @@ note Track::getTrackNoteParams()
       {
             case STEPSEQUENCE:
                   if(currentSequence != NULL)
-                        if(sequences[curSequence] != NULL)
-                              retrievedNote = currentSequence->getNoteParams(playbackStep, trackPath);
-                        else
-                        {
-                              inout.ShowErrorOnLCD("gNP2 s[cS] NULL");
-                              break;
-                        }
+                        retrievedNote = currentSequence->getSequenceNoteParams(playbackStep, trackPath);
                   else
                         inout.ShowErrorOnLCD("gNP2 cS NULL");
                   break;
@@ -123,15 +117,17 @@ note Track::getTrackNoteParams()
                   break;
       }
 #ifdef DEBUG
-      Serial.print("Track::getNoteParams retNote pitch is ");
-//    Serial.print((unsigned int) &retNote);
-      Serial.print(retNote.pitchVal);
+      Serial.print("Track::getNoteParams2 retrievedNote pitch is ");
+//    Serial.print((unsigned int) &retrievedNote);
+      Serial.print(retrievedNote.pitchVal);
+      Serial.print(" notEmpty ");
+      Serial.print(retrievedNote.notEmpty);
       Serial.print(" swingTicks ");
-      Serial.print(retNote.swingTicks);
+      Serial.print(retrievedNote.swingTicks);
       Serial.print(" for step ");
       Serial.print(playbackStep);
       Serial.print(" of sequence ");
-      Serial.print(curSequence);
+      Serial.print(currentSequenceIndex);
       Serial.print(" nn track ");
       Serial.println(trackNumber);
 #endif
@@ -145,6 +141,7 @@ note Track::getTrackNoteParams()
       else
             inout.ShowErrorOnLCD("gNP2 NULL");
 
+      return retNote;
 }
 
 void Track::unMute()

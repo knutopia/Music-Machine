@@ -31,7 +31,7 @@ class StepSequence
         byte getVelocity(int _step);
         bool playItOrNot(int _step);
         retrigDivisions getRetrigDivider(int count);
-        note getNoteParams(int _step, Path aPath);
+        note getSequenceNoteParams(int _step, Path aPath);
         byte getLength();
         int getMaxLength();
         byte getPath();

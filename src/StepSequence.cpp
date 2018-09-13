@@ -316,7 +316,7 @@ retrigDivisions StepSequence::getRetrigDivider(int retrigs)
     return retVal;
 }
 
-note StepSequence::getNoteParams(int _step, Path aPath)
+note StepSequence::getSequenceNoteParams(int _step, Path aPath)
 {
     note thisNote;
 

@@ -2,6 +2,7 @@
 
 #include "Track.h"
 #include "InOutHelper.h"
+#include <typeinfo.h>
 
 extern InOutHelper inout;
 Track::Track()
@@ -32,12 +33,12 @@ void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], 
 
 // Core Methods
 
-note Track::getNoteParams(int step)
+note Track::getTrackNoteParams(int step)
 {
-      return getNoteParams(step, currentSequenceIndex);
+      return getTrackNoteParams(step, currentSequenceIndex);
 }
 
-note Track::getNoteParams(int step, byte curSequence)
+note Track::getTrackNoteParams(int step, byte curSequence)
 {
       note retNote;
       note retrievedNote;
@@ -46,14 +47,27 @@ note Track::getNoteParams(int step, byte curSequence)
       {
             case STEPSEQUENCE:
                   if(curSequence < maxSequenceIndex)
-                        retrievedNote = sequences[curSequence].getNoteParams(step, trackPath);
+                        if(sequences[curSequence] != NULL)
+//                      if(typeid(sequences[curSequence]) == typeid(retNote))
+                              retrievedNote = sequences[curSequence].getNoteParams(step, trackPath);
+                        else
+                        {
+                              inout.ShowErrorOnLCD("gNP1 s[cS] FAIL");
+                              break;
+                        }
                   else
-                        retrievedNote = sequences[maxSequenceIndex].getNoteParams(step, trackPath);
+                        if(sequences[curSequence] != NULL)
+                              retrievedNote = sequences[maxSequenceIndex].getNoteParams(step, trackPath);
+                        else
+                        {
+                              inout.ShowErrorOnLCD("gNP1 s[mSI] NULL");
+                              break;
+                        }
                   break;
             case SIMPLEBEAT:
                   break;
             default:
-                  inout.ShowErrorOnLCD("trackType DEFAULTED");
+                  inout.ShowErrorOnLCD("gNP1 trackTpe DEFAULT");
 //                Serial.println("trackType DEFAULTED");
                   break;
       }
@@ -73,13 +87,16 @@ note Track::getNoteParams(int step, byte curSequence)
 
       // this may be completely redundant ?
       if(&retrievedNote != NULL)
-            memcpy(&retNote, &retrievedNote, sizeof(note));
+            if(retrievedNote.notEmpty)
+                  memcpy(&retNote, &retrievedNote, sizeof(note));
+            else
+                  inout.ShowErrorOnLCD("gNP1 Note EMPTY");
       else
-            inout.ShowErrorOnLCD("getNoteParams NULL");
+            inout.ShowErrorOnLCD("gNP1 NULL");
       return retNote;
 }
 
-note Track::getNoteParams()
+note Track::getTrackNoteParams()
 {
       note retNote;
       note retrievedNote;
@@ -88,14 +105,20 @@ note Track::getNoteParams()
       {
             case STEPSEQUENCE:
                   if(currentSequence != NULL)
-                        retrievedNote = currentSequence->getNoteParams(playbackStep, trackPath);
+                        if(sequences[curSequence] != NULL)
+                              retrievedNote = currentSequence->getNoteParams(playbackStep, trackPath);
+                        else
+                        {
+                              inout.ShowErrorOnLCD("gNP2 s[cS] NULL");
+                              break;
+                        }
                   else
-                        inout.ShowErrorOnLCD("gNoteP cS NULL");
+                        inout.ShowErrorOnLCD("gNP2 cS NULL");
                   break;
             case SIMPLEBEAT:
                   break;
             default:
-                  inout.ShowErrorOnLCD("trackType DEFAULTED");
+                  inout.ShowErrorOnLCD("gNP2 trckTpe DEF");
 //                Serial.println("trackType DEFAULTED");
                   break;
       }
@@ -115,10 +138,13 @@ note Track::getNoteParams()
 
       // this may be completely redundant ?
       if(&retrievedNote != NULL)
-            memcpy(&retNote, &retrievedNote, sizeof(note));
+            if(retrievedNote.notEmpty)
+                  memcpy(&retNote, &retrievedNote, sizeof(note));
+            else
+                  inout.ShowErrorOnLCD("gNP2 Note EMPTY");
       else
-            inout.ShowErrorOnLCD("getNoteParams NULL");
-      return retNote;
+            inout.ShowErrorOnLCD("gNP2 NULL");
+
 }
 
 void Track::unMute()

@@ -119,7 +119,7 @@ bool LinkedNoteList::checkIntegrity(char caller[])
             Serial.print("  cur: ");
             Serial.print((int)cur);
             Serial.print("  masterStep: ");
-            Serial.print(cur->masterStep);
+            Serial.println(cur->masterStep);
             retVal = false;
         }    
         if(cur->masterStep == -1)
@@ -131,7 +131,7 @@ bool LinkedNoteList::checkIntegrity(char caller[])
             Serial.print("  cur: ");
             Serial.print((int)cur);
             Serial.print("  masterStep: ");
-            Serial.print(cur->masterStep);
+            Serial.println(cur->masterStep);
 
             retVal = false;
         }    
@@ -143,6 +143,14 @@ void LinkedNoteList::dropNotesBeforeStepAndRewind(int aStep)
 {
     while(head != NULL && head->masterStep < aStep)
     {
+/*        
+        Serial.print(head->masterStep);
+        Serial.print(" at ");
+        Serial.println(aStep);
+//      Serial.print("  ");
+        print();
+*/
+
         dropHeadNote();
         rewind();
     }
@@ -155,10 +163,13 @@ void LinkedNoteList::dropHeadNote()
 {
     if (head != NULL)
     {
+        if (cur == head)
+            cur = NULL;
+
         if(head->next == NULL)
         {
             if(tail == head)
-                tail == NULL;
+                tail = NULL;
 
             delete head;
             head = NULL;

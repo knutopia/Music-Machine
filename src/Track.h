@@ -21,9 +21,9 @@ class Track
       Track();
       void begin(byte number);
       void begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number);
-      note getNoteParams(int step, byte curSequence);
-      note getNoteParams(int step);
-      note getNoteParams();
+      note getTrackNoteParams(int step, byte curSequence);
+      note getTrackNoteParams(int step);
+      note getTrackNoteParams();
       void unMute();
       void mute();
       void setName(char *namePar);

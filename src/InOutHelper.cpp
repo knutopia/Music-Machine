@@ -1701,6 +1701,7 @@ void InOutHelper::handleButtonHolds()
     }      
     if (trackActionHoldTime(held, SAVESEQ)) {
         sequencer.save_sequence(save_sequence_destination);
+        ShowSequenceNumberOnLCD(save_sequence_destination);
         save_sequence_destination = -1;
     }
   } else {

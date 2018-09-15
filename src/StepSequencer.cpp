@@ -425,21 +425,29 @@ void StepSequencer::save_sequence(int destination) // TODO // ADDRESSed
 //  m_sequence[m_currentSequence].copySeqTo(m_sequence[destination]);
 
     StepSequence* curSeq = activeEditTrack->getCurrentSequenceRef();
-    StepSequence* indexedRootSeq = activeEditTrack->getRootSequenceRef(destination);
-    StepSequence* indexedEditSeq = activeEditTrack->getSequenceRef(destination);
-    if(curSeq != NULL && indexedRootSeq != NULL && indexedEditSeq != NULL)
+    byte curSeqIndex = activeEditTrack->getCurrentSequenceIndex();
+    StepSequence* curRootSeq = activeEditTrack->getRootSequenceRef(curSeqIndex);
+    StepSequence* destRootSeq = activeEditTrack->getRootSequenceRef(destination);
+    StepSequence* destEditSeq = activeEditTrack->getSequenceRef(destination);
+    if(curRootSeq != NULL && curSeq != NULL && destRootSeq != NULL && destEditSeq != NULL)
     {
-        curSeq->copySeqTo(indexedRootSeq);
-        curSeq->copySeqTo(indexedEditSeq);
-
+        curSeq->copySeqTo(destRootSeq);
+        curSeq->copySeqTo(destEditSeq);
+        if( curSeqIndex != destination)
+        {
+            curRootSeq->copySeqTo(curSeq);
+            activeEditTrack->setCurrentSequenceIndex(destination);
+        }
     } else {
         inout.ShowErrorOnLCD("save_seq NULL");
         Serial.print("save_sequence NULL error: curSeq = ");
         Serial.print((int)curSeq);
-        Serial.print("  indexedRootSeq = ");
-        Serial.println((int)indexedRootSeq);
-        Serial.print("  indexedEditSeq = ");
-        Serial.println((int)indexedEditSeq);
+        Serial.print("  curRootSeq = ");
+        Serial.print((int)curRootSeq);
+        Serial.print("  destEditSeq = ");
+        Serial.print((int)destEditSeq);
+        Serial.print("  destRootSeq = ");
+        Serial.println((int)destRootSeq);
     }
 }
 

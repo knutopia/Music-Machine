@@ -27,9 +27,7 @@ Adafruit_LiquidCrystal lcd(34, 35, 33); // SPI
 
 // Mode from main file
 extern int currentMode;
-extern speedFactor speedMultiplier;
 extern const char *modeNames[];
-//extern Path playpath;
 extern StepSequencer sequencer;
 extern Timebase metro;
 extern SynthEngine synth;
@@ -994,25 +992,21 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
       case NORMALSPEEDBUTTON:
         ShowInfoOnLCD("Normal Speed");
         SetLCDinfoTimeout();
-        speedMultiplier = NORMAL;
         updateSpeedMultiplierCb(NORMAL);
         break;
       case DOUBLESPEEDBUTTON:
         ShowInfoOnLCD("Double Speed");
         SetLCDinfoTimeout();
-        speedMultiplier = DOUBLE;
         updateSpeedMultiplierCb(DOUBLE);
         break;
       case TRIPLESPEEDBUTTON:
         ShowInfoOnLCD("Triple Speed");
         SetLCDinfoTimeout();
-        speedMultiplier = TRIPLE;
         updateSpeedMultiplierCb(TRIPLE);
         break;
       case QUADSPEEDBUTTON:
         ShowInfoOnLCD("Quad Speed");
         SetLCDinfoTimeout();
-        speedMultiplier = QUAD;
         updateSpeedMultiplierCb(QUAD);
         break;
 
@@ -1066,15 +1060,8 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
           if(i < heldTrellisStep)
             heldTrellisStep = i;
 
-          if((!g_queueing) || 
-             (currentMode != pattern_select &&
-              currentMode != path_select &&
-              currentMode != length_edit &&
-              currentMode != track_mute))
-          {
-              if (StepButtonCb)
-                  StepButtonCb(i-STEPSOFFSET);
-          }
+          if (StepButtonCb)
+              StepButtonCb(i-STEPSOFFSET);
 
           // switch cases by mode: do length callback in length_edit, momentary light up
           // add in other momentary actions plus callback
@@ -1098,7 +1085,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               TrackMuteTrellisButtonPressed(i);
               break;
             case length_edit:       // TODO: ADD QUEUEING
-            case pattern_select:    // TODO: ADD QUEUEING
+            case pattern_select:
               save_sequence_destination = -1;
               QueueableSimpleIndicatorModeTrellisButtonPressed(i);
               break;
@@ -1223,13 +1210,17 @@ void InOutHelper::SelectEditTrellisButtonPressed(int i)
 
 void InOutHelper::PathModeTrellisButtonPressed(int i) 
 {
-     SimpleIndicatorModeTrellisButtonPressed(i);
-     
-//   playpath.setPath(i % STEPSOFFSET); // do we need    ?
-     sequencer.setPath(i % STEPSOFFSET);// both of these ?
-     ShowInfoOnLCD(sequencer.getPathName());
-     SetLCDinfoTimeout();
-     ShowPathNumberOnLCD(i % STEPSOFFSET);
+    if(!g_queueing)
+    {
+        SimpleIndicatorModeTrellisButtonPressed(i);
+        
+        sequencer.setPath(i % STEPSOFFSET);
+        ShowInfoOnLCD(sequencer.getPathName());
+        SetLCDinfoTimeout();
+        ShowPathNumberOnLCD(i % STEPSOFFSET);
+    } else {
+        recordActionCb(PATHCHANGE, i % STEPSOFFSET, sequencer.getCurrentTrack());
+    }
 }
 
 
@@ -1261,25 +1252,42 @@ void InOutHelper::TrackMuteTrellisButtonPressed(int i)
 
     if (helperSteps[i % STEPSOFFSET]) {
         // successful if tracknumber valid, fewer tracks than helperSteps
-        bool success = sequencer.setTrackMute(track, false);
-        if(success)
+        if(!g_queueing)
         {
-            helperSteps[i % STEPSOFFSET] = false;
-            trellis.clrLED(i);
-            ShowValueInfoOnLCD("Unmuted track ", track);
-            SetLCDinfoTimeout();
-        }
-    } else {
-        bool success = sequencer.setTrackMute(track, true);
-        if(success)
-        {
-            helperSteps[i % STEPSOFFSET] = true;
-            trellis.setLED(i);                  
-            ShowValueInfoOnLCD("Muted track ", track);
-            SetLCDinfoTimeout();
+            bool success = sequencer.setTrackMute(track, false);
+            if(success)
+            {
+                helperSteps[i % STEPSOFFSET] = false;
+                trellis.clrLED(i);
+                ShowValueInfoOnLCD("Unmuted track ", track);
+                SetLCDinfoTimeout();
+            }
         } else
-            trellis.clrLED(i);
+            recordActionCb(TRACKMUTECHANGE, (byte)false, track);
+
+    } else {
+        if(!g_queueing)
+        {
+            bool success = sequencer.setTrackMute(track, true);
+            if(success)
+            {
+                helperSteps[i % STEPSOFFSET] = true;
+                trellis.setLED(i);                  
+                ShowValueInfoOnLCD("Muted track ", track);
+                SetLCDinfoTimeout();
+            } else
+                trellis.clrLED(i);
+        } else
+            recordActionCb(TRACKMUTECHANGE, (byte)true, track);
     }
+
+
+
+
+
+
+
+
 }
 
 

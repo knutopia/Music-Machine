@@ -89,7 +89,7 @@ const char *modeNames[] = {"foo1",
 long g_step_duration = 500000;          //The amount of time between steps
 //long micro_compare2;
 
-speedFactor speedMultiplier = NORMAL;
+//speedFactor speedMultiplier = NORMAL;
 const int buttonDebounceTime  = 800;    //Button debounce time
 const int encoderDebounceTime  = 5;     //Encoder debounce time
 //Sample rate:
@@ -174,6 +174,12 @@ void QueueActionCb(actionID whatAction, byte param, byte track)
         case TRACKMUTECHANGE:
 
             break;
+        case SPEEDMULTIPLIERCHANGE:
+
+            break;
+        case SYNCTRACKS:
+
+            break;
         default:
             inout.ShowErrorOnLCD("QueueACb out of rnge");
             Serial.print("QueueActionCb whatAction ");
@@ -220,18 +226,28 @@ void ChangePatternLengthCb(int patternLength) {
     byte seqMaxLength = sequencer.getMaxLength();
     byte newLength = (byte)patternLength + 1;
 
-    if (newLength <= seqMaxLength) {
-      sequencer.setLength((byte)newLength);
+    if (newLength <= seqMaxLength)
+    {
+        if(!g_queueing)
+            sequencer.setLength((byte)newLength);
+        else
+            QueueActionCb(LENGTHCHANGE, (byte) patternLength, sequencer.getCurrentTrack());
     } 
 }
 
 
 void ChangeSequenceNumberCb(int seqNum) {
   
-    sequencer.setCurrentSequence(seqNum);
-    inout.ShowSequenceNumberOnLCD(seqNum);
-    inout.ShowPathNumberOnLCD(sequencer.getPath());
-    sequencer.printSequence();
+    if(!g_queueing)
+    {
+        sequencer.setCurrentSequence(seqNum);
+        inout.ShowSequenceNumberOnLCD(seqNum);
+        inout.ShowPathNumberOnLCD(sequencer.getPath());
+        sequencer.printSequence();
+    } else {
+
+        QueueActionCb(PATTERNCHANGE, (byte) seqNum, sequencer.getCurrentTrack());
+    }
 }
 
 
@@ -260,8 +276,11 @@ void ChangeTempoCb(int newTempo) {
 
 
 void ChangeSpeedMultiplierCb(speedFactor mult) {
-    metro.updateSpeedMultiplier(mult);
-//  retimeNextDuration();
+
+    if(!g_queueing)
+        metro.updateSpeedMultiplier(mult);
+    else
+        QueueActionCb(SPEEDMULTIPLIERCHANGE, (byte) mult, sequencer.getCurrentTrack());
 }
 
 

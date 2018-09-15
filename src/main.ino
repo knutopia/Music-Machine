@@ -2,11 +2,11 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // general
-#include <EEPROM.h>
+//#include <EEPROM.h>
 #include <math.h>
 #include "Enum.h"
 #include "Note.h"
@@ -33,7 +33,6 @@ int g_activeGlobalStep;
 // Constants for storing and retrieving data from EEPROM 
 const byte EEPROM_ID = 0x99;
 const int ID_ADDR = 0;
-boolean storingData = false;
 
 // For SD card
 SDHandler sdCard;
@@ -50,6 +49,11 @@ volatile unsigned long v_note_trigger_time = 0;
 
 int save_sequence_destination = -1;
 bool save_to_SD_done = false;
+boolean storingData = false;
+
+// queuing changes
+bool g_queueing = false;
+bool g_queuePrimed = false;
 
 note nextNote;
 
@@ -139,7 +143,7 @@ void listCounts()
     Serial.println(playingNotes.count());
 }
 
-//Callback for sequencer problems
+// Callback for sequencer problems
 void EmergencyCb()
 {
     if(playbackOn == true) stopPlayback();
@@ -153,7 +157,31 @@ void EmergencyCb()
 //  activeStepClicks.purge();
 }
 
-//Callbacks for inputs
+// Callback for queueing changes
+void QueueActionCb(actionID whatAction, byte param, byte track)
+{
+    switch (whatAction)
+    {
+        case PATTERNCHANGE:
+
+            break;
+        case PATHCHANGE:
+
+            break;
+        case LENGTHCHANGE:
+
+            break;
+        case TRACKMUTECHANGE:
+
+            break;
+        default:
+            inout.ShowErrorOnLCD("QueueACb out of rnge");
+            Serial.print("QueueActionCb whatAction ");
+            Serial.println(whatAction);
+    }
+}
+
+// Callbacks for inputs
 void ChangeModeCb(bool forward)
 {
     if (forward) {
@@ -402,7 +430,8 @@ void setup()
                 SaveToSdCb,
                 StartStopCb,
                 SynthButtonCb,
-                ChangeTrackCb);
+                ChangeTrackCb,
+                QueueActionCb);
                 
     Serial.print("Start2 Mem: ");
     Serial.println(FreeMem());

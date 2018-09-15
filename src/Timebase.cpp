@@ -4,7 +4,7 @@
 #include "NoteOffList.h"
 #include "NotePerClick.h"
 
-#define MIDION true
+//#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;
@@ -155,7 +155,7 @@ long Timebase::truncateSwingStepDuration(note aNote)
 
     if(retVal == 0)
     {
-        inout.ShowErrorOnLCD("truncSSD 0");
+//      inout.ShowErrorOnLCD("truncSSD 0");
         Serial.print("truncateSwingStepDuration retval 0  ");
         Serial.print("aNote.swingTicks ");
         Serial.println(aNote.swingTicks);

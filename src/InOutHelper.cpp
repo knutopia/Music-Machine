@@ -36,6 +36,8 @@ extern SynthEngine synth;
 extern int save_sequence_destination;
 extern bool save_to_SD_done;
 extern bool shiftActive;
+extern bool g_queueing;
+extern bool g_queuePrimed;
 
 //floating
 int putInRange(int iVar, int iRange)
@@ -123,7 +125,8 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
                         ReactToInput SaveToSdCbPointer,
                         ReactToInput startStopCbPointer,
                         ReactToInputInt updateSynthCbPointer,
-                        ReactToInputInt updateTrackCbPointer) {
+                        ReactToInputInt updateTrackCbPointer,
+                        ReactToInputAction recordActionCbPointer) {
 
   updateModeCb = updateModeCbPointer;
   updateRepetitionCb = updateRepetitionCbPointer;
@@ -133,6 +136,7 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   updateTempoCb = updateTempoPointer;
   updateSpeedMultiplierCb = updateSpeedMultiplierPointer;
   updateTrackCb = updateTrackCbPointer;
+  recordActionCb = recordActionCbPointer;
   
   SaveToSdCb = SaveToSdCbPointer;
   startStopCb = startStopCbPointer;
@@ -961,9 +965,12 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
           RetrigButtonPressed(0);          
         }
         break;
-      case TSTEPLEFTBUTTON:
+      case QUEUEBUTTON:
         if (currentMode == pattern_select) {
-          ShowInfoOnLCD("Step left");
+          if(QueueButtonPressed())
+            ShowInfoOnLCD("Queue Pattern");
+          else
+            ShowInfoOnLCD("Exit Queue");
           SetLCDinfoTimeout();
         } else {
           ShowInfoOnLCD("Retrig 2");
@@ -971,9 +978,12 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
           RetrigButtonPressed(2);          
         }
         break;
-      case TSTEPRIGHTBUTTON:
+      case QUEUEPRIMEBUTTON:
         if (currentMode == pattern_select) {
-          ShowInfoOnLCD("Step right");
+          if(PrimeQueueButtonPressed())
+            ShowInfoOnLCD("Queue Primed");
+          else
+            ShowInfoOnLCD("Queue Canceled");
           SetLCDinfoTimeout();
         } else {
           ShowInfoOnLCD("Retrig 3");
@@ -1055,10 +1065,17 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
 
           if(i < heldTrellisStep)
             heldTrellisStep = i;
-    
-          if (StepButtonCb) {
-            StepButtonCb(i-STEPSOFFSET);
+
+          if((!g_queueing) || 
+             (currentMode != pattern_select &&
+              currentMode != path_select &&
+              currentMode != length_edit &&
+              currentMode != track_mute))
+          {
+              if (StepButtonCb)
+                  StepButtonCb(i-STEPSOFFSET);
           }
+
           // switch cases by mode: do length callback in length_edit, momentary light up
           // add in other momentary actions plus callback
           // otherwise latch & update selection - do the latching as a callback too, but locally defined ??
@@ -1077,16 +1094,18 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
             case track_select:
               TrackSelectTrellisButtonPressed(i);
               break;
-            case track_mute:
+            case track_mute:        // TODO: ADD QUEUEING
               TrackMuteTrellisButtonPressed(i);
               break;
-            case length_edit:
-            case pattern_select:
+            case length_edit:       // TODO: ADD QUEUEING
+            case pattern_select:    // TODO: ADD QUEUEING
               save_sequence_destination = -1;
+              QueueableSimpleIndicatorModeTrellisButtonPressed(i);
+              break;
             case pattern_save:
               SimpleIndicatorModeTrellisButtonPressed(i);
               break;
-            case path_select:
+            case path_select:      // TODO: ADD QUEUEING
               PathModeTrellisButtonPressed(i);
               break;
             case synth_edit:
@@ -1283,6 +1302,13 @@ void InOutHelper::SimpleIndicatorModeTrellisButtonPressed(int i)
 }
 
 
+void InOutHelper::QueueableSimpleIndicatorModeTrellisButtonPressed(int i) 
+{   
+    if(!g_queueing)
+        SimpleIndicatorModeTrellisButtonPressed(i);
+}
+
+
 void InOutHelper::RepeatButtonPressed(byte repetitions)
 {
     sequencer.setSelectedRepetitions(selectedSteps, repetitions);
@@ -1300,6 +1326,26 @@ void InOutHelper::ProbabilityButtonPressed(stepProbability prob)
     sequencer.setSelectedProbabilities(selectedSteps, (byte)prob);
 }
 
+bool InOutHelper::QueueButtonPressed()
+{
+    g_queueing = !g_queueing;
+    return g_queueing;
+}
+
+bool InOutHelper::PrimeQueueButtonPressed()
+{
+    if(g_queuePrimed)
+    {
+        g_queuePrimed = false;
+        g_queueing = false;
+        // TODO: reset the queue here
+
+    } else {
+        g_queuePrimed = true;
+        g_queueing = false;
+    }
+    return g_queuePrimed;
+}
 
 void InOutHelper::LiteUpTrellisSteps(bool stepsArray[])
 {

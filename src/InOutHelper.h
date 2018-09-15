@@ -20,7 +20,7 @@ typedef void (*ReactToInputInt) (int passVal);
 typedef void (*ReactToInputSpeedFactor) (speedFactor passVal);
 typedef void (*ReactToInputIntArray) (int passVal, boolean passArray[]);
 typedef void (*ReactToInputIntInt) (int passVal1, int passVal2);
-
+typedef void (*ReactToInputAction) (actionID whatAction, byte param, byte track);
 
 class InOutHelper
 {
@@ -37,7 +37,9 @@ class InOutHelper
                 ReactToInput SaveToSdCbPointer,
                 ReactToInput startStopCbPointer,
                 ReactToInputInt updateSynthCbPointer,
-                ReactToInputInt updateTrackCbPointer);
+                ReactToInputInt updateTrackCbPointer,
+                ReactToInputAction recordActionCbPointer);
+
     void setupNewMode();
     void handleEncoders();
     void handleEncoderButtons();
@@ -110,9 +112,12 @@ class InOutHelper
     void PathModeTrellisButtonPressed(int index);
     void SynthEditModeTrellisButtonPressed(int index);
     void SimpleIndicatorModeTrellisButtonPressed(int index);
+    void QueueableSimpleIndicatorModeTrellisButtonPressed(int index);
     void RepeatButtonPressed(byte repetitions);
     void RetrigButtonPressed(byte retrigs);
     void ProbabilityButtonPressed(stepProbability prob);
+    bool QueueButtonPressed();
+    bool PrimeQueueButtonPressed();
     
     void LiteUpTrellisSteps(bool helperSteps[]);
     void RetrieveSequenceStates();
@@ -139,6 +144,7 @@ class InOutHelper
     ReactToInput StartStopButtonCb;
     ReactToInputInt updateSynthCb;
     ReactToInputInt updateTrackCb;
+    ReactToInputAction recordActionCb;
     
     const int numKeys = (NUMTRELLIS * 16);
     const int INTPIN = A2;   

@@ -80,6 +80,10 @@ class InOutHelper
     String midiToNoteName(int note);
     void showLoopTimer();
 
+    // public because called by queued actions
+    void pathModeTrellisButtonPressed(int index);
+    void trackMuteTrellisButtonPressed(int index);
+
   private:
     void ResetTrellis();            
     void SetupMuteOrHoldModeTrellis();
@@ -105,11 +109,9 @@ class InOutHelper
     
     void SelectEditTrellisButtonPressed(int index);
     void TrackSelectTrellisButtonPressed(int index);
-    void TrackMuteTrellisButtonPressed(int index);
     void MuteModeTrellisButtonPressed(int index);
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);
-    void PathModeTrellisButtonPressed(int index);
     void SynthEditModeTrellisButtonPressed(int index);
     void SimpleIndicatorModeTrellisButtonPressed(int index);
     void QueueableSimpleIndicatorModeTrellisButtonPressed(int index);

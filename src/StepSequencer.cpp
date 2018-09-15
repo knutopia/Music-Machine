@@ -1448,7 +1448,6 @@ bool StepSequencer::setTrackMute(byte aTrackNum, bool muteFlag)
     return success;
 }
 
-
 byte StepSequencer::toggleCurrentTrackMute()
 {
     bool isMuted = activeEditTrack->isMuted();

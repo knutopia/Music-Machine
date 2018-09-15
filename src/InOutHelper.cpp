@@ -1082,7 +1082,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               TrackSelectTrellisButtonPressed(i);
               break;
             case track_mute:        // TODO: ADD QUEUEING
-              TrackMuteTrellisButtonPressed(i);
+              trackMuteTrellisButtonPressed(i);
               break;
             case length_edit:       // TODO: ADD QUEUEING
             case pattern_select:
@@ -1093,7 +1093,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               SimpleIndicatorModeTrellisButtonPressed(i);
               break;
             case path_select:      // TODO: ADD QUEUEING
-              PathModeTrellisButtonPressed(i);
+              pathModeTrellisButtonPressed(i);
               break;
             case synth_edit:
               SynthEditModeTrellisButtonPressed(i);
@@ -1208,9 +1208,9 @@ void InOutHelper::SelectEditTrellisButtonPressed(int i)
 }
 
 
-void InOutHelper::PathModeTrellisButtonPressed(int i) 
+void InOutHelper::pathModeTrellisButtonPressed(int i) 
 {
-    if(!g_queueing)
+    if(!g_queueing && currentMode == path_select)
     {
         SimpleIndicatorModeTrellisButtonPressed(i);
         
@@ -1246,40 +1246,43 @@ void InOutHelper::TrackSelectTrellisButtonPressed(int i)
 }
 
 
-void InOutHelper::TrackMuteTrellisButtonPressed(int i) 
+void InOutHelper::trackMuteTrellisButtonPressed(int i) 
 {
     byte track = 1 + ((byte)i % STEPSOFFSET);
 
-    if (helperSteps[i % STEPSOFFSET]) {
-        // successful if tracknumber valid, fewer tracks than helperSteps
-        if(!g_queueing)
-        {
-            bool success = sequencer.setTrackMute(track, false);
-            if(success)
+    if(currentMode == track_mute) // actual button press, or act like it
+    {
+        if (helperSteps[i % STEPSOFFSET]) {
+            // successful if tracknumber valid, fewer tracks than helperSteps
+            if(!g_queueing)
             {
-                helperSteps[i % STEPSOFFSET] = false;
-                trellis.clrLED(i);
-                ShowValueInfoOnLCD("Unmuted track ", track);
-                SetLCDinfoTimeout();
-            }
-        } else
-            recordActionCb(TRACKMUTECHANGE, (byte)false, track);
-
-    } else {
-        if(!g_queueing)
-        {
-            bool success = sequencer.setTrackMute(track, true);
-            if(success)
-            {
-                helperSteps[i % STEPSOFFSET] = true;
-                trellis.setLED(i);                  
-                ShowValueInfoOnLCD("Muted track ", track);
-                SetLCDinfoTimeout();
+                bool success = sequencer.setTrackMute(track, false);
+                if(success)
+                {
+                    helperSteps[i % STEPSOFFSET] = false;
+                    trellis.clrLED(i);
+                    ShowValueInfoOnLCD("Unmuted track ", track);
+                    SetLCDinfoTimeout();
+                }
             } else
-                trellis.clrLED(i);
-        } else
-            recordActionCb(TRACKMUTECHANGE, (byte)true, track);
-    }
+                recordActionCb(TRACKMUTECHANGE, (byte)false, track);
+
+        } else {
+            if(!g_queueing)
+            {
+                bool success = sequencer.setTrackMute(track, true);
+                if(success)
+                {
+                    helperSteps[i % STEPSOFFSET] = true;
+                    trellis.setLED(i);                  
+                    ShowValueInfoOnLCD("Muted track ", track);
+                    SetLCDinfoTimeout();
+                } else
+                    trellis.clrLED(i);
+            } else
+                recordActionCb(TRACKMUTECHANGE, (byte)true, track);
+    } 
+}
 
 
 

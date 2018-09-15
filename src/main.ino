@@ -25,7 +25,7 @@
 #include "Path.h"
 #include "Timebase.h"
 #include "SDHandler.h"
-
+#include "ActionQueue.h"
 
 int g_activeGlobalStep;
 
@@ -102,9 +102,6 @@ bool startFromZero = true;              //Has reset been pressed ?
 //Global Time Management object:
 Timebase metro;
 
-//Global Path Manager object:
-//Path playpath;
-
 //Global StepSequencer object:
 StepSequencer sequencer;
 // 144288
@@ -129,6 +126,9 @@ elapsedMicros clickTrack;
 
 //To track global modifiers
 bool shiftActive = false;
+
+//To queue actions for pattern-start execution:
+ActionQueue queuedActions;
 
 //Helper
 void listCounts()
@@ -160,32 +160,9 @@ void EmergencyCb()
 // Callback for queueing changes
 void QueueActionCb(actionID whatAction, byte param, byte track)
 {
-    switch (whatAction)
-    {
-        case PATTERNCHANGE:
-
-            break;
-        case PATHCHANGE:
-
-            break;
-        case LENGTHCHANGE:
-
-            break;
-        case TRACKMUTECHANGE:
-
-            break;
-        case SPEEDMULTIPLIERCHANGE:
-
-            break;
-        case SYNCTRACKS:
-
-            break;
-        default:
-            inout.ShowErrorOnLCD("QueueACb out of rnge");
-            Serial.print("QueueActionCb whatAction ");
-            Serial.println(whatAction);
-    }
+    queuedActions.queueAction(whatAction, param, track);
 }
+
 
 // Callbacks for inputs
 void ChangeModeCb(bool forward)
@@ -452,6 +429,8 @@ void setup()
                 ChangeTrackCb,
                 QueueActionCb);
                 
+    queuedActions.begin();
+
     Serial.print("Start2 Mem: ");
     Serial.println(FreeMem());
     inout.ShowValueInfoOnLCD("Start2:", (int)FreeMem() );
@@ -538,6 +517,71 @@ void loop()
     #endif
 //  inout.showLoopTimer();
 }
+
+
+void runQueuedActions()
+{
+
+    byte bufTrack = sequencer.getCurrentTrack();
+    queuedActions.beginRetrievingActions();
+
+    bool done = false;
+    while( !done)
+    {
+        actionID qAction = queuedActions.retrieveActionID();
+        byte qParam =      queuedActions.retrieveActionParam();
+        byte qTrack =      queuedActions.retrieveActionTrack();
+
+        done = !queuedActions.advanceRetrievalIndex();
+
+        switch (qAction)
+        {
+            case PATTERNCHANGE:
+                sequencer.setCurrentTrack(qTrack);
+                ChangeSequenceNumberCb(qParam);
+                break;
+
+            case PATHCHANGE:
+                sequencer.setCurrentTrack(qTrack);
+                inout.pathModeTrellisButtonPressed((int)qParam + STEPSOFFSET);
+                break;
+
+            case LENGTHCHANGE:
+                sequencer.setCurrentTrack(qTrack);
+                ChangePatternLengthCb(qParam);
+                break;
+
+            case TRACKMUTECHANGE:
+                sequencer.setCurrentTrack(qTrack);
+                sequencer.setTrackMute(qTrack, (bool)qParam);
+
+                if(currentMode == track_mute)
+                    inout.trackMuteTrellisButtonPressed(qTrack - 1 + STEPSOFFSET);
+                break;
+
+            case SPEEDMULTIPLIERCHANGE:
+                sequencer.setCurrentTrack(qTrack);
+                ChangeSpeedMultiplierCb((speedFactor)qParam);
+                break;
+
+            case SYNCTRACKS:
+                // TODO
+                break;
+
+            case NOACTION:
+                done = true;
+                break;
+
+            default:
+                inout.ShowErrorOnLCD("runQAcs out of rnge");
+                Serial.print("runQueuedActions qAction ");
+                Serial.println(qAction);
+                done = true;
+        }
+    } 
+    sequencer.setCurrentTrack(bufTrack);
+}
+
 
 void prep_next_note_direct()
 {
@@ -836,276 +880,6 @@ void printLinkedNoteList(LinkedNoteList *list)
     Serial.println(list->count());
  }
 
-void testLinkedNoteList() 
-{
-    Serial.println("Testing LinkedNoteList");
-
-    LinkedNoteList list;
-
-    note noteOne;
-    note noteTwo;
-    note noteThree;
-
-    noteOne.pitchFreq = 110;
-    noteTwo.pitchFreq = 220;
-    noteThree.pitchFreq = 330;
-
-    list.appendNote(1, 1, noteOne);
-    list.appendNote(2, 2, noteTwo);
-    list.appendNote(3, 3, noteThree);
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-    
-    list.dropNotesBeforeStepAndRewind(2);
-//  cout << eol << "dropNotesBeforeStepAndRewind 2 " << eol << eol;
-    Serial.println("dropNotesBeforeStepAndRewind 2 ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-
-    list.prependNote(1, 1, noteOne);
-//  cout << eol << "prepending 1 back " << eol << eol;
-    Serial.println("prepending 1 back ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-
-    list.dropNotesBeforeStepAndRewind(4);
-    Serial.println("dropNotesBeforeStepAndRewind 4 ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-
-    list.prependNote(1, 1, noteOne);
-    Serial.println("prepending 1 back to empty list ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-
-    list.dropNotesBeforeStepAndRewind(4);
-    Serial.println("dropNotesBeforeStepAndRewind 4 ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-
-    list.appendNote(1, 1, noteOne);
-    Serial.println("appending 1 back to empty list ");
-
-    list.rewind(); 
-    printLinkedNoteList(&list);
-}
-
-void testLinkedTrackList() 
-{
-    Serial.println();
-    Serial.println("Testing LinkedTrackList");
-
-    LinkedTrackList list;
-
-    Track trackOne;
-    Track trackTwo;
-    Track trackThree;
-    Track *trackCheck;
-
-    trackOne.begin(1);
-    trackTwo.begin(2);
-    trackThree.begin(3);
-
-    list.appendTrack(1, &trackOne);
-    list.appendTrack(2, &trackTwo);
-    list.appendTrack(3, &trackThree);
-
-    list.rewind();
-    while( list.hasValue()){
-            Serial.print("Track: ");
-            Serial.print(list.getTrackNumber());
-            Serial.print("  Ping: ");
-            trackCheck = list.getTrackRef();
-            trackCheck->unMute();
-            list.next();
-    }
-    
-    list.dropTrack(2);
-    Serial.println("dropTrack 2 ");
-
-    list.rewind();
-    while( list.hasValue()){
-            Serial.print("Track: ");
-            Serial.print(list.getTrackNumber());
-            Serial.print("  Ping: ");
-            trackCheck = list.getTrackRef();
-            trackCheck->unMute();
-            list.next();
-    }
-    
-    list.appendTrack(1, &trackTwo);
-    Serial.println("appending 2 back ");
-
-    list.rewind();
-    while( list.hasValue()){
-            Serial.print("Track: ");
-            Serial.print(list.getTrackNumber());
-            Serial.print("  Ping: ");
-            trackCheck = list.getTrackRef();
-            trackCheck->unMute();
-            list.next();
-    }    
-}
-
-void printPerClickNoteList(PerClickNoteList *list)
-{
-    while( list->hasValue()){
-        Serial.print("Note: ");
-//      note *n = list->getNote();
-        note n = list->getNote();
-//      if(n != NULL)
-//        Serial.print(n.pitchVal);
-//      else
-//        Serial.print("NULL");
-        Serial.print("  pitch: ");
-        Serial.print(n.pitchVal);
-        Serial.print("  durMS: ");
-        Serial.print(list->getDurationMS());
-        Serial.print("  cur: ");
-        Serial.print(list->getCur());
-        Serial.print("  next: ");
-        Serial.println(list->getNext());
-        list->next();
-    }
-}
-
-void printStepClickList(StepClickList *list)
-{
-    while( list->hasValue()){
-            Serial.print(" MasterStep: ");
-            Serial.print(list->getMasterStep());
-            Serial.print("  Click: ");
-            Serial.println(list->getClickStep());
-            Serial.println(" Notes: ");
-            PerClickNoteList *notes = list->getNotes();
-            notes->rewind();
-            printPerClickNoteList(notes);
-            Serial.println();
-            list->next();
-    }
-}
-
-void testPerClickNoteList() 
-{
-    Serial.println();
-    Serial.println("Testing PerClickNoteList");
-    
-    PerClickNoteList list;
-
-    note noteOne;
-    note noteTwo;
-    note noteThree;
-
-    noteOne.pitchVal = 1;
-    noteTwo.pitchVal = 2;
-    noteThree.pitchVal = 3;
-    
-    list.append(noteOne, 1, 100);
-    list.append(noteTwo, 2, 200);
-    list.append(noteThree, 3, 300);
-    
-    printPerClickNoteList(&list);
-    list.rewind();
- 
-    list.append(noteThree, 3, 300);
-    Serial.println("Appended 3 again after rewind");
-
-    printPerClickNoteList(&list);
-    
-    list.append(noteOne, 1, 100);
-    list.append(noteTwo, 2, 200);
-    list.append(noteThree, 3, 300);
-    Serial.println("Rebuilt list.");
-
-    printPerClickNoteList(&list);
-
-    Serial.println("Not calling Delete on list.");
-}
-
-void testStepClickList() 
-{
-    Serial.println();
-    Serial.println("Testing StepClickList");
-    
-    StepClickList list;
-
-    note noteOne;
-    note noteTwo;
-    note noteThree;
-
-    noteOne.pitchVal = 1;
-    noteTwo.pitchVal = 2;
-    noteThree.pitchVal = 3;
-    
-    list.addClickNote(noteOne, 1, 1100, 1, 1);
-    list.addClickNote(noteTwo, 2, 2100, 1, 1);
-    list.addClickNote(noteThree, 3, 3100, 1, 1);
-/*
-    list.addClickNote(&noteOne, 1, 1100, 1, 1);
-    list.addClickNote(&noteTwo, 2, 2100, 1, 1);
-    list.addClickNote(&noteThree, 3, 3100, 1, 1);
-*/
-    Serial.println("Three notes on masterStep 1 click 1");
-
-    list.rewind();
-    printStepClickList(&list);
-    list.rewind();
- 
-    list.addClickNote(noteOne, 1, 1200, 2, 1);
-    list.addClickNote(noteTwo, 2, 2200, 2, 1);
-    list.addClickNote(noteThree, 3, 3200, 2, 2);
-/*
-    list.addClickNote(&noteOne, 1, 1200, 2, 1);
-    list.addClickNote(&noteTwo, 2, 2200, 2, 1);
-    list.addClickNote(&noteThree, 3, 3200, 2, 2);
-*/
-    Serial.println("Appended 2 notes on masterStep 2 click 1 and 1 note on masterStep 2 click 2");
-
-    list.rewind();
-    printStepClickList(&list);
-    list.rewind();
-
-    list.addClickNote(noteOne, 1, 1300, 1, 1);
-    list.addClickNote(noteTwo, 2, 2300, 2, 1);
-    list.addClickNote(noteThree, 3, 3300, 2, 2);
-
-/*
-    list.addClickNote(&noteOne, 1, 1300, 1, 1);
-    list.addClickNote(&noteTwo, 2, 2300, 2, 1);
-    list.addClickNote(&noteThree, 3, 3300, 2, 2);
-*/
-    Serial.println("Appended another note on each click");
-    
-    list.rewind();
-    printStepClickList(&list);
-
-    list.dropNotesBeforeStepAndRewind(2);
-
-    Serial.println("Dropped notes before masterStep 2");
-    
-    list.rewind();
-    printStepClickList(&list);
-/*
-    delete &list;
-    Serial.println("Deleted list.");
-
-    printStepClickList(&list);
-*/
-    list.addClickNote(noteOne, 1, 1400, 1, 1);
-    list.addClickNote(noteTwo, 2, 2400, 2, 1);
-    list.addClickNote(noteThree, 3, 3400, 2, 2);
-
-    Serial.println("Added 3 more.");
-
-    list.rewind();
-    printStepClickList(&list);
-}
 
 uint32_t FreeMem(){ // for Teensy 3.0
     uint32_t stackTop;

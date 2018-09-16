@@ -964,11 +964,14 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
         }
         break;
       case QUEUEBUTTON:
-        if (currentMode == pattern_select) {
+        if (currentMode == pattern_select  ||
+            currentMode == length_edit ||
+            currentMode == path_select) 
+        {
           if(QueueButtonPressed())
-            ShowInfoOnLCD("Queue Pattern");
+            ShowInfoOnLCD("Queue Actions");
           else
-            ShowInfoOnLCD("Exit Queue");
+            ShowInfoOnLCD("Queue End");
           SetLCDinfoTimeout();
         } else {
           ShowInfoOnLCD("Retrig 2");
@@ -977,7 +980,10 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
         }
         break;
       case QUEUEPRIMEBUTTON:
-        if (currentMode == pattern_select) {
+        if (currentMode == pattern_select  ||
+            currentMode == length_edit ||
+            currentMode == path_select) 
+        {
           if(PrimeQueueButtonPressed())
             ShowInfoOnLCD("Queue Primed");
           else
@@ -990,23 +996,35 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
         }
         break;
       case NORMALSPEEDBUTTON:
-        ShowInfoOnLCD("Normal Speed");
-        SetLCDinfoTimeout();
+        if(!g_queueing)
+        {
+            ShowInfoOnLCD("Normal Speed");
+            SetLCDinfoTimeout();
+        }
         updateSpeedMultiplierCb(NORMAL);
         break;
       case DOUBLESPEEDBUTTON:
-        ShowInfoOnLCD("Double Speed");
-        SetLCDinfoTimeout();
+        if(!g_queueing)
+        {
+            ShowInfoOnLCD("Double Speed");
+            SetLCDinfoTimeout();
+        }
         updateSpeedMultiplierCb(DOUBLE);
         break;
       case TRIPLESPEEDBUTTON:
-        ShowInfoOnLCD("Triple Speed");
-        SetLCDinfoTimeout();
+        if(!g_queueing)
+        {
+            ShowInfoOnLCD("Triple Speed");
+            SetLCDinfoTimeout();
+        }
         updateSpeedMultiplierCb(TRIPLE);
         break;
       case QUADSPEEDBUTTON:
-        ShowInfoOnLCD("Quad Speed");
-        SetLCDinfoTimeout();
+        if(!g_queueing)
+        {
+            ShowInfoOnLCD("Quad Speed");
+            SetLCDinfoTimeout();
+        }
         updateSpeedMultiplierCb(QUAD);
         break;
 
@@ -1090,7 +1108,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               QueueableSimpleIndicatorModeTrellisButtonPressed(i);
               break;
             case pattern_save:
-              SimpleIndicatorModeTrellisButtonPressed(i);
+              simpleIndicatorModeTrellisButtonPressed(i);
               break;
             case path_select:      // TODO: ADD QUEUEING
               pathModeTrellisButtonPressed(i);
@@ -1212,7 +1230,7 @@ void InOutHelper::pathModeTrellisButtonPressed(int i)
 {
     if(!g_queueing && currentMode == path_select)
     {
-        SimpleIndicatorModeTrellisButtonPressed(i);
+        simpleIndicatorModeTrellisButtonPressed(i);
         
         sequencer.setPath(i % STEPSOFFSET);
         ShowInfoOnLCD(sequencer.getPathName());
@@ -1229,7 +1247,7 @@ void InOutHelper::TrackSelectTrellisButtonPressed(int i)
       byte curTrack = sequencer.getCurrentTrack();
       if(curTrack == 1 + ((byte)i % STEPSOFFSET))
       {
-          SimpleIndicatorModeTrellisButtonPressed(i);
+          simpleIndicatorModeTrellisButtonPressed(i);
           
           ShowTrackNumberOnLCD(curTrack);
           ShowPathNumberOnLCD(sequencer.getPath());
@@ -1296,12 +1314,12 @@ void InOutHelper::trackMuteTrellisButtonPressed(int i)
 
 void InOutHelper::SynthEditModeTrellisButtonPressed(int i)
 {
-    SimpleIndicatorModeTrellisButtonPressed(i);
+    simpleIndicatorModeTrellisButtonPressed(i);
     handleButtonHoldTiming(SYNTHPATCHBUTTON, true);
 }
 
 
-void InOutHelper::SimpleIndicatorModeTrellisButtonPressed(int i) 
+void InOutHelper::simpleIndicatorModeTrellisButtonPressed(int i) 
 {   
     for (uint8_t foo = 0; foo < 16; foo++)
       if (helperSteps[foo% STEPSOFFSET]) {
@@ -1316,7 +1334,7 @@ void InOutHelper::SimpleIndicatorModeTrellisButtonPressed(int i)
 void InOutHelper::QueueableSimpleIndicatorModeTrellisButtonPressed(int i) 
 {   
     if(!g_queueing)
-        SimpleIndicatorModeTrellisButtonPressed(i);
+        simpleIndicatorModeTrellisButtonPressed(i);
 }
 
 
@@ -1340,6 +1358,8 @@ void InOutHelper::ProbabilityButtonPressed(stepProbability prob)
 bool InOutHelper::QueueButtonPressed()
 {
     g_queueing = !g_queueing;
+    g_queuePrimed = false;
+
     return g_queueing;
 }
 
@@ -2414,6 +2434,17 @@ void InOutHelper::showStepInfoOnLCD(int step)
     }
 }
 
+void InOutHelper::showQueuedActions(String out)
+{
+    lcd.setCursor(0, 1);
+    lcd.print("Queued Actions Run:");
+    lcd.setCursor(0, 2);
+    lcd.print(out);
+
+//  ValueOrButtonOnLCDLength = out.length();
+    ValueOrButtonOnLCDLength = 19;
+    LabelOnLCDLength = 19;
+}
 
 String InOutHelper::midiToNoteName(int note)
 {

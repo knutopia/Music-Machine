@@ -63,6 +63,7 @@ class InOutHelper
     void ShowPlaybackStepOnLCD(int step);
     void ShowMemoryOnLCD(int mem);
     void SetLCDinfoTimeout();
+    void SetLCDinfoLabelTimeout();
     void ShowSynParOnLCD(const char label[], int value);
     void ShowSynParOnLCD(const char label[], float value);
     void ShowErrorOnLCD(char error[]);
@@ -83,6 +84,8 @@ class InOutHelper
     // public because called by queued actions
     void pathModeTrellisButtonPressed(int index);
     void trackMuteTrellisButtonPressed(int index);
+    void simpleIndicatorModeTrellisButtonPressed(int index);
+    void showQueuedActions(String out);
 
   private:
     void ResetTrellis();            
@@ -113,7 +116,6 @@ class InOutHelper
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);
     void SynthEditModeTrellisButtonPressed(int index);
-    void SimpleIndicatorModeTrellisButtonPressed(int index);
     void QueueableSimpleIndicatorModeTrellisButtonPressed(int index);
     void RepeatButtonPressed(byte repetitions);
     void RetrigButtonPressed(byte retrigs);
@@ -131,7 +133,6 @@ class InOutHelper
     void ShowSwingOnLCD(int swing);
     void ShowStepOnLCD(int step, bool isActive);
     void showStepInfoOnLCD(int step);
-    void SetLCDinfoLabelTimeout();
 
     ReactToInputBool updateModeCb;
     ReactToInputIntArray updateRepetitionCb;

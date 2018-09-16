@@ -46,6 +46,7 @@ class Track
       void setRecallBufferActive(bool trueOrFalse);
       bool recallBufferIsActive();
       bool isMuted();
+      bool isTrackPatternRollOverStep();
       NoteGetter getNoteCb;
 
     private:

@@ -1467,6 +1467,17 @@ byte StepSequencer::toggleCurrentTrackMute()
     return track;
 }
 
+bool StepSequencer::isPatternRolloverStep()
+{
+    bool retVal = false;
+
+    if(activeEditTrack != NULL)
+        retVal = activeEditTrack->isTrackPatternRollOverStep();
+    else
+        inout.ShowErrorOnLCD("isPatRoSt aET NULL");
+    return retVal;
+}
+
 bool StepSequencer::checkActiveEditTrackRefandCurrentSeqRef()
 {
     bool retVal = false;

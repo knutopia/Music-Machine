@@ -17,6 +17,7 @@ class Path
     byte getStepPosForward(byte index, byte seqLength);
     byte getCurrentStepCount();
     bool checkForSequenceStart();
+    bool detectPatternRollover(byte seqLength);
     void setPath(int index);
     void setNextPath();
     void setPrevPath();

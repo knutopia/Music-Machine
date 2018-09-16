@@ -355,3 +355,15 @@ bool Track::isMuted()
       return b_isMuted;
 }
 
+bool Track::isTrackPatternRollOverStep()
+{
+      bool retVal = false;
+
+      if(currentSequence != NULL)
+            retVal = trackPath.detectPatternRollover(currentSequence->getLength());
+      else
+            inout.ShowErrorOnLCD("iTPROS cS NULL");
+
+      return retVal;
+}
+

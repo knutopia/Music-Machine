@@ -522,8 +522,11 @@ void loop()
 void runQueuedActions()
 {
 
+    Serial.print("rQA");
+
     byte bufTrack = sequencer.getCurrentTrack();
     queuedActions.beginRetrievingActions();
+    String out = "";
 
     bool done = false;
     while( !done)
@@ -532,26 +535,67 @@ void runQueuedActions()
         byte qParam =      queuedActions.retrieveActionParam();
         byte qTrack =      queuedActions.retrieveActionTrack();
 
+        Serial.print("  qAction ");
+        Serial.print(qAction);
+        Serial.print("  qParam ");
+        Serial.print(qParam);
+        Serial.print("  qTrack ");
+        Serial.println(qTrack);
+
         done = !queuedActions.advanceRetrievalIndex();
 
         switch (qAction)
         {
             case PATTERNCHANGE:
+
+                Serial.print("PATTERNCHANGE ");
+                Serial.println(qAction);
+
+                out.append("Pt");
+                out.append(qAction);
+                out.append(" ");
+
                 sequencer.setCurrentTrack(qTrack);
                 ChangeSequenceNumberCb(qParam);
+                if(currentMode == pattern_select)
+                    inout.simpleIndicatorModeTrellisButtonPressed(qParam + STEPSOFFSET);
                 break;
 
             case PATHCHANGE:
+
+                Serial.print("PATHCHANGE ");
+                Serial.println(qAction);
+
+                out.append("Ph");
+                out.append(qAction);
+                out.append(" ");
+                
                 sequencer.setCurrentTrack(qTrack);
                 inout.pathModeTrellisButtonPressed((int)qParam + STEPSOFFSET);
                 break;
 
             case LENGTHCHANGE:
+
+                Serial.print("LENGTHCHANGE ");
+                Serial.println(qAction);
+
+                out.append("L");
+                out.append(qAction);
+                out.append(" ");
+                
                 sequencer.setCurrentTrack(qTrack);
                 ChangePatternLengthCb(qParam);
                 break;
 
             case TRACKMUTECHANGE:
+
+                Serial.print("TRACKMUTECHANGE ");
+                Serial.println(qAction);
+
+                out.append("Tm");
+                out.append(qAction);
+                out.append(" ");
+                
                 sequencer.setCurrentTrack(qTrack);
                 sequencer.setTrackMute(qTrack, (bool)qParam);
 
@@ -560,6 +604,14 @@ void runQueuedActions()
                 break;
 
             case SPEEDMULTIPLIERCHANGE:
+
+                Serial.print("SPEEDMULTIPLIERCHANGE ");
+                Serial.println(qAction);
+
+                out.append("Sp");
+                out.append(qAction);
+                out.append(" ");
+                
                 sequencer.setCurrentTrack(qTrack);
                 ChangeSpeedMultiplierCb((speedFactor)qParam);
                 break;
@@ -578,8 +630,11 @@ void runQueuedActions()
                 Serial.println(qAction);
                 done = true;
         }
-    } 
+    }
     sequencer.setCurrentTrack(bufTrack);
+    inout.showQueuedActions(out);
+    inout.SetLCDinfoTimeout();
+    inout.SetLCDinfoLabelTimeout();
 }
 
 
@@ -596,6 +651,13 @@ void prep_next_note_direct()
     Serial.print("  mem: ");
     Serial.println(FreeMem());
 */
+    // run queued commands if this is a new pattern start
+    if(g_queuePrimed && sequencer.isPatternRolloverStep())
+    {
+        g_queuePrimed = false;
+        runQueuedActions();
+        queuedActions.clearQueue();
+    }
 
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();

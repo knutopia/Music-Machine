@@ -103,6 +103,7 @@ class StepSequencer
       void retrieveMutedTracks(bool arrayPointer[], int arrayLength);
       bool setTrackMute(byte trackNum, bool muteFlag);
       byte toggleCurrentTrackMute();
+      bool isPatternRolloverStep();
       
 // static LinkedNoteList activeNotes;
 // static StepClickList activeStepClicks;

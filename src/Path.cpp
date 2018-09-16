@@ -30,6 +30,16 @@ byte Path::getStepPosForward(byte index, byte seqLength)
 
 byte Path::getCurrentStepCount(){return m_currentStep;}
 
+bool Path::detectPatternRollover(byte seqLength)
+{
+    bool retVal = false;
+
+    if( m_currentStep + 1 >= seqLength)
+        retVal = true;
+
+    return retVal;
+}
+
 bool Path::checkForSequenceStart()
 {
     bool retVal = false;

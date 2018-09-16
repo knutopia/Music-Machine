@@ -18,7 +18,7 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
     int foundIndex = -1;
     int f;
 
-    for(f = 0; f < QUEUEDACTIONVARIETY; f++)
+    for(f = 0; f < queuedActionsCount; f++)
     {
         if( aQueue[f].action == anAction)
         {
@@ -35,9 +35,10 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
         if(f < QUEUEDACTIONVARIETY - 1)
         {
             queuedActionsCount++;
-            aQueue[f+1].action = anAction;
-            aQueue[f+1].param = aParam;
-            aQueue[f+1].track = aTrack;
+            aQueue[f].action = anAction;
+            aQueue[f].param = aParam;
+            aQueue[f].track = aTrack;
+
         } else {
             inout.ShowErrorOnLCD("queueA: outOfRange");
             Serial.print("f = ");
@@ -50,6 +51,41 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
             Serial.println(anAction);
         }
     }
+
+    switch (anAction)
+    {
+        case PATTERNCHANGE:
+            inout.ShowValueInfoOnLCD("Queued pattern ", aParam);
+            break;
+
+        case PATHCHANGE:
+            inout.ShowValueInfoOnLCD("Queued path ", aParam);
+            break;
+
+        case LENGTHCHANGE:
+            inout.ShowValueInfoOnLCD("Queued length ", aParam);
+            break;
+
+        case TRACKMUTECHANGE:
+            inout.ShowInfoOnLCD("Queued Tmute toggle");
+            break;
+
+        case SPEEDMULTIPLIERCHANGE:
+            inout.ShowInfoOnLCD("Queued speed");
+            break;
+
+        case SYNCTRACKS:
+            // TODO
+            break;
+
+        case NOACTION:
+            break;
+
+        default:
+            inout.ShowErrorOnLCD("quAcs out of rnge");
+            Serial.print("queueAction anAction ");
+            Serial.println(anAction);
+    }
 }
 
 actionID ActionQueue::retrieveActionID()
@@ -57,7 +93,15 @@ actionID ActionQueue::retrieveActionID()
     actionID retVal = NOACTION;
 
     if(actionRetrievalIndex < QUEUEDACTIONVARIETY)
+    {
         retVal = aQueue[actionRetrievalIndex].action;
+
+        Serial.print("actionRetrievalIndex = ");
+        Serial.print(actionRetrievalIndex);
+        Serial.print("  action = ");
+        Serial.print(retVal);
+
+    }
     else {
             inout.ShowErrorOnLCD("retrAID: outOfRange");
             Serial.print("actionRetrievalIndex = ");

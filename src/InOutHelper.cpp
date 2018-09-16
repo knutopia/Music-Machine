@@ -1028,15 +1028,15 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
         updateSpeedMultiplierCb(QUAD);
         break;
 
-      case ZEROPROBBUTTON:
-        ShowInfoOnLCD("No Prob *");
-        SetLCDinfoTimeout();
-        ProbabilityButtonPressed(ZEROPROB);
-        break;
       case LOWPROBBUTTON:
         ShowInfoOnLCD("Low Prob *");
         SetLCDinfoTimeout();
         ProbabilityButtonPressed(LOWPROB);
+        break;
+      case MEDPROBBUTTON:
+        ShowInfoOnLCD("Med Prob *");
+        SetLCDinfoTimeout();
+        ProbabilityButtonPressed(MEDPROB);
         break;
       case HIGHPROPBBUTTON:
         ShowInfoOnLCD("High Prob *");

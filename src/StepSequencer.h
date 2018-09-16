@@ -27,7 +27,7 @@ class StepSequencer
       //Public constructor and methods
       StepSequencer();
       void begin(CbWhenStuck panicCbPointer);
-      bool playItOrNot(int _step);
+//    bool playItOrNot(int _step);
 //    void prime_edit_buffers();
 //    void reset_edit_seq(int seqnum);
       void save_sequence(int destination);

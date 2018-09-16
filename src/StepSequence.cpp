@@ -268,15 +268,16 @@ bool StepSequence::playItOrNot(int _step)
         {
             switch ((int)m_probability[_step]) 
             {
-                case ZEROPROB:
-                    retVal = false;
-                    break;        
                 case LOWPROB:
-                    if (random(100) < 33) retVal = true;
+                    if (random(100) < 20) retVal = true;
                     else retVal = false;
                     break;        
+                case MEDPROB:
+                    if (random(100) < 50) retVal = true;
+                    else retVal = false;
+                    break;
                 case HIGHPROB:
-                    if (random(100) < 66) retVal = true;
+                    if (random(100) < 80) retVal = true;
                     else retVal = false;
                     break;        
                 case FULLPROB:

@@ -368,7 +368,7 @@ void StepSequencer::prepFirstStep()
 }
 
 
-
+/*
 bool StepSequencer::playItOrNot(int _step) //make obsolete
 {
     // take step probability into account 
@@ -387,15 +387,16 @@ bool StepSequencer::playItOrNot(int _step) //make obsolete
     {
         int stepProbability = (int)activeEditTrack->getCurrentSequenceRef()->getProbability(_step);
         switch (stepProbability) {
-        case ZEROPROB:
-            retVal = false;
-            break;        
         case LOWPROB:
-            if (random(100) < 33) retVal = true;
+            if (random(100) < 20) retVal = true;
+            else retVal = false;
+            break;        
+        case MEDPROB:
+            if (random(100) < 50) retVal = true;
             else retVal = false;
             break;        
         case HIGHPROB:
-            if (random(100) < 66) retVal = true;
+            if (random(100) < 80) retVal = true;
             else retVal = false;
             break;        
         case FULLPROB:
@@ -405,6 +406,7 @@ bool StepSequencer::playItOrNot(int _step) //make obsolete
   }
   return retVal;
 }
+*/
 
 /*
 void StepSequencer::prime_edit_buffers() // UNUSED - ADDRESS ?

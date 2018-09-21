@@ -43,8 +43,8 @@ class SynthEngine
       void trackJoystick();
 
     private:
-      void playPercNote(note aNote);
-      void playSynthNote(note aNote);
+      void playPercNote(byte aTrack, note aNote);
+      void playSynthNote(byte aTrack, note aNote);
 
       void handleEncoderA(int value);
       void handleEncoderB(int value);

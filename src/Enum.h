@@ -88,7 +88,7 @@ enum instruments {Synth, Bassdrum, Snaredrum};
 
 enum retrigDivisions {NORETRIGS = 0, ONERETRIG = 12,TWORETRIGS = 8,THREERETRIGS = 6};
 
-enum midiChannels {MIDISENDCHANNEL = 1};
+// enum midiChannels {MIDISENDCHANNEL = 1};
 
 enum {FOURTEENBIT = 16384};
 

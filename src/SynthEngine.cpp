@@ -133,10 +133,10 @@ void SynthEngine::playNote(byte aTrack, note aNote)
     switch(aTrack)
     {
       case 1:
-        playSynthNote(aNote);
+        playSynthNote(aTrack, aNote);
         break;
       case 2:
-        playPercNote(aNote);
+        playPercNote(aTrack, aNote);
         break;
      } 
 }
@@ -150,7 +150,7 @@ void SynthEngine::playTestClick()
 }
 
 
-void SynthEngine::playPercNote(note aNote)
+void SynthEngine::playPercNote(byte aTrack, note aNote)
 {
 
 //  Track2drum.frequency(aNote.pitchFreq / 2);
@@ -161,18 +161,20 @@ void SynthEngine::playPercNote(note aNote)
     Track2drum.noteOn();
 
 #ifdef MIDION
-    if(!aNote.accent)
-      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, 2);  // 60 = C4
-    else
+    if(aNote.accent)
     {
-      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, 2);
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, aTrack);  // 60 = C4
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, aTrack+10);  // 60 = C4
+    } else {
+
+      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, aTrack);
 //    Serial.println("Midi accent");
     }
 #endif
 
 }
 
-void SynthEngine::playSynthNote(note aNote)
+void SynthEngine::playSynthNote(byte aTrack, note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
 
@@ -209,11 +211,13 @@ void SynthEngine::playSynthNote(note aNote)
     m_b_playing_a_note = true;
 
 #ifdef MIDION
-    if(!aNote.accent)
-      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, MIDISENDCHANNEL);  // 60 = C4
-    else
+    if(aNote.accent)
     {
-      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, MIDISENDCHANNEL);
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, aTrack);  // 60 = C4
+      usbMIDI.sendNoteOn(aNote.pitchVal, ACCENTVEL, aTrack+10);  // 60 = C4
+    } else {
+
+      usbMIDI.sendNoteOn(aNote.pitchVal, NORMALVEL, aTrack);
 //    Serial.println("Midi accent");
     }
 #endif
@@ -260,7 +264,8 @@ void SynthEngine::endSynthNote(float velocity)
 void SynthEngine::endMidiNote(byte aMidiChannel, byte aMidiNote)
 {
 #ifdef MIDION
-        usbMIDI.sendNoteOff(aMidiNote, 0, aMidiChannel);
+        usbMIDI.sendNoteOff(aMidiNote, NORMALVEL, aMidiChannel);
+        usbMIDI.sendNoteOff(aMidiNote, NORMALVEL, aMidiChannel+10);
 //      usbMIDI.send_now();
 #endif
 }

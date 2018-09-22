@@ -20,7 +20,7 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
 
     for(f = 0; f < queuedActionsCount; f++)
     {
-        if( aQueue[f].action == anAction)
+        if( acQueue[f].action == anAction && acQueue[f].track == aTrack)
         {
             actionIDfound = true;
             break;
@@ -29,15 +29,15 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
 
     if(actionIDfound)
     {
-        aQueue[f].param = aParam;
-        aQueue[f].track = aTrack; 
+        acQueue[f].param = aParam;
+        acQueue[f].track = aTrack; 
     } else {
-        if(f < QUEUEDACTIONVARIETY - 1)
+        if(f < QUEUEMAXLEN - 1)
         {
             queuedActionsCount++;
-            aQueue[f].action = anAction;
-            aQueue[f].param = aParam;
-            aQueue[f].track = aTrack;
+            acQueue[f].action = anAction;
+            acQueue[f].param = aParam;
+            acQueue[f].track = aTrack;
 
         } else {
             inout.ShowErrorOnLCD("queueA: outOfRange");
@@ -45,8 +45,8 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
             Serial.print(f);
             Serial.print("  queuedActionsCount = ");
             Serial.print(queuedActionsCount);
-            Serial.print("  QUEUEDACTIONVARIETY = ");
-            Serial.print(QUEUEDACTIONVARIETY);
+            Serial.print("  QUEUEMAXLEN = ");
+            Serial.print(QUEUEMAXLEN);
             Serial.print("  action = ");
             Serial.println(anAction);
         }
@@ -92,9 +92,9 @@ actionID ActionQueue::retrieveActionID()
 {
     actionID retVal = NOACTION;
 
-    if(actionRetrievalIndex < QUEUEDACTIONVARIETY)
+    if(actionRetrievalIndex < QUEUEMAXLEN)
     {
-        retVal = aQueue[actionRetrievalIndex].action;
+        retVal = acQueue[actionRetrievalIndex].action;
 
         Serial.print("actionRetrievalIndex = ");
         Serial.print(actionRetrievalIndex);
@@ -108,8 +108,8 @@ actionID ActionQueue::retrieveActionID()
             Serial.print(actionRetrievalIndex);
             Serial.print("  queuedActionsCount = ");
             Serial.print(queuedActionsCount);
-            Serial.print("  QUEUEDACTIONVARIETY = ");
-            Serial.println(QUEUEDACTIONVARIETY);
+            Serial.print("  QUEUEMAXLEN = ");
+            Serial.println(QUEUEMAXLEN);
     }
     return retVal;
 }
@@ -118,16 +118,16 @@ byte ActionQueue::retrieveActionParam()
 {
     byte retVal = 0;
 
-    if(actionRetrievalIndex < QUEUEDACTIONVARIETY)
-        retVal = aQueue[actionRetrievalIndex].param;
+    if(actionRetrievalIndex < QUEUEMAXLEN)
+        retVal = acQueue[actionRetrievalIndex].param;
     else {
             inout.ShowErrorOnLCD("retrAPm: outOfRange");
             Serial.print("actionRetrievalIndex = ");
             Serial.print(actionRetrievalIndex);
             Serial.print("  queuedActionsCount = ");
             Serial.print(queuedActionsCount);
-            Serial.print("  QUEUEDACTIONVARIETY = ");
-            Serial.println(QUEUEDACTIONVARIETY);
+            Serial.print("  QUEUEMAXLEN = ");
+            Serial.println(QUEUEMAXLEN);
     }
     return retVal;
 }
@@ -136,16 +136,16 @@ byte ActionQueue::retrieveActionTrack()
 {
     byte retVal = 0;
 
-    if(actionRetrievalIndex < QUEUEDACTIONVARIETY)
-        retVal = aQueue[actionRetrievalIndex].track;
+    if(actionRetrievalIndex < QUEUEMAXLEN)
+        retVal = acQueue[actionRetrievalIndex].track;
     else {
             inout.ShowErrorOnLCD("retrATr: outOfRange");
             Serial.print("actionRetrievalIndex = ");
             Serial.print(actionRetrievalIndex);
             Serial.print("  queuedActionsCount = ");
             Serial.print(queuedActionsCount);
-            Serial.print("  QUEUEDACTIONVARIETY = ");
-            Serial.println(QUEUEDACTIONVARIETY);
+            Serial.print("  QUEUEMAXLEN = ");
+            Serial.println(QUEUEMAXLEN);
     }
     return retVal;
 }
@@ -154,7 +154,7 @@ bool ActionQueue::advanceRetrievalIndex()
 {
     bool retVal = false;
 
-    if( ++actionRetrievalIndex < QUEUEDACTIONVARIETY)
+    if( ++actionRetrievalIndex < QUEUEMAXLEN)
         retVal = true;
 
     return retVal;
@@ -170,6 +170,6 @@ void ActionQueue::clearQueue()
     queuedActionsCount = 0;
     actionRetrievalIndex = 0;
 
-    for(int f = 0; f < QUEUEDACTIONVARIETY; f++)
-        aQueue[f].action = NOACTION;
+    for(int f = 0; f < QUEUEMAXLEN; f++)
+        acQueue[f].action = NOACTION;
 }

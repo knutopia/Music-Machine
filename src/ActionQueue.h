@@ -26,7 +26,7 @@ class ActionQueue
     void clearQueue();
 
   private:
-    QueuedActionRecord aQueue[QUEUEDACTIONVARIETY];
+    QueuedActionRecord acQueue[QUEUEMAXLEN];
     byte queuedActionsCount = 0;
     byte actionRetrievalIndex = 0;
 };

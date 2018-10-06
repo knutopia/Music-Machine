@@ -6,6 +6,7 @@
 enum seqModes {first,
                pattern_select,
                pattern_save, 
+               chain_edit,
                step_mute,
                step_hold,
                step_edit, 
@@ -103,4 +104,7 @@ enum midiVelocities {NORMALVEL = 1, ACCENTVEL = 127};
 enum actionID {NOACTION, PATTERNCHANGE, PATHCHANGE, LENGTHCHANGE, TRACKMUTECHANGE, SPEEDMULTIPLIERCHANGE, SYNCTRACKS};
 
 enum {QUEUEMAXLEN = 6 * TRACKCOUNT};
+
+enum {MAXLINKSPERCHAIN = 4, MAXCHAINCOUNT = 4};
+
 #endif

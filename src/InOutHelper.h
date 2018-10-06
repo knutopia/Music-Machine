@@ -95,6 +95,7 @@ class InOutHelper
     void SetupLengthModeTrellis();
     void SetupPatternSelectModeTrellis();
     void SetupPatternSaveModeTrellis();
+    void SetupChainEditModeTrellis();
     void SetupPathSelectModeTrellis();
     void SetupSynthEditTrellis();
     void SetupSaveModeTrellis();

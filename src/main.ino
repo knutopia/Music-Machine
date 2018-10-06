@@ -26,6 +26,8 @@
 #include "Timebase.h"
 #include "SDHandler.h"
 #include "ActionQueue.h"
+#include "PatternChainLink.h"
+#include "PatternChainHandler.h"
 
 int g_activeGlobalStep;
 
@@ -72,6 +74,7 @@ int currentMode = pattern_select;
 const char *modeNames[] = {"foo1",
                            "Pattern Select", 
                            "Pattern Save", 
+                           "Chain Edit",
                            "Step Mute", 
                            "Step Hold",
                            "Step Edit", 

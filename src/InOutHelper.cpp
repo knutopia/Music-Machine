@@ -217,6 +217,13 @@ void InOutHelper::setupNewMode() {
         initTrackEncoder = true;
         SetupPatternSaveModeTrellis();
         break;      
+      case chain_edit:
+        StepButtonCb = NULL;    
+        StartStopButtonCb = startStopCb; // use a sepatate one for chain play ?
+        initTrackEncoder = true;
+        SetupChainEditModeTrellis();
+        break;  
+
       case step_mute: 
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
@@ -393,6 +400,21 @@ void InOutHelper::SetupPatternSaveModeTrellis() {
     
     LiteUpTrellisSteps(helperSteps);
     ShowSequenceNumberOnLCD(seqNum);
+}
+
+
+void InOutHelper::SetupChainEditModeTrellis() {
+    
+    // TODO
+    
+//  int seqNum = sequencer.getCurrentSequence();
+    
+    stepsToCheck = helperSteps;
+    ClearBoolSteps(helperSteps, 16);
+//  helperSteps[seqNum] = true;
+    
+    LiteUpTrellisSteps(helperSteps);
+//  ShowSequenceNumberOnLCD(seqNum);
 }
 
 
@@ -1607,12 +1629,18 @@ void InOutHelper::handleModeButtons()
         selectOrSave = pattern_select;
       } else
         if (currentMode == pattern_save) {
-          currentMode = pattern_select;
+          currentMode = chain_edit;
           selectOrSave = pattern_select;
           save_sequence_destination = -1;
           ClearInfoOnLCD();
         } else
-          currentMode = selectOrSave;
+          if (currentMode == chain_edit) {
+            currentMode = pattern_select;
+            selectOrSave = pattern_select;
+            save_sequence_destination = -1;
+            ClearInfoOnLCD();
+          } else
+            currentMode = selectOrSave;
           
       setupNewMode();
       ShowModeOnLCD();        

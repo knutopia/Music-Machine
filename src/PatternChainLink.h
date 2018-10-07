@@ -8,6 +8,8 @@
 struct ChainLink {
 
     byte patternPerTrack[TRACKCOUNT];
+    bool mutePerTrack[TRACKCOUNT];
+    bool trackUsedInLink[TRACKCOUNT];
     int timesToPlay;
     byte nextLink;
 };
@@ -19,11 +21,11 @@ class PatternChainLink
 
     void begin();
     
-    void addTrackPatterntoLink(); // to populate link
+    void addTrackPatterntoLink(byte trackNum, byte patNum, bool muteIt); // to populate link
 
     // setters
     void setTimesToPlay(byte times); 
-    void setNextLink(byte nextLink);
+    void setNextLink(byte linkNum);
 
     // to use during play
     bool timeForNextLink();

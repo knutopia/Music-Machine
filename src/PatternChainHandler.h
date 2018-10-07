@@ -19,12 +19,14 @@ class PatternChainHandler
 
     void begin();
     
-    void selectLink(byte linkNum); //for editing
-    void appendLink(); // for editing
-    void removeLink(); // for editing
-    void clearLink(); // for editing
+    // for editing...
+    void selectLink(byte linkNum);
+    void appendLink();
+    void removeLink();
+    void clearLink();
 
-    bool updateLinkOrChainIfNeeded(); // management during play
+    // management during play
+    bool updateLinkOrChainIfNeeded();
 
   private:
 
@@ -32,6 +34,7 @@ class PatternChainHandler
 
     Chain chains[MAXCHAINCOUNT];
     Chain* currentChain;
+    byte currentChainIndex;
     PatternChainLink* currentLink;
     int currentChainPlayCount;
 /*

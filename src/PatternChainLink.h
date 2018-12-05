@@ -11,6 +11,7 @@ struct ChainLink {
     bool mutePerTrack[TRACKCOUNT];
     bool trackUsedInLink[TRACKCOUNT];
     int timesToPlay;
+    byte leadTrack;
     byte nextLink;
 };
 
@@ -24,6 +25,7 @@ class PatternChainLink
     void addTrackPatterntoLink(byte trackNum, byte patNum, bool muteIt); // to populate link
 
     // setters
+    bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
     void setNextLink(byte linkNum);
 

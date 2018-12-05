@@ -33,6 +33,18 @@ void PatternChainLink::setTimesToPlay(byte times)
     link.timesToPlay = times;
 };
 
+bool PatternChainLink::setLeadTrack(byte trackNum)
+{
+    bool success = false;
+
+    if(link.trackUsedInLink[trackNum])
+    {
+        success = true;
+        link.leadTrack = trackNum;
+    }
+    return success;
+};
+
 void PatternChainLink::setNextLink(byte linkNum)
 {
     link.nextLink = linkNum;

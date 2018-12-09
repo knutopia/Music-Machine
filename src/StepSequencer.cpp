@@ -1480,6 +1480,19 @@ bool StepSequencer::isPatternRolloverStep()
     return retVal;
 }
 
+bool StepSequencer::isPatternRolloverStep(byte trackNum)
+{
+    bool retVal = false;
+
+    Track *checkTrack = m_activeTracks.getTrackRef(trackNum);
+
+    if(checkTrack != NULL)
+        retVal = checkTrack->isTrackPatternRollOverStep();
+    else
+        inout.ShowErrorOnLCD("isPatRoSttN cT NULL");
+    return retVal;
+}
+
 bool StepSequencer::checkActiveEditTrackRefandCurrentSeqRef()
 {
     bool retVal = false;

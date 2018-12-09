@@ -104,6 +104,7 @@ class StepSequencer
       bool setTrackMute(byte trackNum, bool muteFlag);
       byte toggleCurrentTrackMute();
       bool isPatternRolloverStep();
+      bool isPatternRolloverStep(byte trackNum);
       
 // static LinkedNoteList activeNotes;
 // static StepClickList activeStepClicks;

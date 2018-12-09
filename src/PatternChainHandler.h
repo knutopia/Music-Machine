@@ -27,6 +27,7 @@ class PatternChainHandler
 
     // management during play
     bool updateLinkOrChainIfNeeded();
+    static byte currentLeadTrack;
 
   private:
 

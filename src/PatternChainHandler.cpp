@@ -3,6 +3,7 @@
 
 extern InOutHelper inout;
 
+byte PatternChainHandler::currentLeadTrack;
 
 PatternChainHandler::PatternChainHandler()
 {
@@ -20,7 +21,7 @@ void PatternChainHandler::begin()
     }
     currentChain = NULL;
     currentChainIndex = 0;
-    currentLink = 0;
+    currentLink = NULL;
     currentChainPlayCount = 0;
 };
 
@@ -64,6 +65,15 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     //          if not:
     //              increment chain play count
     //              go to first link in chain
+
+    if(currentLink != NULL)
+    {
+        currentLink->incrementLinkPlayCount();
+        if(currentLink->timeForNextLink())
+        {
+            
+        }
+    }
 };
 
 bool PatternChainHandler::timeForNextChain()

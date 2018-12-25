@@ -16,13 +16,14 @@ class PatternChainHandler
 {
   public:
     PatternChainHandler();
+    ~PatternChainHandler();
 
     void begin();
     
     // for editing...
     void selectLink(byte linkNum);
-    void appendLink();
-    void removeLink();
+    PatternChainLink* appendLink();
+    bool removeLink();
     void clearLink();
 
     // management during play

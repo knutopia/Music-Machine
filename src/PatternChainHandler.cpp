@@ -10,6 +10,15 @@ PatternChainHandler::PatternChainHandler()
     
 };
 
+PatternChainHandler::~PatternChainHandler()
+{
+    // remove the links
+    for(int f = 0; f < MAXCHAINCOUNT; f++)
+        for(int l = 0; l < chains[f].numberOfLinks; l++)
+            if( chains[f].links[l] != NULL)
+                delete chains[f].links[l];
+};
+
 void PatternChainHandler::begin()
 {
     for(int f = 0; f < MAXCHAINCOUNT; f++)
@@ -23,6 +32,29 @@ void PatternChainHandler::begin()
     currentChainIndex = 0;
     currentLink = NULL;
     currentChainPlayCount = 0;
+
+    // set up test chain content
+
+    PatternChainLink* newLink = appendLink();
+    if(newLink != NULL)
+    {
+        newLink->addTrackPatterntoLink(1, 1, false);
+        newLink->addTrackPatterntoLink(2, 1, false);
+    }
+
+    newLink = appendLink();
+    if(newLink != NULL)
+    {
+        newLink->addTrackPatterntoLink(1, 2, false);
+        newLink->addTrackPatterntoLink(2, 2, false);
+    }
+
+    newLink = appendLink();
+    if(newLink != NULL)
+    {
+        newLink->addTrackPatterntoLink(1, 3, false);
+        newLink->addTrackPatterntoLink(2, 3, false);
+    }
 };
 
 // for editing...
@@ -31,14 +63,54 @@ void PatternChainHandler::selectLink(byte linkNum)
 
 };
 
-void PatternChainHandler::appendLink()
+PatternChainLink* PatternChainHandler::appendLink()
 {
+    if (currentChain == NULL)
+    {
+        currentChainIndex = 0;
+        if(chains == NULL)
+        {
+            inout.ShowErrorOnLCD("PCH:aL:chains NULL");
+            return NULL;
+        }
+        currentChain = &chains[currentChainIndex];
+    }
 
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aL:curCh NULL");
+        return NULL;
+    }
+
+    if (currentChain->numberOfLinks >= MAXLINKSPERCHAIN)
+    {
+        inout.ShowErrorOnLCD("PCH:aL:nOL max");
+        return NULL;
+    }
+
+    PatternChainLink* newLink = new PatternChainLink();
+
+    if (newLink == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aL:newL NULL");
+        return NULL;
+    }
+
+    if (currentChain->links == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aL:links NULL");
+        delete newLink;
+        return NULL;
+    }
+    
+    currentChain->links[currentChain->numberOfLinks] = newLink;
+    currentChain->numberOfLinks++;
+    return newLink;
 };
 
-void PatternChainHandler::removeLink()
+bool PatternChainHandler::removeLink()
 {
-
+    return true;
 };
 
 void PatternChainHandler::clearLink()

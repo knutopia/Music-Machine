@@ -21,7 +21,7 @@ class Path
     void setPath(int index);
     void setNextPath();
     void setPrevPath();
-    char* getPathName();
+    const char* getPathName();
     
     //Helper methods
     void resetStep();
@@ -33,7 +33,7 @@ class Path
     int m_currentPath = 0;
     int m_currentStep = 0;
 
-    char m_pathNames[16][20] = {"Simple path", 
+    const char m_pathNames[16][20] = {"Simple path", 
                         "Reverse Path", 
                         "Back & Forth", 
                         "Back & Forth Rev",

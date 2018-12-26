@@ -52,7 +52,7 @@ class StepSequencer
       byte getVelocity(int _step); // kg
       note getNoteParams(int _step);
       byte getPath(); // kg
-      char* getPathName();
+      const char* getPathName();
 
       int getCurrentSequence();
       byte getCurrentTrack();

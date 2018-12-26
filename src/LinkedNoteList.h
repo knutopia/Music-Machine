@@ -26,8 +26,8 @@ public:
     bool checkIntegrity(const char caller[]);
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHeadNote();
-    void prependNote(int aStep, byte aTrack, note aNote);
-    void appendNote(int aStep, byte aTrack, note aNote);
+    void prependNote(int aStep, byte aTrack, const note aNote);
+    void appendNote(int aStep, byte aTrack, const note aNote);
     void rewind();
     void next();
     int getStep();

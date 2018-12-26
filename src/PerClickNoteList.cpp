@@ -108,7 +108,7 @@ void PerClickNoteList::print()
     Serial.println();
 }
 
-void PerClickNoteList::append(note aNote, byte aTrack, unsigned long aDurationMS)
+void PerClickNoteList::append(const note aNote, byte aTrack, unsigned long aDurationMS)
 {
     notePerClick *n = new notePerClick();   // create new Node
 //  notePerClick *n;

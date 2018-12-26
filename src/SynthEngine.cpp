@@ -127,7 +127,7 @@ bool SynthEngine::playingAnote()
 
 //Helper methods
 
-void SynthEngine::playNote(byte aTrack, note aNote)
+void SynthEngine::playNote(byte aTrack, const note aNote)
 // will need to track notes for noteOff
 {
     switch(aTrack)
@@ -150,7 +150,7 @@ void SynthEngine::playTestClick()
 }
 
 
-void SynthEngine::playPercNote(byte aTrack, note aNote)
+void SynthEngine::playPercNote(byte aTrack, const note aNote)
 {
 
 //  Track2drum.frequency(aNote.pitchFreq / 2);
@@ -174,7 +174,7 @@ void SynthEngine::playPercNote(byte aTrack, note aNote)
 
 }
 
-void SynthEngine::playSynthNote(byte aTrack, note aNote)
+void SynthEngine::playSynthNote(byte aTrack, const note aNote)
 {
 //    float osc2freq = freq + freq / 1000.0 * (float)random (-50, 50) / 100.0;
 

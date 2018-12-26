@@ -30,7 +30,7 @@ class StepClickList
     void begin(CbWhenStuck panicCbPointer);    
     void purge();
     bool checkIntegrity(const char caller[]);
-    void addClickNote(note aNote, byte aTrack, 
+    void addClickNote(const note aNote, byte aTrack, 
                       unsigned long aDuration, 
                       int aMasterStep, 
                       int aClickStep);

@@ -62,7 +62,7 @@ void Path::setPrevPath()
     m_currentPath = (--m_currentPath)  % max_path_steps;
 }
 
-char* Path::getPathName()
+const char* Path::getPathName()
 {
     return m_pathNames[m_currentPath];
 }

@@ -138,7 +138,7 @@ void Timebase::updateTimingIfNeeded()
     }      
 }
 
-long Timebase::truncateSwingStepDuration(note aNote)
+long Timebase::truncateSwingStepDuration(const note aNote)
 {
     long retVal = aNote.durationMS;
 
@@ -164,7 +164,7 @@ long Timebase::truncateSwingStepDuration(note aNote)
     return retVal;
 }
 
-long Timebase::getStepDurationMS(note aNote) // USE NOTE
+long Timebase::getStepDurationMS(const note aNote) // USE NOTE
 {
     // Using microseconds (not milliseconds)
     unsigned long retVal = 0;

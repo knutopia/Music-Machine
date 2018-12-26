@@ -193,7 +193,7 @@ void LinkedNoteList::dropHeadNote()
 }
 
 // This prepends a new value at the beginning of the list
-void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
+void LinkedNoteList::prependNote(int aStep, byte aTrack, const note aNote)
 {
     noteNode *n = new noteNode();   // create new Node
     n->masterStep = aStep;  // set value
@@ -213,7 +213,7 @@ void LinkedNoteList::prependNote(int aStep, byte aTrack, note aNote)
 }
 
 // add value at the end -kg
-void LinkedNoteList::appendNote(int aStep, byte aTrack, note aNote)
+void LinkedNoteList::appendNote(int aStep, byte aTrack, const note aNote)
 {
 #ifdef DEBUG
     Serial.print("appendNote aNote is ");

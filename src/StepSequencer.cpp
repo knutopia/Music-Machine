@@ -741,7 +741,7 @@ byte StepSequencer::getPath() // kg
         return activeEditTrack->getCurrentSequenceRef()->getPath();
 }
 
-char* StepSequencer::getPathName()
+const char* StepSequencer::getPathName()
 {
     note retVal;
     if(! &activeEditTrack == NULL)

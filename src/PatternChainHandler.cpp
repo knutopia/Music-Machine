@@ -145,12 +145,8 @@ PatternChainLink* PatternChainHandler::appendLink()
         if (prevLink != NULL)
         {
             prevLink->setNextLinkIndex(currentChain->numberOfLinks + 1);
-            Serial.print("setNextLinkIndex ");
-            Serial.print(currentChain->numberOfLinks + 1);
         }
         else inout.ShowErrorOnLCD("setNeLiIx NO");
-
-
     }
     currentChain->links[currentChain->numberOfLinks] = newLink;
     currentChain->numberOfLinks++;
@@ -168,6 +164,11 @@ void PatternChainHandler::clearLink()
 };
 
 // management during play
+
+void PatternChainHandler::startChainPlay()
+{
+    inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
+}
 
 bool PatternChainHandler::updateLinkOrChainIfNeeded()
 {
@@ -283,8 +284,7 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
         }
     }
 
-
-    Serial.println(" don");
+    Serial.println(" done.");
 
     inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
     return true;

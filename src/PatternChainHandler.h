@@ -33,6 +33,7 @@ class PatternChainHandler
     void clearLink();
 
     // management during play
+    void startChainPlay();
     bool updateLinkOrChainIfNeeded();
     void reset();
 

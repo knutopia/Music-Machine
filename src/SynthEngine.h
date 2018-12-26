@@ -24,7 +24,7 @@ class SynthEngine
       void begin();
       bool playingAnote();
       void playTestClick();
-      void playNote(byte aTrack, note aNote);
+      void playNote(byte aTrack, const note aNote);
       void endNote(byte aTrack, byte aMidiNote);
       void endSynthNote(float velocity);
       void endMidiNote(byte aMidiChannel, byte aMidiNote);
@@ -43,8 +43,8 @@ class SynthEngine
       void trackJoystick();
 
     private:
-      void playPercNote(byte aTrack, note aNote);
-      void playSynthNote(byte aTrack, note aNote);
+      void playPercNote(byte aTrack, const note aNote);
+      void playSynthNote(byte aTrack, const note aNote);
 
       void handleEncoderA(int value);
       void handleEncoderB(int value);

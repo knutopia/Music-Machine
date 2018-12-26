@@ -52,9 +52,9 @@ class StepSequence
         void printSequence();
 
     private:
-        unsigned long calcNextNoteDuration(note aNote);
-        byte assembleHolds(note aNote, Path aPath);
-        byte assembleMutes(note aNote, Path aPath);
+        unsigned long calcNextNoteDuration(const note aNote);
+        byte assembleHolds(const note aNote, Path aPath);
+        byte assembleMutes(const note aNote, Path aPath);
 
 //      note m_noteStruct;
         byte m_notes[max_notes];

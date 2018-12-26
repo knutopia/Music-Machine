@@ -2238,10 +2238,11 @@ void InOutHelper::ShowChainLinkOnLCD(byte chain, byte link)
       lcd.print(link);
     }
 }
+
 void InOutHelper::ClearChainLinkOnLCD()
 {
     lcd.setCursor(0, 0);
-    lcd.print("         ");
+    lcd.print("           ");
 }
 
 void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode mode)

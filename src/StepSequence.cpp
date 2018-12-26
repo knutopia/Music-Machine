@@ -39,7 +39,7 @@ void StepSequence::reset()
     }
 }
 
-unsigned long StepSequence::calcNextNoteDuration(note aNote)
+unsigned long StepSequence::calcNextNoteDuration(const note aNote)
 {
     unsigned long retVal;
 
@@ -67,7 +67,7 @@ unsigned long StepSequence::calcNextNoteDuration(note aNote)
     return retVal;
 }
 
-byte StepSequence::assembleHolds(note aNote, Path aPath)
+byte StepSequence::assembleHolds(const note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -94,7 +94,7 @@ byte StepSequence::assembleHolds(note aNote, Path aPath)
     return holdStepCount;
 }
 
-byte StepSequence::assembleMutes(note aNote, Path aPath)
+byte StepSequence::assembleMutes(const note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS

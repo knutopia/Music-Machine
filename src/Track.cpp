@@ -335,7 +335,7 @@ byte Track::getMaxSequenceIndex()
       return maxSequenceIndex;
 }
 
-char* Track::getPathName()
+const char* Track::getPathName()
 {
       return trackPath.getPathName();
 }

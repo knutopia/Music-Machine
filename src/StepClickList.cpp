@@ -171,7 +171,7 @@ bool StepClickList::checkIntegrity(const char caller[])
     return retVal;
 }
 
-void StepClickList::addClickNote(note aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
+void StepClickList::addClickNote(const note aNote, byte aTrack, unsigned long aDuration, int aMasterStep, int aClickStep)
 {
     if(!checkIntegrity("addClickNote start"))
         print();

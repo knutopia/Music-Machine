@@ -156,6 +156,7 @@ void ChangeTempoCb(int newTempo);
 void ChangeSpeedMultiplierCb(speedFactor mult);
 void SaveToSdCb();
 void StartStopCb();
+void StopPlaybackCb();
 void SynthButtonCb(int butNum);
 
 void OnNoteOn(byte channel, byte note, byte velocity);
@@ -396,6 +397,18 @@ void StartStopCb()
     }  
 }
 
+void StopPlaybackCb()
+{
+    stopPlayback();
+#ifdef MIDION
+    usbMIDI.sendRealTime(usbMIDI.Stop);
+#endif
+    Serial.println("  stopped: ");
+
+    synth.reportPerformance();
+    inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
+    inout.SetLCDinfoTimeout();
+}
 
 void SynthButtonCb(int butNum)
 {
@@ -443,7 +456,7 @@ void setup()
 
     sequencer.begin(EmergencyCb);
     activeStepClicks.begin(EmergencyCb);
-    patternChain.begin();
+    patternChain.begin(StopPlaybackCb);
 
     Serial.println("Reading sequences from SD");
     tracksLoaded = sdCard.readTracksFromSDcard();

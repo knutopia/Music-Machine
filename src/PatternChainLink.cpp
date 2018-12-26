@@ -16,7 +16,7 @@ void PatternChainLink::begin()
         link.mutePerTrack[f] = false;
         link.patternPerTrack[f] = 255;
     }
-    link.nextLink = 255;
+    link.nextLinkIndex = 255;
     link.timesToPlay = 0;
 };
 
@@ -45,13 +45,24 @@ bool PatternChainLink::setLeadTrack(byte trackNum)
     return success;
 };
 
-void PatternChainLink::setNextLink(byte linkNum)
+void PatternChainLink::setNextLinkIndex(byte linkNum)
 {
-    link.nextLink = linkNum;
+    link.nextLinkIndex = linkNum;
+};
+
+void PatternChainLink::resetPlayCount()
+{
+    currentPlayCount = 0;
+};
+
+// getters
+byte PatternChainLink::getNextLinkIndex()
+{
+    return link.nextLinkIndex;
 };
 
 // to use during play
-bool PatternChainLink::timeForNextLink()
+bool PatternChainLink::timeForNextLinkIndex()
 {
     bool retVal = false;
 

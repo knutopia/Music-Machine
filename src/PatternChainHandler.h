@@ -5,6 +5,9 @@
 #include "Enum.h"
 #include "PatternChainLink.h"
 
+//typedef for callback
+typedef void (*simpleFunc) ();
+
 struct Chain {
     int timesToPlay;
     PatternChainLink* links[MAXLINKSPERCHAIN];
@@ -18,7 +21,7 @@ class PatternChainHandler
     PatternChainHandler();
     ~PatternChainHandler();
 
-    void begin();
+    void begin(simpleFunc stopCbPointer);
     
     // for editing...
     void selectLink(byte linkNum);
@@ -32,6 +35,7 @@ class PatternChainHandler
 
   private:
 
+    simpleFunc stopPlaybackCb;
     bool timeForNextChain(); // utility
 
     Chain chains[MAXCHAINCOUNT];

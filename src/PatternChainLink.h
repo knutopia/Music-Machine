@@ -12,7 +12,7 @@ struct ChainLink {
     bool trackUsedInLink[TRACKCOUNT];
     int timesToPlay;
     byte leadTrack;
-    byte nextLink;
+    byte nextLinkIndex;
 };
 
 class PatternChainLink
@@ -27,10 +27,12 @@ class PatternChainLink
     // setters
     bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
-    void setNextLink(byte linkNum);
+    void setNextLinkIndex(byte linkNum);
+    byte getNextLinkIndex();
+    void resetPlayCount();
 
     // to use during play
-    bool timeForNextLink();
+    bool timeForNextLinkIndex();
     void incrementLinkPlayCount();
 
   private:

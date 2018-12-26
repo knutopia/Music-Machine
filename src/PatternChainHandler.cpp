@@ -19,8 +19,10 @@ PatternChainHandler::~PatternChainHandler()
                 delete chains[f].links[l];
 };
 
-void PatternChainHandler::begin()
+void PatternChainHandler::begin(simpleFunc stopCbPointer)
 {
+    stopPlaybackCb = stopCbPointer;
+
     for(int f = 0; f < MAXCHAINCOUNT; f++)
     {
         chains[f].nextChain = 255;
@@ -103,6 +105,12 @@ PatternChainLink* PatternChainHandler::appendLink()
         return NULL;
     }
     
+    if (currentChain->numberOfLinks > 0)
+    {
+        PatternChainLink* prevLink = currentChain->links[currentChain->numberOfLinks];
+        if (prevLink != NULL)
+            prevLink->setNextLinkIndex(currentChain->numberOfLinks + 1);
+    }
     currentChain->links[currentChain->numberOfLinks] = newLink;
     currentChain->numberOfLinks++;
     return newLink;
@@ -131,19 +139,73 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     //          go to next link
     //      if no:
     //          check chain play count to see if next chain is due
-    //          if next chain is due:
-    //              if next chain available: increment chain, set up first link
-    //              if no more chains available: stop play
     //          if not:
     //              increment chain play count
     //              go to first link in chain
+    //          if next chain is due:
+    //              if next chain available: increment chain, set up first link
+    //              if no more chains available: stop play
 
-    if(currentLink != NULL)
+    if(currentLink == NULL)
     {
-        currentLink->incrementLinkPlayCount();
-        if(currentLink->timeForNextLink())
+        inout.ShowErrorOnLCD("PCH:uLOCIN cL NULL");
+        return false;
+    }
+    
+    if(currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:uLOCIN cC NULL");
+        return false;
+    }
+    
+    // increment the link play count
+    currentLink->incrementLinkPlayCount();
+
+    // check link play count to see if next link is due
+    if(currentLink->timeForNextLinkIndex())
+    {
+    // if it is:
+    //      check if more links in chain
+        byte nextLinkIndex = currentLink->getNextLinkIndex();
+        if(nextLinkIndex < 255)
         {
-            
+    //      if yes:
+    //          go to next link
+            currentLink = currentChain->links[nextLinkIndex];
+            currentLink->resetPlayCount();
+        } else {
+    //      if no:
+    //          check chain play count to see if next chain is due
+            if(currentChainPlayCount < currentChain->timesToPlay)
+            {
+    //          if not:
+    //              increment chain play count
+    //              go to first link in chain
+                currentChainPlayCount++;
+                currentLink = currentChain->links[0];
+                currentLink->resetPlayCount();
+            } else {
+    //          if next chain is due:
+                byte theNextChain = currentChain->nextChain;
+                if(theNextChain < 255)
+                {
+    //              if next chain available: increment chain, set up first link
+                    currentChain = &chains[theNextChain];
+                    if(currentChain != NULL)
+                    {
+                        currentChainPlayCount = 1;
+                        currentLink = currentChain->links[0];
+                        currentLink->resetPlayCount();                      
+                    } else {
+                        inout.ShowErrorOnLCD("PCH:uLOCIN NcC NULL");
+                        stopPlaybackCb();
+                        return false;
+                    }
+                } else {
+    //              if no more chains available: stop play
+                    stopPlaybackCb();
+                }
+            }
         }
     }
 };
@@ -155,21 +217,17 @@ bool PatternChainHandler::timeForNextChain()
     if(currentChain == NULL)
     {
         inout.ShowErrorOnLCD("PCH tFNCh curCh NULL");
-        retVal = false;
-    } else {
-        if(currentChainPlayCount == currentChain->timesToPlay)
-            retVal = true;
-        else
-            if(currentChainPlayCount == currentChain->timesToPlay)
-            {
-                retVal = true;
-
-                inout.ShowErrorOnLCD("PCH tFNCh curCPC err");
-                Serial.print("currentChainPlayCount: ");
-                Serial.print(currentChainPlayCount);
-                Serial.print("  currentChain->timesToPlay: ");
-                Serial.println(currentChain->timesToPlay);
-            }
+        return false;
     }
+
+    if(currentChainPlayCount == currentChain->timesToPlay)
+        retVal = true;
+    else
+        if(currentChainPlayCount > currentChain->timesToPlay)
+        {
+            retVal = true;
+            inout.ShowErrorOnLCD("PCH tFNCh curCPC >");
+        }
+
     return retVal;
 };

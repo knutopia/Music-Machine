@@ -22,7 +22,7 @@ public:
     // constructor
     LinkedTrackList();
     ~LinkedTrackList();
-    bool checkIntegrity(char caller[]);
+    bool checkIntegrity(const char caller[]);
     Track* getTrackRef(byte trackNum);
     void dropTrack(byte trackNum);
     void dropNode(trackNode *prev);

@@ -21,7 +21,7 @@ public:
     ~PerClickNoteList();
     
     void purge();
-    void checkIntegrity(char caller[]);
+    void checkIntegrity(const char caller[]);
     void print();
     void append(note aNote, byte aTrack, unsigned long aDurationMS);
     note getNote();

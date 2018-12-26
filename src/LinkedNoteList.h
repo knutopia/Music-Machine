@@ -23,7 +23,7 @@ public:
 
     void purge();
     void printActiveNote();
-    bool checkIntegrity(char caller[]);
+    bool checkIntegrity(const char caller[]);
     void dropNotesBeforeStepAndRewind(int aStep);
     void dropHeadNote();
     void prependNote(int aStep, byte aTrack, note aNote);

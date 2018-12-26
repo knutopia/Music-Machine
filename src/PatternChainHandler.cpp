@@ -33,7 +33,9 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer)
     currentChain = NULL;
     currentChainIndex = 0;
     currentLink = NULL;
+    currentLinkIndex = 0;
     currentChainPlayCount = 0;
+    currentLeadTrack = 1;
 
     // set up test chain content
 
@@ -42,6 +44,8 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer)
     {
         newLink->addTrackPatterntoLink(1, 1, false);
         newLink->addTrackPatterntoLink(2, 1, false);
+        newLink->setLeadTrack(1);
+        newLink->setTimesToPlay(1);
     }
 
     newLink = appendLink();
@@ -49,6 +53,8 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer)
     {
         newLink->addTrackPatterntoLink(1, 2, false);
         newLink->addTrackPatterntoLink(2, 2, false);
+        newLink->setLeadTrack(1);
+        newLink->setTimesToPlay(1);
     }
 
     newLink = appendLink();
@@ -56,7 +62,35 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer)
     {
         newLink->addTrackPatterntoLink(1, 3, false);
         newLink->addTrackPatterntoLink(2, 3, false);
+        newLink->setLeadTrack(1);
+        newLink->setTimesToPlay(1);
     }
+    setTimesToPlay(1);
+
+    reset();
+};
+
+// setters
+void PatternChainHandler::setTimesToPlay(byte times)
+{
+    if (currentChain == NULL)
+    {
+        currentChainIndex = 0;
+        if(chains == NULL)
+        {
+            inout.ShowErrorOnLCD("PCH:sTTP:chains NULL");
+            return;
+        }
+        currentChain = &chains[currentChainIndex];
+    }
+
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sTTP:curCh NULL");
+        return;
+    }
+    
+    currentChain->timesToPlay = times;
 };
 
 // for editing...
@@ -109,7 +143,15 @@ PatternChainLink* PatternChainHandler::appendLink()
     {
         PatternChainLink* prevLink = currentChain->links[currentChain->numberOfLinks];
         if (prevLink != NULL)
+        {
             prevLink->setNextLinkIndex(currentChain->numberOfLinks + 1);
+            Serial.print("setNextLinkIndex ");
+            Serial.print(currentChain->numberOfLinks
+             + 1);
+        }
+        else Serial.print("setNextLinkIndex NO");
+
+
     }
     currentChain->links[currentChain->numberOfLinks] = newLink;
     currentChain->numberOfLinks++;
@@ -145,7 +187,7 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     //          if next chain is due:
     //              if next chain available: increment chain, set up first link
     //              if no more chains available: stop play
-
+    
     if(currentLink == NULL)
     {
         inout.ShowErrorOnLCD("PCH:uLOCIN cL NULL");
@@ -164,51 +206,106 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     // check link play count to see if next link is due
     if(currentLink->timeForNextLinkIndex())
     {
+
+        Serial.print("yo 1");
+
     // if it is:
     //      check if more links in chain
         byte nextLinkIndex = currentLink->getNextLinkIndex();
-        if(nextLinkIndex < 255)
+        nextLinkIndex = currentLinkIndex+1; // #######################
+        if(nextLinkIndex < currentChain->numberOfLinks)
         {
+
+            Serial.print("  yo 2");
+            Serial.print(" nextLinkIndex ");
+            Serial.print(nextLinkIndex);
+
     //      if yes:
     //          go to next link
-            currentLink = currentChain->links[nextLinkIndex];
+            currentLinkIndex = nextLinkIndex;
+            currentLink = currentChain->links[currentLinkIndex];
             currentLink->resetPlayCount();
         } else {
+
+            Serial.print("  yo 3");
+
     //      if no:
     //          check chain play count to see if next chain is due
             if(currentChainPlayCount < currentChain->timesToPlay)
             {
+
+                Serial.print("  yo 4");
+
     //          if not:
     //              increment chain play count
     //              go to first link in chain
                 currentChainPlayCount++;
+                currentLinkIndex = 0;
                 currentLink = currentChain->links[0];
                 currentLink->resetPlayCount();
             } else {
+
+                Serial.print("  yo 5");
+
     //          if next chain is due:
                 byte theNextChain = currentChain->nextChain;
                 if(theNextChain < 255)
                 {
+
+                    Serial.print("  yo 6");
+
     //              if next chain available: increment chain, set up first link
                     currentChain = &chains[theNextChain];
                     if(currentChain != NULL)
                     {
+
+                        Serial.print("  yo 7");
+
                         currentChainPlayCount = 1;
+                        currentLinkIndex = 0;
                         currentLink = currentChain->links[0];
                         currentLink->resetPlayCount();                      
                     } else {
+
+                        Serial.print("  yo 8");
+
                         inout.ShowErrorOnLCD("PCH:uLOCIN NcC NULL");
                         stopPlaybackCb();
                         return false;
                     }
                 } else {
+
+                    Serial.print("  yo 9");
+
     //              if no more chains available: stop play
                     stopPlaybackCb();
                 }
             }
         }
     }
+
+
+    Serial.println(" don");
+
+    inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
+    return true;
 };
+
+
+void PatternChainHandler::reset()
+{
+    currentChain = &chains[0];
+
+    if(currentChain != NULL)
+    {
+        currentChainPlayCount = 1;
+        currentLink = currentChain->links[0];
+        currentLinkIndex = 0;
+        currentLink->resetPlayCount();                      
+    } else
+        inout.ShowErrorOnLCD("PCH:reset cC NULL");
+}
+
 
 bool PatternChainHandler::timeForNextChain()
 {

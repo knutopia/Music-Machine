@@ -41,7 +41,7 @@ LinkedTrackList::~LinkedTrackList()
 #endif
 }
 
-bool LinkedTrackList::checkIntegrity(char caller[])
+bool LinkedTrackList::checkIntegrity(const char caller[])
 {
     bool retVal = true;
     if(cur != NULL)

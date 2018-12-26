@@ -40,7 +40,7 @@ NoteOffList::~NoteOffList()
 #endif
 }
 
-bool NoteOffList::checkIntegrity(char caller[])
+bool NoteOffList::checkIntegrity(const char caller[])
 {
     bool retVal = true;
     if(cur != NULL)
@@ -77,6 +77,7 @@ bool NoteOffList::checkIntegrity(char caller[])
             retVal = false;
         }
     }
+    return retVal;
 }
 
 void NoteOffList::printList()

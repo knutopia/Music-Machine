@@ -219,7 +219,7 @@ void InOutHelper::setupNewMode() {
         break;      
       case chain_edit:
         StepButtonCb = NULL;    
-        StartStopButtonCb = startStopCb; // use a sepatate one for chain play ?
+        StartStopButtonCb = startStopCb; // use a separate one for chain play ?
         initTrackEncoder = true;
         SetupChainEditModeTrellis();
         break;  
@@ -573,7 +573,7 @@ void InOutHelper::HandleSynthEncoders() {
 
 void InOutHelper::HandleTranspositionEncoderA() {
     long newPosition;
-    float newPosFloat;
+//  float newPosFloat;
     static long oldPositionA  = 0;
     static int transposition = 0;  // static or not ?
     static int prevTransposition;
@@ -694,14 +694,14 @@ void InOutHelper::HandlePerformanceEncoders() {
     static int beatsPerMinute = metro.getBPM();
     static int prevBeatsPerMinute;
 //  static int transposition = 0;  // static or not ?
-    static int prevTransposition;
+//  static int prevTransposition;
     static int swingClicks = metro.getSwing();
 
     static int prevSwingTiming;
     static float durationChange;
     static float prevDurationChange;
-    static byte pitchChangeLowerBoundary;
-    static byte pitchChangeUpperBoundary;
+//  static byte pitchChangeLowerBoundary;
+//  static byte pitchChangeUpperBoundary;
     static float durationChangeLowerBoundary;
     static float durationChangeUpperBoundary;
 
@@ -1638,6 +1638,7 @@ void InOutHelper::handleModeButtons()
             currentMode = pattern_select;
             selectOrSave = pattern_select;
             save_sequence_destination = -1;
+            ClearChainLinkOnLCD();
             ClearInfoOnLCD();
           } else
             currentMode = selectOrSave;
@@ -1968,7 +1969,7 @@ void InOutHelper::ClearBoolSteps(bool arrayPointer[], int arrayLength)
 
 
 // LCD Helpers
-void InOutHelper::ShowErrorOnLCD(char error[])
+void InOutHelper::ShowErrorOnLCD(const char error[])
 {
     lcd.setCursor(0, 0);
     lcd.print("                 ");
@@ -1978,7 +1979,7 @@ void InOutHelper::ShowErrorOnLCD(char error[])
 }
 
 
-void InOutHelper::ShowErrorOnLCD(char error[], char context[])
+void InOutHelper::ShowErrorOnLCD(const char error[], const char context[])
 {
     lcd.setCursor(0, 0);
     lcd.print("                 ");
@@ -2218,6 +2219,30 @@ void InOutHelper::ShowPathNumberOnLCD(byte pathNum)
     lcd.print(pathNum + 1);  
 }
 
+void InOutHelper::ShowChainLinkOnLCD(byte chain, byte link)
+{
+    lcd.setCursor(0, 0);
+    lcd.print("C ");  
+    lcd.setCursor(2, 0);
+    lcd.print(chain);
+    if(chain > 9)
+    {
+      lcd.setCursor(4, 0);
+      lcd.print(" L ");  
+      lcd.setCursor(7, 0);
+      lcd.print(link);
+    } else {
+      lcd.setCursor(3, 0);
+      lcd.print(" L ");  
+      lcd.setCursor(6, 0);
+      lcd.print(link);
+    }
+}
+void InOutHelper::ClearChainLinkOnLCD()
+{
+    lcd.setCursor(0, 0);
+    lcd.print("         ");
+}
 
 void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode mode)
 {

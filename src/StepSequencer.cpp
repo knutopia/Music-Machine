@@ -1488,8 +1488,10 @@ bool StepSequencer::isPatternRolloverStep(byte trackNum)
 
     if(checkTrack != NULL)
         retVal = checkTrack->isTrackPatternRollOverStep();
-    else
+    else {
         inout.ShowErrorOnLCD("isPatRoSttN cT NULL");
+        Serial.println(trackNum);
+    }
     return retVal;
 }
 

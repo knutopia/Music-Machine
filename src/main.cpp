@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+//#define MIDION true
 //#define DEBUG true
 
 // general
@@ -358,7 +358,7 @@ void StartStopCb()
     testStepClickList();
 #endif
 
-    if(currentMode = chain_edit)
+    if(currentMode == chain_edit)
         playMode = CHAINPLAY;
     else
         playMode = PATTERNPLAY;
@@ -962,6 +962,9 @@ void handleRewindButton()
         else
             inout.ShowErrorOnLCD("handleRB aSC NULL");
         Serial.print("8 ");
+
+        if(playMode == CHAINPLAY) patternChain.reset();
+        Serial.print("9 ");
     }
 }
 

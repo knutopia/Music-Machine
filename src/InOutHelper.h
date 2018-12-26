@@ -66,11 +66,13 @@ class InOutHelper
     void SetLCDinfoLabelTimeout();
     void ShowSynParOnLCD(const char label[], int value);
     void ShowSynParOnLCD(const char label[], float value);
-    void ShowErrorOnLCD(char error[]);
-    void ShowErrorOnLCD(char error[], char context[]);
+    void ShowErrorOnLCD(const char error[]);
+    void ShowErrorOnLCD(const char error[], const char context[]);
     void ShowSequenceNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
+    void ShowChainLinkOnLCD(byte chain, byte link);
+    void ClearChainLinkOnLCD();
 //  void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);

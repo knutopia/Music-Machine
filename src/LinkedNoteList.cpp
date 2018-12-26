@@ -89,7 +89,7 @@ void LinkedNoteList::printActiveNote()
     Serial.println(cur->trackNote.swingTicks);
 }
 
-bool LinkedNoteList::checkIntegrity(char caller[])
+bool LinkedNoteList::checkIntegrity(const char caller[])
 {
     bool retVal = true;
     if(cur != NULL)

@@ -103,7 +103,7 @@ void StepClickList::purge()
 #endif
 }
 
-bool StepClickList::checkIntegrity(char caller[])
+bool StepClickList::checkIntegrity(const char caller[])
 {
     bool retVal = true;
     if(cur != NULL)

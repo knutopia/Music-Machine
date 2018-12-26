@@ -77,7 +77,7 @@ void PerClickNoteList::purge()
 //#endif    
 }
 
-void PerClickNoteList::checkIntegrity(char caller[])
+void PerClickNoteList::checkIntegrity(const char caller[])
 {
     if(cur != NULL)
     {

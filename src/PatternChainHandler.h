@@ -23,6 +23,9 @@ class PatternChainHandler
 
     void begin(simpleFunc stopCbPointer);
     
+    // setters
+    void setTimesToPlay(byte times); 
+
     // for editing...
     void selectLink(byte linkNum);
     PatternChainLink* appendLink();
@@ -31,6 +34,8 @@ class PatternChainHandler
 
     // management during play
     bool updateLinkOrChainIfNeeded();
+    void reset();
+
     static byte currentLeadTrack;
 
   private:
@@ -42,6 +47,7 @@ class PatternChainHandler
     Chain* currentChain;
     byte currentChainIndex;
     PatternChainLink* currentLink;
+    byte currentLinkIndex;
     int currentChainPlayCount;
 /*
     QueuedActionRecord acQueue[QUEUEMAXLEN];

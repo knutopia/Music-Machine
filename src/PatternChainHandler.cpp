@@ -141,15 +141,14 @@ PatternChainLink* PatternChainHandler::appendLink()
     
     if (currentChain->numberOfLinks > 0)
     {
-        PatternChainLink* prevLink = currentChain->links[currentChain->numberOfLinks];
+        PatternChainLink* prevLink = currentChain->links[currentChain->numberOfLinks-1];
         if (prevLink != NULL)
         {
             prevLink->setNextLinkIndex(currentChain->numberOfLinks + 1);
             Serial.print("setNextLinkIndex ");
-            Serial.print(currentChain->numberOfLinks
-             + 1);
+            Serial.print(currentChain->numberOfLinks + 1);
         }
-        else Serial.print("setNextLinkIndex NO");
+        else inout.ShowErrorOnLCD("setNeLiIx NO");
 
 
     }
@@ -212,7 +211,7 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     // if it is:
     //      check if more links in chain
         byte nextLinkIndex = currentLink->getNextLinkIndex();
-        nextLinkIndex = currentLinkIndex+1; // #######################
+    //  nextLinkIndex = currentLinkIndex+1; // #######################
         if(nextLinkIndex < currentChain->numberOfLinks)
         {
 

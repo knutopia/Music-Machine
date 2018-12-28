@@ -359,8 +359,10 @@ void StartStopCb()
 #endif
 
     if(currentMode == chain_edit)
+    {
         playMode = CHAINPLAY;
-    else
+        patternChain.startChainPlay();
+    } else
         playMode = PATTERNPLAY;
 
     playbackOn = true;

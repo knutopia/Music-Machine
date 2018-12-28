@@ -10,9 +10,9 @@ struct ChainLink {
     byte patternPerTrack[TRACKCOUNT];
     bool mutePerTrack[TRACKCOUNT];
     bool trackUsedInLink[TRACKCOUNT];
-    int timesToPlay;
+    int timesToPlay = 1;
     byte leadTrack;
-    byte nextLinkIndex;
+    byte nextLinkIndex = 255;
 };
 
 class PatternChainLink

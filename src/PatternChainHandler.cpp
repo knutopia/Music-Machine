@@ -144,7 +144,7 @@ PatternChainLink* PatternChainHandler::appendLink()
         PatternChainLink* prevLink = currentChain->links[currentChain->numberOfLinks-1];
         if (prevLink != NULL)
         {
-            prevLink->setNextLinkIndex(currentChain->numberOfLinks + 1);
+            prevLink->setNextLinkIndex(currentChain->numberOfLinks);
         }
         else inout.ShowErrorOnLCD("setNeLiIx NO");
     }
@@ -212,13 +212,17 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
     // if it is:
     //      check if more links in chain
         byte nextLinkIndex = currentLink->getNextLinkIndex();
-    //  nextLinkIndex = currentLinkIndex+1; // #######################
+//      byte checkNextLinkIndex = currentLinkIndex+1; // #######################
+
+        Serial.print(" nextLinkIndex ");
+        Serial.print(nextLinkIndex);
+//      Serial.print(" checkNextLinkIndex ");
+//      Serial.print(checkNextLinkIndex);
+
         if(nextLinkIndex < currentChain->numberOfLinks)
         {
 
             Serial.print("  yo 2");
-            Serial.print(" nextLinkIndex ");
-            Serial.print(nextLinkIndex);
 
     //      if yes:
     //          go to next link
@@ -282,14 +286,24 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
                 }
             }
         }
+
+        Serial.println(" done.");
+
+        inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
+        return true;
+
+    } else {       
+
+        Serial.println(" nothing done.");
+
+        return false;
     }
-
-    Serial.println(" done.");
-
-    inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
-    return true;
 };
 
+void PatternChainHandler::playCurrentChainLink()
+{
+
+}
 
 void PatternChainHandler::reset()
 {

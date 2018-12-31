@@ -7,6 +7,9 @@
 
 //typedef for callback
 typedef void (*simpleFunc) ();
+typedef void (*intFunc) (int passVal);
+typedef void (*speedFactorFunc) (speedFactor passVal);
+
 
 struct Chain {
     int timesToPlay;
@@ -21,7 +24,10 @@ class PatternChainHandler
     PatternChainHandler();
     ~PatternChainHandler();
 
-    void begin(simpleFunc stopCbPointer);
+    void begin(simpleFunc stopCbPointer,
+               intFunc changeSequenceNumberCbPointer,
+               intFunc changePatternLengthCbPointer,
+               speedFactorFunc changeSpeedMultiplierCbPointer);
     
     // setters
     void setTimesToPlay(byte times); 
@@ -43,6 +49,10 @@ class PatternChainHandler
   private:
 
     simpleFunc stopPlaybackCb;
+    intFunc updateSequenceNumberCb;
+    intFunc updatePatternLengthCb;
+    speedFactorFunc updateSpeedMultiplierCb;
+
     bool timeForNextChain(); // utility
 
     Chain chains[MAXCHAINCOUNT];

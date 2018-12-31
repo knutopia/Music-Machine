@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-//#define MIDION true
+#define MIDION true
 //#define DEBUG true
 
 // general
@@ -458,7 +458,10 @@ void setup()
 
     sequencer.begin(EmergencyCb);
     activeStepClicks.begin(EmergencyCb);
-    patternChain.begin(StopPlaybackCb);
+    patternChain.begin(StopPlaybackCb,
+                       ChangeSequenceNumberCb,
+                       ChangePatternLengthCb,
+                       ChangeSpeedMultiplierCb);
 
     Serial.println("Reading sequences from SD");
     tracksLoaded = sdCard.readTracksFromSDcard();

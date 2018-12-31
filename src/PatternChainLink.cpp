@@ -15,7 +15,7 @@ PatternChainLink::PatternChainLink()
 
 void PatternChainLink::begin()
 {
-    for(int f = 0; f < TRACKCOUNT; f++)
+    for(int f = 1; f <= TRACKCOUNT; f++)
     {
         link.trackUsedInLink[f] = false;
         link.mutePerTrack[f] = false;
@@ -96,14 +96,21 @@ void PatternChainLink::playLink()
 {
     byte leadTrack = sequencer.getCurrentTrack();
 
+    Serial.print("playLink: ");
+
     if( link.speedMult != UNDEFINED)
         PatternChainHandler::updateSpeedMultiplierCb(link.speedMult);
 
-    for(int f = 0; f < TRACKCOUNT; f++)
+    for(int f = 1; f <= TRACKCOUNT; f++)
     {
         // only deal with link tracks, leave others alone (good idea? mute?)
         if( link.trackUsedInLink[f])
         {
+
+            Serial.print("track ");
+            Serial.print(f);
+
+
             if( link.patternPerTrack[f] == 255) {
                 // TODO: This here is an error condition !
             } else {
@@ -112,9 +119,27 @@ void PatternChainLink::playLink()
                 {
                     leadTrack = f;
                     // TODO: what else is so special here ??
+
+
+                    Serial.print(" leadTrack ");
+
                 }
                 
                 // PATTERNCHANGE
+
+
+                Serial.print("  seq ");
+                Serial.print(link.patternPerTrack[f]);
+
+
+                if(link.mutePerTrack[f])
+                    Serial.println("  muted ");
+                else
+                    Serial.println("  unmuted ");
+
+                
+
+
                 sequencer.setCurrentTrack(f);
                 PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[f]);
 
@@ -138,7 +163,17 @@ void PatternChainLink::playLink()
                 if(currentMode == track_mute)
                     inout.trackMuteTrellisButtonPressed(f - 1 + STEPSOFFSET);
             }
+        } else {
+
+            Serial.print("  track ");
+            Serial.print(f);
+            Serial.print(" unused  ");
+
         }
     }
+
+
+    Serial.println("...");
+
     sequencer.setCurrentTrack(leadTrack);
 }

@@ -2,7 +2,7 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
+// #define MIDION true
 //#define DEBUG true
 
 // general
@@ -369,7 +369,7 @@ void StartStopCb()
     Serial.println("");
     Serial.println("  button on: ----------------------------------------");
     Serial.println("");
-    activeStepClicks.print();
+//  activeStepClicks.print();
 
     //Midi timer
 #ifdef DEBUG
@@ -392,7 +392,7 @@ void StartStopCb()
 
     Serial.println("   next click prepped");
     
-    activeStepClicks.print();
+//  activeStepClicks.print();
 
     metro.startPlayingRightNow();
     Serial.println("   playing now");

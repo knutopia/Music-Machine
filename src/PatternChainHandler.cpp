@@ -52,7 +52,7 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
         newLink->addTrackPatterntoLink(1, 1, false);
         newLink->addTrackPatterntoLink(2, 1, false);
         newLink->setLeadTrack(1);
-        newLink->setTimesToPlay(1);
+        newLink->setTimesToPlay(2);
     }
 
     newLink = appendLink();
@@ -61,7 +61,7 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
         newLink->addTrackPatterntoLink(1, 2, false);
         newLink->addTrackPatterntoLink(2, 2, false);
         newLink->setLeadTrack(1);
-        newLink->setTimesToPlay(1);
+        newLink->setTimesToPlay(2);
     }
 
     newLink = appendLink();
@@ -70,7 +70,7 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
         newLink->addTrackPatterntoLink(1, 3, false);
         newLink->addTrackPatterntoLink(2, 3, false);
         newLink->setLeadTrack(1);
-        newLink->setTimesToPlay(1);
+        newLink->setTimesToPlay(2);
     }
     setTimesToPlay(1);
 
@@ -178,6 +178,10 @@ void PatternChainHandler::clearLink()
 void PatternChainHandler::startChainPlay()
 {
     inout.ShowChainLinkOnLCD(currentChainIndex, currentLinkIndex);
+    if(currentLink != NULL)
+        currentLink->playLink();
+    else
+        inout.ShowErrorOnLCD("PCH: sCP cL NULL");
 }
 
 bool PatternChainHandler::updateLinkOrChainIfNeeded()

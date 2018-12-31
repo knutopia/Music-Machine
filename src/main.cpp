@@ -458,10 +458,10 @@ void setup()
 
     sequencer.begin(EmergencyCb);
     activeStepClicks.begin(EmergencyCb);
+
     patternChain.begin(StopPlaybackCb,
                        ChangeSequenceNumberCb,
-                       ChangePatternLengthCb,
-                       ChangeSpeedMultiplierCb);
+                       ChangeSpeedMultiplierCb);    
 
     Serial.println("Reading sequences from SD");
     tracksLoaded = sdCard.readTracksFromSDcard();
@@ -724,7 +724,9 @@ void prep_next_note_direct()
     // handle pattern chain if it is active
     if(playMode == CHAINPLAY && 
        sequencer.isPatternRolloverStep(PatternChainHandler::currentLeadTrack))
-           patternChain.updateLinkOrChainIfNeeded();
+    {
+        if(patternChain.updateLinkOrChainIfNeeded()) patternChain.playCurrentChainLink();
+    }
 
     // adjust speed if tempo or multiplier have changed
     metro.updateTimingIfNeeded();

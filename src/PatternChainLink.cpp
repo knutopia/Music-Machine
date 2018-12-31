@@ -1,12 +1,17 @@
 #include "PatternChainLink.h"
+#include "PatternChainHandler.h"
 #include "InOutHelper.h"
+#include "StepSequencer.h"
 
 extern InOutHelper inout;
+extern StepSequencer sequencer;
+extern int currentMode;
 
 PatternChainLink::PatternChainLink()
 {
 
 };
+
 
 void PatternChainLink::begin()
 {
@@ -86,3 +91,54 @@ void PatternChainLink::incrementLinkPlayCount()
 {
     currentPlayCount++;
 };
+
+void PatternChainLink::playLink()
+{
+    byte leadTrack = sequencer.getCurrentTrack();
+
+    if( link.speedMult != UNDEFINED)
+        PatternChainHandler::updateSpeedMultiplierCb(link.speedMult);
+
+    for(int f = 0; f < TRACKCOUNT; f++)
+    {
+        // only deal with link tracks, leave others alone (good idea? mute?)
+        if( link.trackUsedInLink[f])
+        {
+            if( link.patternPerTrack[f] == 255) {
+                // TODO: This here is an error condition !
+            } else {
+
+                if( link.leadTrack)
+                {
+                    leadTrack = f;
+                    // TODO: what else is so special here ??
+                }
+                
+                // PATTERNCHANGE
+                sequencer.setCurrentTrack(f);
+                PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[f]);
+
+                if(currentMode == pattern_select)
+                    inout.simpleIndicatorModeTrellisButtonPressed
+                            (link.patternPerTrack[f] + STEPSOFFSET);
+
+                // if(currentMode == path_select)
+                //    inout.pathModeTrellisButtonPressed
+                //          ((int)link.pathPerTrack[f] + STEPSOFFSET);
+
+                // if(currentMode == length_edit)
+                //    inout.lengthModeTrellisIndicatorUpdate() //...nonexistent...
+
+                // but all the other modes...
+                
+
+                // TRACKMUTECHANGE
+                sequencer.setTrackMute(f, link.mutePerTrack[f]);
+
+                if(currentMode == track_mute)
+                    inout.trackMuteTrellisButtonPressed(f - 1 + STEPSOFFSET);
+            }
+        }
+    }
+    sequencer.setCurrentTrack(leadTrack);
+}

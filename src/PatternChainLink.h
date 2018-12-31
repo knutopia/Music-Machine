@@ -4,13 +4,13 @@
 #include <Arduino.h>
 #include "Enum.h"
 
-
 struct ChainLink {
 
     byte patternPerTrack[TRACKCOUNT];
     bool mutePerTrack[TRACKCOUNT];
     bool trackUsedInLink[TRACKCOUNT];
     int timesToPlay = 1;
+    speedFactor speedMult = UNDEFINED;
     byte leadTrack;
     byte nextLinkIndex = 255;
 };
@@ -34,6 +34,7 @@ class PatternChainLink
     // to use during play
     bool timeForNextLinkIndex();
     void incrementLinkPlayCount();
+    void playLink();
 
   private:
 

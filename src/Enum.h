@@ -44,7 +44,7 @@ enum {BUTTONHOLDTIME = 1000};
 
 enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET, SAVETOSD};
 
-enum speedFactor {NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4};
+enum speedFactor {UNDEFINED = 0, NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4};
 
 enum stepProbability {LOWPROB = 0, MEDPROB = 1, HIGHPROB = 2, FULLPROB = 3};
 

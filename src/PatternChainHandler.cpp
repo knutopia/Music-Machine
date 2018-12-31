@@ -3,10 +3,10 @@
 #include "StepSequencer.h"
 
 extern InOutHelper inout;
-extern StepSequencer sequencer;
-extern int currentMode;
 
 byte PatternChainHandler::currentLeadTrack;
+intFunc PatternChainHandler::updateSequenceNumberCb;
+speedFactorFunc PatternChainHandler::updateSpeedMultiplierCb;
 
 PatternChainHandler::PatternChainHandler()
 {
@@ -24,12 +24,10 @@ PatternChainHandler::~PatternChainHandler()
 
 void PatternChainHandler::begin(simpleFunc stopCbPointer,
                                 intFunc changeSequenceNumberCbPointer,
-                                intFunc changePatternLengthCbPointer,
                                 speedFactorFunc changeSpeedMultiplierCbPointer)
 {
     stopPlaybackCb = stopCbPointer;
     updateSequenceNumberCb = changeSequenceNumberCbPointer;
-    updatePatternLengthCb = changePatternLengthCbPointer;
     updateSpeedMultiplierCb = changeSpeedMultiplierCbPointer;
 
     for(int f = 0; f < MAXCHAINCOUNT; f++)
@@ -159,6 +157,9 @@ PatternChainLink* PatternChainHandler::appendLink()
     }
     currentChain->links[currentChain->numberOfLinks] = newLink;
     currentChain->numberOfLinks++;
+
+    newLink->begin();
+
     return newLink;
 };
 
@@ -256,6 +257,7 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
                 currentLinkIndex = 0;
                 currentLink = currentChain->links[0];
                 currentLink->resetPlayCount();
+
             } else {
 
                 Serial.print("  yo 5");
@@ -277,7 +279,8 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
                         currentChainPlayCount = 1;
                         currentLinkIndex = 0;
                         currentLink = currentChain->links[0];
-                        currentLink->resetPlayCount();                      
+                        currentLink->resetPlayCount();
+
                     } else {
 
                         Serial.print("  yo 8");
@@ -311,107 +314,10 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
 
 void PatternChainHandler::playCurrentChainLink()
 {
-    Serial.print("rQA");
-
-    byte bufTrack = sequencer.getCurrentTrack();
-    String out = "";
-
-    bool done = false;
-    while( !done)
-    {
-//      done = !queuedActions.advanceRetrievalIndex();
-
-        switch (qAction)
-        {
-            case PATTERNCHANGE:
-
-                Serial.print("PATTERNCHANGE ");
-                Serial.println(qAction);
-
-                out.append("Pt");
-                out.append(qAction);
-                out.append(" ");
-
-                sequencer.setCurrentTrack(qTrack);
-                updateSequenceNumberCb(qParam);
-                if(currentMode == pattern_select)
-                    inout.simpleIndicatorModeTrellisButtonPressed(qParam + STEPSOFFSET);
-                break;
-
-            case PATHCHANGE:
-
-                Serial.print("PATHCHANGE ");
-                Serial.println(qAction);
-
-                out.append("Ph");
-                out.append(qAction);
-                out.append(" ");
-                
-                sequencer.setCurrentTrack(qTrack);
-                inout.pathModeTrellisButtonPressed((int)qParam + STEPSOFFSET);
-                break;
-
-            case LENGTHCHANGE:
-
-                Serial.print("LENGTHCHANGE ");
-                Serial.println(qAction);
-
-                out.append("L");
-                out.append(qAction);
-                out.append(" ");
-                
-                sequencer.setCurrentTrack(qTrack);
-                updatePatternLengthCb(qParam);
-                break;
-
-            case TRACKMUTECHANGE:
-
-                Serial.print("TRACKMUTECHANGE ");
-                Serial.println(qAction);
-
-                out.append("Tm");
-                out.append(qAction);
-                out.append(" ");
-                
-                sequencer.setCurrentTrack(qTrack);
-                sequencer.setTrackMute(qTrack, (bool)qParam);
-
-                if(currentMode == track_mute)
-                    inout.trackMuteTrellisButtonPressed(qTrack - 1 + STEPSOFFSET);
-                break;
-
-            case SPEEDMULTIPLIERCHANGE:
-
-                Serial.print("SPEEDMULTIPLIERCHANGE ");
-                Serial.println(qAction);
-
-                out.append("Sp");
-                out.append(qAction);
-                out.append(" ");
-                
-                sequencer.setCurrentTrack(qTrack);
-                updateSpeedMultiplierCb((speedFactor)qParam);
-                break;
-
-            case SYNCTRACKS:
-                // TODO
-                break;
-
-            case NOACTION:
-                done = true;
-                break;
-
-            default:
-                inout.ShowErrorOnLCD("runQAcs out of rnge");
-                Serial.print("runQueuedActions qAction ");
-                Serial.println(qAction);
-                done = true;
-        }
-    }
-    sequencer.setCurrentTrack(bufTrack);
-    inout.showQueuedActions(out);
-    inout.SetLCDinfoTimeout();
-    inout.SetLCDinfoLabelTimeout();
+    if(currentLink != NULL)
+        currentLink->playLink();
+    else
+        inout.ShowErrorOnLCD("PCH:pCCL cL NULL");
 }
 
 void PatternChainHandler::reset()
@@ -427,7 +333,6 @@ void PatternChainHandler::reset()
     } else
         inout.ShowErrorOnLCD("PCH:reset cC NULL");
 }
-
 
 bool PatternChainHandler::timeForNextChain()
 {

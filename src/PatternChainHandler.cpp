@@ -73,11 +73,78 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
         newLink->setTimesToPlay(2);
     }
     setTimesToPlay(1);
+    setNextChain(0, 1);
+
+    setCurrentChain(1);
+    setTimesToPlay(2);
+    
+    newLink = appendLink();
+    if(newLink != NULL)
+    {
+        newLink->addTrackPatterntoLink(1, 3, false);
+        newLink->addTrackPatterntoLink(2, 3, false);
+        newLink->setLeadTrack(1);
+        newLink->setTimesToPlay(2);
+    }
+
+    newLink = appendLink();
+    if(newLink != NULL)
+    {
+        newLink->addTrackPatterntoLink(1, 4, false);
+        newLink->addTrackPatterntoLink(2, 4, false);
+        newLink->setLeadTrack(1);
+        newLink->setTimesToPlay(2);
+    }
 
     reset();
 };
 
 // setters
+bool PatternChainHandler::setCurrentChain(byte index)
+{
+    currentChainIndex = index;
+    if(chains == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sCC:chains NULL");
+        return false;
+    }
+
+    currentChain = &chains[currentChainIndex];
+
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sCC:curCh NULL");
+        return false;
+    }
+    return true;
+}
+
+bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)
+{
+    if(chains == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sNC:chains NULL");
+        return false;
+    }
+
+    Chain* setChain = &chains[chainIndex];
+    if(setChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sNC:[sC] NULL");
+        return false;
+    }
+
+    Chain* nextChain = &chains[nextIndex];
+    if(nextChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sNC:[nC] NULL");
+        return false;
+    }
+
+    setChain->nextChain = nextIndex;
+    return true;
+}
+
 void PatternChainHandler::setTimesToPlay(byte times)
 {
     if (currentChain == NULL)
@@ -108,22 +175,8 @@ void PatternChainHandler::selectLink(byte linkNum)
 
 PatternChainLink* PatternChainHandler::appendLink()
 {
-    if (currentChain == NULL)
-    {
-        currentChainIndex = 0;
-        if(chains == NULL)
-        {
-            inout.ShowErrorOnLCD("PCH:aL:chains NULL");
-            return NULL;
-        }
-        currentChain = &chains[currentChainIndex];
-    }
-
-    if (currentChain == NULL)
-    {
-        inout.ShowErrorOnLCD("PCH:aL:curCh NULL");
+    if (currentChain == NULL && (!setCurrentChain(0)))
         return NULL;
-    }
 
     if (currentChain->numberOfLinks >= MAXLINKSPERCHAIN)
     {
@@ -159,7 +212,7 @@ PatternChainLink* PatternChainHandler::appendLink()
     currentChain->numberOfLinks++;
 
     newLink->begin();
-
+    
     return newLink;
 };
 
@@ -364,6 +417,7 @@ void PatternChainHandler::playCurrentChainLink()
 void PatternChainHandler::reset()
 {
     currentChain = &chains[0];
+    currentChainIndex = 0;
 
     if(currentChain != NULL)
     {

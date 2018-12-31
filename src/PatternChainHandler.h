@@ -29,7 +29,9 @@ class PatternChainHandler
                speedFactorFunc changeSpeedMultiplierCbPointer);
     
     // setters
-    void setTimesToPlay(byte times); 
+    bool setCurrentChain(byte index);
+    bool setNextChain(byte chainIndex, byte nextIndex);
+    void setTimesToPlay(byte times);
 
     // for editing...
     void selectLink(byte linkNum);

@@ -24,6 +24,10 @@ class PatternChainLink
     
     void addTrackPatterntoLink(byte trackNum, byte patNum, bool muteIt); // to populate link
 
+    // getters
+    byte getCurrentPlayCount();
+    byte getTimesToPlay();
+
     // setters
     bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
@@ -34,7 +38,7 @@ class PatternChainLink
     // to use during play
     bool timeForNextLinkIndex();
     void incrementLinkPlayCount();
-    void playLink();
+    void primeLinktoPlay();
 
   private:
 

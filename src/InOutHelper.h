@@ -71,7 +71,8 @@ class InOutHelper
     void ShowSequenceNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
-    void ShowChainLinkOnLCD(byte chain, byte link);
+    void ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
+                            const byte link, const byte curLinkPlay, const byte maxLinkPlays);
     void ClearChainLinkOnLCD();
 //  void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);

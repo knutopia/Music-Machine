@@ -255,7 +255,7 @@ void ChangeSequenceNumberCb(int seqNum) {
         sequencer.setCurrentSequence(seqNum);
         inout.ShowSequenceNumberOnLCD(seqNum);
         inout.ShowPathNumberOnLCD(sequencer.getPath());
-        sequencer.printSequence();
+//      sequencer.printSequence();
     } else {
 
         QueueActionCb(PATTERNCHANGE, (byte) seqNum, sequencer.getCurrentTrack());
@@ -722,10 +722,12 @@ void prep_next_note_direct()
     }
 
     // handle pattern chain if it is active
+    //                                        why does this even happen when pb is off ?
     if(playMode == CHAINPLAY && 
        sequencer.isPatternRolloverStep(PatternChainHandler::currentLeadTrack))
     {
         if(patternChain.updateLinkOrChainIfNeeded()) patternChain.playCurrentChainLink();
+        patternChain.updateChainAndLinkDisplay();
     }
 
     // adjust speed if tempo or multiplier have changed

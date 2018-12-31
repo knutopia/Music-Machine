@@ -41,6 +41,7 @@ class PatternChainHandler
     void startChainPlay();
     bool updateLinkOrChainIfNeeded();
     void playCurrentChainLink();
+    void updateChainAndLinkDisplay();
     void reset();
 
     static byte currentLeadTrack;

@@ -7,6 +7,9 @@ extern InOutHelper inout;
 extern StepSequencer sequencer;
 extern int currentMode;
 
+// Using trackNum for track numbers, starting at 1
+// Using trackIndex for array indices, starting at 0
+
 PatternChainLink::PatternChainLink()
 {
 
@@ -15,11 +18,11 @@ PatternChainLink::PatternChainLink()
 
 void PatternChainLink::begin()
 {
-    for(int f = 1; f <= TRACKCOUNT; f++)
+    for(int trackIndex = 0; trackIndex < TRACKCOUNT; trackIndex++)
     {
-        link.trackUsedInLink[f] = false;
-        link.mutePerTrack[f] = false;
-        link.patternPerTrack[f] = 255;
+        link.trackUsedInLink[trackIndex] = false;
+        link.mutePerTrack[trackIndex] = false;
+        link.patternPerTrack[trackIndex] = 255;
     }
     link.nextLinkIndex = 255;
     link.timesToPlay = 0;
@@ -27,10 +30,24 @@ void PatternChainLink::begin()
 
 void PatternChainLink::addTrackPatterntoLink(byte trackNum, byte patNum, bool muteIt)
 {
-    link.trackUsedInLink[trackNum] = true;
-    link.mutePerTrack[trackNum] = muteIt;
-    link.patternPerTrack[trackNum] = patNum;
+    byte trackIndex = trackNum - 1; // tracks start at 1, array starts at 0...
+
+    link.trackUsedInLink[trackIndex] = true;
+    link.mutePerTrack[trackIndex] = muteIt;
+    link.patternPerTrack[trackIndex] = patNum;
 };
+
+// getters
+
+byte PatternChainLink::getCurrentPlayCount()
+{
+    return currentPlayCount;
+}
+
+byte PatternChainLink::getTimesToPlay()
+{
+    return link.timesToPlay;
+}
 
 // setters
 void PatternChainLink::setTimesToPlay(byte times)
@@ -41,8 +58,9 @@ void PatternChainLink::setTimesToPlay(byte times)
 bool PatternChainLink::setLeadTrack(byte trackNum)
 {
     bool success = false;
+    byte trackIndex = trackNum - 1; // tracks start at 1, array starts at 0...
 
-    if(link.trackUsedInLink[trackNum])
+    if(link.trackUsedInLink[trackIndex])
     {
         success = true;
         link.leadTrack = trackNum;
@@ -92,64 +110,51 @@ void PatternChainLink::incrementLinkPlayCount()
     currentPlayCount++;
 };
 
-void PatternChainLink::playLink()
+void PatternChainLink::primeLinktoPlay()
 {
-    byte leadTrack = sequencer.getCurrentTrack();
-
-    Serial.print("playLink: ");
+    Serial.println("primeLinktoPlay: ");
 
     if( link.speedMult != UNDEFINED)
         PatternChainHandler::updateSpeedMultiplierCb(link.speedMult);
 
-    for(int f = 1; f <= TRACKCOUNT; f++)
+    for(int trackNum = 1; trackNum <= TRACKCOUNT; trackNum++)
     {
+        int trackIndex = trackNum - 1; // tracks start at 1, array starts at 0...
         // only deal with link tracks, leave others alone (good idea? mute?)
-        if( link.trackUsedInLink[f])
+        if( link.trackUsedInLink[trackIndex])
         {
 
-            Serial.print("track ");
-            Serial.print(f);
+            Serial.print("  track ");
+            Serial.print(trackNum);
 
 
-            if( link.patternPerTrack[f] == 255) {
+            if( link.patternPerTrack[trackIndex] == 255) {
                 // TODO: This here is an error condition !
             } else {
-
-                if( link.leadTrack)
-                {
-                    leadTrack = f;
-                    // TODO: what else is so special here ??
-
-
-                    Serial.print(" leadTrack ");
-
-                }
                 
                 // PATTERNCHANGE
 
 
                 Serial.print("  seq ");
-                Serial.print(link.patternPerTrack[f]);
+                Serial.print(link.patternPerTrack[trackIndex]);
 
 
-                if(link.mutePerTrack[f])
+                if(link.mutePerTrack[trackIndex])
                     Serial.println("  muted ");
                 else
                     Serial.println("  unmuted ");
 
-                
 
+                sequencer.setCurrentTrack(trackNum);
+                PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[trackIndex]);
 
-                sequencer.setCurrentTrack(f);
-                PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[f]);
-
-                if(currentMode == pattern_select)
+                if(currentMode == pattern_select || currentMode == chain_edit)
                     inout.simpleIndicatorModeTrellisButtonPressed
-                            (link.patternPerTrack[f] + STEPSOFFSET);
+                            (link.patternPerTrack[trackIndex] + STEPSOFFSET);
 
                 // if(currentMode == path_select)
                 //    inout.pathModeTrellisButtonPressed
-                //          ((int)link.pathPerTrack[f] + STEPSOFFSET);
+                //          ((int)link.pathPerTrack[trackIndex] + STEPSOFFSET);
 
                 // if(currentMode == length_edit)
                 //    inout.lengthModeTrellisIndicatorUpdate() //...nonexistent...
@@ -158,22 +163,25 @@ void PatternChainLink::playLink()
                 
 
                 // TRACKMUTECHANGE
-                sequencer.setTrackMute(f, link.mutePerTrack[f]);
+                sequencer.setTrackMute(trackNum, link.mutePerTrack[trackIndex]);
 
                 if(currentMode == track_mute)
-                    inout.trackMuteTrellisButtonPressed(f - 1 + STEPSOFFSET);
+                    inout.trackMuteTrellisButtonPressed(trackNum - 1 + STEPSOFFSET);
             }
         } else {
 
             Serial.print("  track ");
-            Serial.print(f);
+            Serial.print(trackNum);
             Serial.print(" unused  ");
 
         }
     }
+    sequencer.setCurrentTrack(link.leadTrack);
+
+    currentPlayCount = 1;
 
 
-    Serial.println("...");
+    Serial.println(" primeLinktoPlay done");
+    Serial.println("");
 
-    sequencer.setCurrentTrack(leadTrack);
 }

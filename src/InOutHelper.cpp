@@ -2219,24 +2219,56 @@ void InOutHelper::ShowPathNumberOnLCD(byte pathNum)
     lcd.print(pathNum + 1);  
 }
 
-void InOutHelper::ShowChainLinkOnLCD(byte chain, byte link)
+
+void InOutHelper::ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
+                                     const byte link, const byte curLinkPlay, const byte maxLinkPlays)
 {
+/*
+  cx = snprintf ( buffer, 100, "The half of %d is %d", 60, 60/2 );
+
+  if (cx>=0 && cx<100)      // check returned value
+
+    snprintf ( buffer+cx, 100-cx, ", and the half of that is %d.", 60/2/2 );
+
+  puts (buffer);
+*/
+  char buffer [20];
+  int foo = snprintf(buffer, 20, "C:%d,%d/%d L:%d,%d/%d ", 
+                                 chain, curChainPlay, maxChainPlays,
+                                 link, curLinkPlay, maxLinkPlays);
+
+  lcd.setCursor(0, 2);
+  lcd.print(buffer);
+
+  Serial.println();
+  Serial.print("ShowChainLinkOnLCD: ");
+  Serial.println(buffer);
+
+  /*  
     lcd.setCursor(0, 0);
     lcd.print("C ");  
     lcd.setCursor(2, 0);
     lcd.print(chain);
-    if(chain > 9)
-    {
-      lcd.setCursor(4, 0);
-      lcd.print(" L ");  
-      lcd.setCursor(7, 0);
-      lcd.print(link);
-    } else {
-      lcd.setCursor(3, 0);
-      lcd.print(" L ");  
-      lcd.setCursor(6, 0);
-      lcd.print(link);
-    }
+
+    lcd.setCursor(5, 0);
+    lcd.print(curPlay);  
+    lcd.setCursor(6, 0);
+    lcd.print("/");
+    lcd.setCursor(7, 0);
+    lcd.print(maxPlays);
+
+    lcd.setCursor(3, 0);
+    lcd.print(" L ");  
+    lcd.setCursor(6, 0);
+    lcd.print(link);
+  
+    lcd.setCursor(9, 0);
+    lcd.print(curPlay);  
+    lcd.setCursor(11, 0);
+    lcd.print("/");
+    lcd.setCursor(12, 0);
+    lcd.print(maxPlays);
+*/
 }
 
 void InOutHelper::ClearChainLinkOnLCD()

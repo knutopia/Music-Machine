@@ -59,6 +59,7 @@ class InOutHelper
     void RemoveStepIndicatorOnLCD();
     void ShowInfoOnLCD(const char info[]);
     void ShowValueInfoOnLCD(const char label[], int value);
+    void ShowValueInfoOnLCD(const char label[], int value1, const char value2[]);
     void ShowValueInfoOnLCD(const char label[], float value);
     void ShowPlaybackStepOnLCD(int step);
     void ShowMemoryOnLCD(int mem);
@@ -73,7 +74,6 @@ class InOutHelper
     void ShowPathNumberOnLCD(byte pathNum);
     void ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
                             const byte link, const byte curLinkPlay, const byte maxLinkPlays);
-    void ClearChainLinkOnLCD();
 //  void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);
 //  void ShowSaveSeqMessage(int state, int seq);
@@ -82,6 +82,7 @@ class InOutHelper
     void ShowBPMOnLCD(int bpm);
     void handleLCDtimeouts();
     String midiToNoteName(int note);
+    char* midiToNoteChar(int note, char* notename);
     void showLoopTimer();
 
     // public because called by queued actions
@@ -212,6 +213,7 @@ class InOutHelper
     selectionToggle stepSelectionMode = NOSTEPS;
     int ValueOrButtonOnLCDLength = 0;
     int LabelOnLCDLength = 0;
+    int ModeNameOnLCDLength = 0;
     holdActionMode currentHoldAction = NONE;
     holdActionProcess holdActionState = INACTIVE;
     unsigned long lcdTimeoutLowerRow;

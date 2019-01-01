@@ -149,7 +149,7 @@ long Timebase::truncateSwingStepDuration(const note aNote)
         if(durAvail < retVal)
             retVal = durAvail;
 
-//      inout.ShowValueInfoOnLCD("factor ", factor);
+//      inout.ShowValueInfoOnLCD("factor", factor);
 
     }
 

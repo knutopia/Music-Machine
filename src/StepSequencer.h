@@ -63,7 +63,7 @@ class StepSequencer
       byte getHighestSelectedVelocity(boolean selectedNotes[]);
       float getShortestSelectedNote(boolean selectedNotes[]);            
       float getLongestSelectedNote(boolean selectedNotes[]);
-      void offsetSelectedNotes(boolean selectedNotes[], byte note_offset, byte rawHeldStep); // kg
+      byte offsetSelectedNotes(boolean selectedNotes[], byte note_offset, byte rawHeldStep); // kg
       void offsetSelectedDurations(boolean selectedNotes[], float duration_offset, byte rawHeldStep); // kg
       void setSelectedRepetitions(boolean selectedNotes[], byte repetition);
       void setSelectedRetrigs(boolean selectedNotes[], byte retrigs);

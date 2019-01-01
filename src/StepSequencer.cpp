@@ -917,10 +917,13 @@ float StepSequencer::getLongestSelectedNote(boolean selectedNotes[])
     }  
 }    
 
-void StepSequencer::offsetSelectedNotes(boolean selectedNotes[], byte note_offset, byte rawHeldStep) // kg
+byte StepSequencer::offsetSelectedNotes(boolean selectedNotes[], byte note_offset, byte rawHeldStep) // kg
 {
+  // when holding down a step key, all other selected steps are forced to the same note
   byte heldStep = rawHeldStep % STEPSOFFSET;
   
+  byte retval = 255;
+
   if (rawHeldStep != 255 && selectedNotes[heldStep]) {
 
     offsetNote(heldStep, note_offset);
@@ -928,13 +931,18 @@ void StepSequencer::offsetSelectedNotes(boolean selectedNotes[], byte note_offse
     for (int i=0; i < 16; i++) {
       if (selectedNotes[i]) setNote(i, heldStepNote);
     }
+    retval = heldStepNote;
 
   } else {
     
     for (int i=0; i < 16; i++) {
-      if (selectedNotes[i]) offsetNote(i, note_offset);
+      if (selectedNotes[i]) {
+          offsetNote(i, note_offset);
+          retval = retval < getNote(i) ? retval : getNote(i);
+      }
     }
   }
+  return retval;
 }
 
 
@@ -1458,11 +1466,11 @@ byte StepSequencer::toggleCurrentTrackMute()
     if(isMuted)
     {
         activeEditTrack->unMute();
-        inout.ShowValueInfoOnLCD("Unmuted track ", track);
+        inout.ShowValueInfoOnLCD("Unmuted track", track);
         inout.SetLCDinfoTimeout();
     } else {
         activeEditTrack->mute();
-        inout.ShowValueInfoOnLCD("Muted track ", track);
+        inout.ShowValueInfoOnLCD("Muted track", track);
         inout.SetLCDinfoTimeout();
     }
 

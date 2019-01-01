@@ -55,15 +55,15 @@ void ActionQueue::queueAction(actionID anAction, byte aParam, byte aTrack)
     switch (anAction)
     {
         case PATTERNCHANGE:
-            inout.ShowValueInfoOnLCD("Queued pattern ", aParam);
+            inout.ShowValueInfoOnLCD("Queued pattern", aParam);
             break;
 
         case PATHCHANGE:
-            inout.ShowValueInfoOnLCD("Queued path ", aParam);
+            inout.ShowValueInfoOnLCD("Queued path", aParam);
             break;
 
         case LENGTHCHANGE:
-            inout.ShowValueInfoOnLCD("Queued length ", aParam);
+            inout.ShowValueInfoOnLCD("Queued length", aParam);
             break;
 
         case TRACKMUTECHANGE:

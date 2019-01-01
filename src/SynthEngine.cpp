@@ -322,7 +322,7 @@ void SynthEngine::handleButtonRelease(int butNum)
   {
       if (millis() > m_button_press_time + BUTTONHOLDTIME)    // long press
       {
-        inout.ShowValueInfoOnLCD("Patch: ", m_current_patch);
+        inout.ShowValueInfoOnLCD("Patch:", m_current_patch);
         
       } else {                                 // short press
        
@@ -402,7 +402,7 @@ void SynthEngine::prepSynPatchForEdit()
 {
         retrievePatch(m_current_patch);
         activatePatch(m_current_patch);                       // copy patch into edit patch
-        inout.ShowValueInfoOnLCD("Patch: ", m_current_patch);
+        inout.ShowValueInfoOnLCD("Patch:", m_current_patch);
 }
 
 void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
@@ -813,10 +813,10 @@ void SynthEngine::trackJoystick()
                 usbMIDI.sendControlChange(6, ((unsigned int)joyX >> 7) & 127, 1);
                 usbMIDI.sendControlChange(38, (unsigned int)joyX & 127, 1);
                 
-//              inout.ShowValueInfoOnLCD("delta ", joyX-prevX);
+//              inout.ShowValueInfoOnLCD("delta", joyX-prevX);
 
                 prevX = joyX;
-//              inout.ShowValueInfoOnLCD("joyX ", joyX);
+//              inout.ShowValueInfoOnLCD("joyX", joyX);
             }
 #endif
         }

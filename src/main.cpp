@@ -277,7 +277,7 @@ void ChangeTrackCb(int trackNum) {
 void ChangeSaveSequenceDestinationCb(int seqNum) {
           
     save_sequence_destination = seqNum;
-    inout.ShowValueInfoOnLCD("Save to Seq ", seqNum);
+    inout.ShowValueInfoOnLCD("Save to Seq", seqNum);
 }
 
 

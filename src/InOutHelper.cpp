@@ -536,7 +536,7 @@ void InOutHelper::HandleSynthEncoders() {
         synth.handleEncoder(EncoderA, valueA);
         prevValueA = valueA;
       }
-//    ShowValueInfoOnLCD("Transpose: ", transposition); DO THIS IN SYNTHENGINE / PATCH
+//    ShowValueInfoOnLCD("Transpose:", transposition); DO THIS IN SYNTHENGINE / PATCH
       oldPositionA = newPosition;
     }
     
@@ -611,14 +611,15 @@ void InOutHelper::HandleTranspositionEncoderA() {
 
         if (transposition != prevTransposition)
         {
-          sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
+          byte newNote = sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
           prevTransposition = transposition;
+          char noteName[4];
+          ShowValueInfoOnLCD("Transpose:", transposition, midiToNoteChar(newNote, noteName));
+          SetLCDinfoTimeout();
         }
 //      encTimes[1] = (unsigned long)encTime;
 
-        ShowValueInfoOnLCD("Transpose: ", transposition);
 //      encTimes[2] = (unsigned long)encTime;
-        SetLCDinfoTimeout();
 //      encTimes[3] = (unsigned long)encTime;
         
         oldPositionA = newPosition;
@@ -661,7 +662,7 @@ void InOutHelper::HandleTrackEncoderA() {
       {
           sequencer.setCurrentTrack(trackNum);  
 
-          ShowValueInfoOnLCD("Track: ", trackNum);
+          ShowValueInfoOnLCD("Track:", trackNum);
           SetLCDinfoTimeout();
 
           if(currentMode == track_select)
@@ -722,39 +723,6 @@ void InOutHelper::HandlePerformanceEncoders() {
       durationChangeLowerBoundary = sequencer.getShortestSelectedNote(selectedSteps);
       durationChangeUpperBoundary = 1.0 - sequencer.getLongestSelectedNote(selectedSteps);
     }
-/*    
-    // Encoder A for Transposition - a per-sequence-step edit
-    newPosition = EncA.read();
-
-    if ((newPosition >= oldPositionA + 4) || (newPosition <= oldPositionA - 4)) 
-    {
-
-        if(newPosition < 0 - pitchChangeLowerBoundary * 4) {        
-          newPosition = pitchChangeLowerBoundary * -4;
-          EncA.write(newPosition);
-//        encTimes[0] = (unsigned long)encTime;
-        } else if(newPosition > pitchChangeUpperBoundary * 4) {
-          newPosition = pitchChangeUpperBoundary * 4;
-          EncA.write(newPosition);
-//        encTimes[0] = (unsigned long)encTime;
-        }
-        transposition = newPosition / 4;
-
-        if (transposition != prevTransposition)
-        {
-          sequencer.offsetSelectedNotes(selectedSteps, transposition - prevTransposition, heldTrellisStep);  
-          prevTransposition = transposition;
-        }
-//      encTimes[1] = (unsigned long)encTime;
-
-        ShowValueInfoOnLCD("Transpose: ", transposition);
-//      encTimes[2] = (unsigned long)encTime;
-        SetLCDinfoTimeout();
-//      encTimes[3] = (unsigned long)encTime;
-        
-        oldPositionA = newPosition;
-    }
-*/
 
     // Encoder B for Note Duration - a per-sequence-step edit
     newPosFloat = (float)EncB.read() /100.0;
@@ -779,7 +747,7 @@ void InOutHelper::HandlePerformanceEncoders() {
         prevDurationChange = durationChange;
       }
 
-      ShowValueInfoOnLCD("NoteDur: ", (int) (durationChange * 100));
+      ShowValueInfoOnLCD("NoteDur:", (int) (durationChange * 100));
       SetLCDinfoTimeout();
 
       oldPositionBfloat = newPosFloat;
@@ -1301,7 +1269,7 @@ void InOutHelper::trackMuteTrellisButtonPressed(int i)
                 {
                     helperSteps[i % STEPSOFFSET] = false;
                     trellis.clrLED(i);
-                    ShowValueInfoOnLCD("Unmuted track ", track);
+                    ShowValueInfoOnLCD("Unmuted track", track);
                     SetLCDinfoTimeout();
                 }
             } else
@@ -1315,7 +1283,7 @@ void InOutHelper::trackMuteTrellisButtonPressed(int i)
                 {
                     helperSteps[i % STEPSOFFSET] = true;
                     trellis.setLED(i);                  
-                    ShowValueInfoOnLCD("Muted track ", track);
+                    ShowValueInfoOnLCD("Muted track", track);
                     SetLCDinfoTimeout();
                 } else
                     trellis.clrLED(i);
@@ -1503,11 +1471,11 @@ void InOutHelper::handleSelectButton()
           {
             bool recall = sequencer.toggle_pattern_recall();
             if (recall) {
-              ShowValueInfoOnLCD("Restoring root ", sequencer.getCurrentSequence());
+              ShowValueInfoOnLCD("Restoring root", sequencer.getCurrentSequence());
               SetLCDinfoTimeout();
 
             } else {
-              ShowValueInfoOnLCD("Recalling edit ", sequencer.getCurrentSequence());
+              ShowValueInfoOnLCD("Recalling edit", sequencer.getCurrentSequence());
               SetLCDinfoTimeout();
             }
 //          playpath.setPath(sequencer.getPath());
@@ -1517,7 +1485,7 @@ void InOutHelper::handleSelectButton()
           {
             if (save_sequence_destination != -1) {
               sequencer.save_sequence(save_sequence_destination);
-              ShowValueInfoOnLCD("Saved to seq ", save_sequence_destination);
+              ShowValueInfoOnLCD("Saved to seq", save_sequence_destination);
               SetLCDinfoTimeout();
               save_sequence_destination = -1;
 
@@ -1638,7 +1606,6 @@ void InOutHelper::handleModeButtons()
             currentMode = pattern_select;
             selectOrSave = pattern_select;
             save_sequence_destination = -1;
-            ClearChainLinkOnLCD();
             ClearInfoOnLCD();
           } else
             currentMode = selectOrSave;
@@ -2004,6 +1971,20 @@ void InOutHelper::ShowInfoOnLCD(const char info[])
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
 {
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s %d", label, value);
+    int curLen = strlen(buffer);
+    int showLen = curLen > ValueOrButtonOnLCDLength ? curLen : ValueOrButtonOnLCDLength;
+    ValueOrButtonOnLCDLength = curLen;
+
+    char buffer2 [showLen + 1];
+    foo = snprintf(buffer2, showLen + 1, "%s                   ", buffer);
+
+    lcd.setCursor(0, 2);
+    lcd.print(buffer2);
+
+/*
     String sShow  = String(label) + String(value);
     int len = sShow.length();
     int remainderLen = ValueOrButtonOnLCDLength - len;
@@ -2014,10 +1995,56 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], int value)
       for(int f = 0; f < remainderLen; f++)
         lcd.print(" ");
     ValueOrButtonOnLCDLength = len;
+*/
 }
+
+
+void InOutHelper::ShowValueInfoOnLCD(const char label[], int value1, const char value2[])
+{
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s %d %s", label, value1, value2);
+    int curLen = strlen(buffer);
+    int showLen = curLen > ValueOrButtonOnLCDLength ? curLen : ValueOrButtonOnLCDLength;
+    ValueOrButtonOnLCDLength = curLen;
+
+    char buffer2 [showLen + 1];
+    foo = snprintf(buffer2, showLen + 1, "%s                   ", buffer);
+
+    lcd.setCursor(0, 2);
+    lcd.print(buffer2);
+
+/*
+    String sShow  = String(label) + String(value1) + " " + String(value2);
+    int len = sShow.length();
+    int remainderLen = ValueOrButtonOnLCDLength - len;
+
+    lcd.setCursor(0, 2);
+    lcd.print(sShow);
+    if (remainderLen > 0)
+      for(int f = 0; f < remainderLen; f++)
+        lcd.print(" ");
+    ValueOrButtonOnLCDLength = len;
+*/
+}
+
 
 void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
 {  
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s %f", label, value);
+    int curLen = strlen(buffer);
+    int showLen = curLen > ValueOrButtonOnLCDLength ? curLen : ValueOrButtonOnLCDLength;
+    ValueOrButtonOnLCDLength = curLen;
+
+    char buffer2 [showLen + 1];
+    foo = snprintf(buffer2, showLen + 1, "%s                   ", buffer);
+
+    lcd.setCursor(0, 2);
+    lcd.print(buffer2);
+
+/*
     String sShow  = String(label) + String(value);
     int len = sShow.length();
     int remainderLen = ValueOrButtonOnLCDLength - len;
@@ -2028,6 +2055,7 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
       for(int f = 0; f < remainderLen; f++)
         lcd.print(" ");
     ValueOrButtonOnLCDLength = len;
+*/
 }
 
 void InOutHelper::ShowSynParOnLCD(const char label[], int value)
@@ -2052,16 +2080,26 @@ void InOutHelper::ShowSynParOnLCD(const char label[], float value)
 
 void InOutHelper::ClearInfoOnLCD()
 {
+    char buffer [21];
+    int foo = snprintf(buffer, ValueOrButtonOnLCDLength + 1, "                    ");
+
     lcdTimeoutLowerRow = 0;
     lcd.setCursor(0, 2);
-    for (int i=0; i < ValueOrButtonOnLCDLength; i++) lcd.print(" ");    
+    lcd.print(buffer);
+
+//  for (int i=0; i < ValueOrButtonOnLCDLength; i++) lcd.print(" ");    
 }
 
 void InOutHelper::ClearLabelRowInfoOnLCD()
 {
+    char buffer [21];
+    int foo = snprintf(buffer, LabelOnLCDLength + 1, "                    ");
+
     lcdTimeoutUpperRow = 0;
     lcd.setCursor(0, 1);
-    for (int i=0; i < LabelOnLCDLength; i++) lcd.print(" ");    
+    lcd.print(buffer);
+
+//  for (int i=0; i < LabelOnLCDLength; i++) lcd.print(" ");    
 }
 
 void InOutHelper::ShowStepStateOnLCD(int i, boolean stepButtonPressed)
@@ -2085,10 +2123,21 @@ void InOutHelper::ShowStepStateOnLCD(int i, boolean stepButtonPressed)
 
 void InOutHelper::ShowModeOnLCD()
 {
+    char buffer [21];
+    int curNameLen = strlen(modeNames[currentMode]);
+    int diplayLen = ModeNameOnLCDLength > curNameLen ? ModeNameOnLCDLength : curNameLen;
+    ModeNameOnLCDLength = curNameLen;
+
+    int foo = snprintf(buffer, diplayLen + 1, "%s                   ", modeNames[currentMode]);
+
+    lcd.setCursor(0, 1);
+    lcd.print(buffer);
+/*    
     lcd.setCursor(0, 1);
     lcd.print("                 ");
     lcd.setCursor(0, 1);
     lcd.print(modeNames[currentMode]);
+*/
 }
 
 void InOutHelper::ShowShiftOnLCD()
@@ -2142,6 +2191,14 @@ void InOutHelper::ShowStepOnLCD(int step, bool isActive)
 
 void InOutHelper::ShowPlaybackStepOnLCD(int step)
 {
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%d", step);
+    int len = strlen(buffer);
+
+    lcd.setCursor(16 - len, 0);
+    lcd.print(buffer);
+/*    
     if (step<100)
     {
         lcd.setCursor(14, 0);
@@ -2172,7 +2229,8 @@ void InOutHelper::ShowPlaybackStepOnLCD(int step)
         lcd.setCursor(10, 0);
     }
 
-    lcd.print(step);  
+    lcd.print(step);
+*/
 }
 
 void InOutHelper::ShowMemoryOnLCD(int mem)
@@ -2223,59 +2281,21 @@ void InOutHelper::ShowPathNumberOnLCD(byte pathNum)
 void InOutHelper::ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
                                      const byte link, const byte curLinkPlay, const byte maxLinkPlays)
 {
-/*
-  cx = snprintf ( buffer, 100, "The half of %d is %d", 60, 60/2 );
-
-  if (cx>=0 && cx<100)      // check returned value
-
-    snprintf ( buffer+cx, 100-cx, ", and the half of that is %d.", 60/2/2 );
-
-  puts (buffer);
-*/
   char buffer [20];
   int foo = snprintf(buffer, 20, "C:%d,%d/%d L:%d,%d/%d ", 
-                                 chain, curChainPlay, maxChainPlays,
-                                 link, curLinkPlay, maxLinkPlays);
+                                 chain+1, curChainPlay, maxChainPlays,
+                                 link+1, curLinkPlay, maxLinkPlays);
 
   lcd.setCursor(0, 2);
   lcd.print(buffer);
 
+  ValueOrButtonOnLCDLength = strlen(buffer);
+
   Serial.println();
   Serial.print("ShowChainLinkOnLCD: ");
   Serial.println(buffer);
-
-  /*  
-    lcd.setCursor(0, 0);
-    lcd.print("C ");  
-    lcd.setCursor(2, 0);
-    lcd.print(chain);
-
-    lcd.setCursor(5, 0);
-    lcd.print(curPlay);  
-    lcd.setCursor(6, 0);
-    lcd.print("/");
-    lcd.setCursor(7, 0);
-    lcd.print(maxPlays);
-
-    lcd.setCursor(3, 0);
-    lcd.print(" L ");  
-    lcd.setCursor(6, 0);
-    lcd.print(link);
-  
-    lcd.setCursor(9, 0);
-    lcd.print(curPlay);  
-    lcd.setCursor(11, 0);
-    lcd.print("/");
-    lcd.setCursor(12, 0);
-    lcd.print(maxPlays);
-*/
 }
 
-void InOutHelper::ClearChainLinkOnLCD()
-{
-    lcd.setCursor(0, 0);
-    lcd.print("           ");
-}
 
 void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode mode)
 {
@@ -2290,13 +2310,13 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
           case SHOWNOTHING:
             break;
           case ANNOUNCE:
-            ShowValueInfoOnLCD("Hold to save to ", destination);
+            ShowValueInfoOnLCD("Hold to save to", destination);
             break;
           case ACTION:
-            ShowValueInfoOnLCD("Saving to patch ", destination);
+            ShowValueInfoOnLCD("Saving to patch", destination);
             break;
           case DONE:
-            ShowValueInfoOnLCD("Saved to patch ", destination);
+            ShowValueInfoOnLCD("Saved to patch", destination);
             break;
           case INACTIVE:
           default:
@@ -2312,11 +2332,11 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
           case SHOWNOTHING:
             break;
           case ANNOUNCE:
-            ShowValueInfoOnLCD("Hold to save to ", destination);
+            ShowValueInfoOnLCD("Hold to save to", destination);
             SetLCDinfoTimeout();
             break;
           case ACTION:
-            ShowValueInfoOnLCD("Saving sequence ", destination);
+            ShowValueInfoOnLCD("Saving sequence", destination);
             SetLCDinfoTimeout();
             break;
           case DONE:
@@ -2543,6 +2563,17 @@ String InOutHelper::midiToNoteName(int note)
   return noteName;
 }
 
+
+char* InOutHelper::midiToNoteChar(int note, char* noteName)
+{
+    const char *notes[12] = {"c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"};
+    byte noteIndex = note % 12;
+    byte octave = note / 12;
+
+    int foo = snprintf(noteName, 4, "%s%d", notes[noteIndex], octave);
+
+    return noteName;
+}
 
 void InOutHelper::showLoopTimer()
 {

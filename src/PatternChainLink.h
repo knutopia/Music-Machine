@@ -40,9 +40,11 @@ class PatternChainLink
     void incrementLinkPlayCount();
     void primeLinktoPlay();
 
+    // public for serialization
+    ChainLink link;
+
   private:
 
-    ChainLink link;
     int currentPlayCount;
 };
 

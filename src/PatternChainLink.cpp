@@ -12,7 +12,8 @@ extern int currentMode;
 
 PatternChainLink::PatternChainLink()
 {
-
+    link.nextLinkIndex = 255;
+    link.timesToPlay = 0;
 };
 
 
@@ -24,8 +25,6 @@ void PatternChainLink::begin()
         link.mutePerTrack[trackIndex] = false;
         link.patternPerTrack[trackIndex] = 255;
     }
-    link.nextLinkIndex = 255;
-    link.timesToPlay = 0;
 };
 
 void PatternChainLink::addTrackPatterntoLink(byte trackNum, byte patNum, bool muteIt)

@@ -1,8 +1,10 @@
 #include "PatternChainHandler.h"
 #include "InOutHelper.h"
 #include "StepSequencer.h"
+#include "SDjson.h"
 
 extern InOutHelper inout;
+extern SDjsonHandler jsonHandler;
 
 byte PatternChainHandler::currentLeadTrack;
 intFunc PatternChainHandler::updateSequenceNumberCb;
@@ -97,6 +99,12 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
     }
 
     reset();
+
+//    jsonHandler.saveChains();
+
+//    jsonSetup();
+
+
 };
 
 // setters
@@ -246,6 +254,9 @@ void PatternChainHandler::startChainPlay()
                              currentLinkIndex, 
                              currentLink->getCurrentPlayCount(), 
                              currentLink->getTimesToPlay());
+
+
+    jsonHandler.saveChains();
 }
 
 bool PatternChainHandler::updateLinkOrChainIfNeeded()

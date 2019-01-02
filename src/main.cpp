@@ -28,6 +28,7 @@
 #include "ActionQueue.h"
 #include "PatternChainLink.h"
 #include "PatternChainHandler.h"
+#include "SDjson.h"
 
 int g_activeGlobalStep;
 
@@ -38,6 +39,9 @@ const int ID_ADDR = 0;
 
 // For SD card
 SDHandler sdCard;
+
+//For wrangling Json on the card
+SDjsonHandler jsonHandler;
 
 // kg
 const float NORMAL_VEL = 0.7;
@@ -470,7 +474,6 @@ void setup()
 
     Serial.println("Reading patches from SD");
     patchesLoaded = sdCard.readPatchesFromSDcard();
-    
 
     synth.begin();
 
@@ -495,6 +498,12 @@ void setup()
     inout.SetLCDinfoTimeout();
 
     synth.playTestClick();
+
+
+
+    // jsonSetup() tests...
+    // jsonSetup();
+
 }
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

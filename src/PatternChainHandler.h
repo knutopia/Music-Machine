@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "Enum.h"
 #include "PatternChainLink.h"
+#include <ArduinoJson.h>
 
 //typedef for callback
 typedef void (*simpleFunc) ();
@@ -46,29 +47,26 @@ class PatternChainHandler
     void updateChainAndLinkDisplay();
     void reset();
 
+    // class data
     static byte currentLeadTrack;
     static intFunc updateSequenceNumberCb;
     static speedFactorFunc updateSpeedMultiplierCb;
 
+    // data
+    Chain chains[MAXCHAINCOUNT];
+
   private:
 
     simpleFunc stopPlaybackCb;
-//  intFunc updateSequenceNumberCb;
-//  speedFactorFunc updateSpeedMultiplierCb;
 
     bool timeForNextChain(); // utility
 
-    Chain chains[MAXCHAINCOUNT];
+//  Chain chains[MAXCHAINCOUNT];
     Chain* currentChain;
     byte currentChainIndex;
     PatternChainLink* currentLink;
     byte currentLinkIndex;
     int currentChainPlayCount;
-/*
-    QueuedActionRecord acQueue[QUEUEMAXLEN];
-    byte queuedActionsCount = 0;
-    byte actionRetrievalIndex = 0;
-*/
 };
 
 #endif

@@ -239,6 +239,13 @@ void PatternChainHandler::clearLink()
 void PatternChainHandler::startChainPlay()
 {
 
+
+
+    jsonHandler.loadChains();
+
+
+
+
     Serial.println("startChainPlay");
 
     if(currentLink != NULL)
@@ -254,9 +261,6 @@ void PatternChainHandler::startChainPlay()
                              currentLinkIndex, 
                              currentLink->getCurrentPlayCount(), 
                              currentLink->getTimesToPlay());
-
-
-    jsonHandler.saveChains();
 }
 
 bool PatternChainHandler::updateLinkOrChainIfNeeded()

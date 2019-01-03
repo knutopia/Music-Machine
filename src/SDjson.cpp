@@ -9,6 +9,139 @@ extern PatternChainHandler patternChain;
 
 void SDjsonHandler::loadChains()
 {
+    Serial.println("loadChains");
+
+    File file = SD.open(chainFileName, FILE_READ);
+    if (!file) {
+        inout.ShowErrorOnLCD("SDjH:lC cFN fail");
+        return;
+    }
+
+    const int capacity = JSON_ARRAY_SIZE(MAXCHAINCOUNT) 
+                       + JSON_OBJECT_SIZE(2) 
+                       + MAXCHAINCOUNT * (JSON_OBJECT_SIZE(5)
+                                        + JSON_ARRAY_SIZE(MAXLINKSPERCHAIN)
+                                        + MAXLINKSPERCHAIN * (JSON_OBJECT_SIZE(6)
+                                                            + JSON_ARRAY_SIZE(TRACKCOUNT)
+                                                            + TRACKCOUNT * JSON_OBJECT_SIZE(4)));
+
+    StaticJsonBuffer<capacity> jsonBuffer;
+
+    // Parse the root object
+    JsonObject &root = jsonBuffer.parseObject(file);
+
+    if (!root.success())
+    {
+        inout.ShowErrorOnLCD("SDjH:lC root fail");
+        return;
+    }
+    Serial.println("  parseObject success");
+
+    int maxChains = MAXCHAINCOUNT;
+    int maxLinks = MAXLINKSPERCHAIN;
+
+
+//  root["maxChains"] = maxChains;
+    int maxChainsInFile = root["maxChains"];
+
+    Serial.print("  maxChainsInFile: ");
+    Serial.println(maxChainsInFile);
+
+    JsonArray& chains = root["chains"];
+    if (!chains.success())
+    {
+        inout.ShowErrorOnLCD("SDjH:lC chains fail");
+        return;
+    }
+    Serial.println("  parseArray success");
+
+    int count = chains.size();    
+    Serial.print("  chains size: ");
+    Serial.println(count);
+
+    int c = 0;
+    for (JsonObject& cElem : chains) 
+    {
+        Serial.print("  chain ");
+        Serial.println(c);
+
+        JsonObject& chain = cElem;
+        patternChain.chains[c].timesToPlay = chain["timesToPlay"];
+        patternChain.chains[c].numberOfLinks = chain["numberOfLinks"];
+        patternChain.chains[c].nextChain = chain["nextChain"];
+        JsonArray& links = chain["links"];
+        if (!links.success())
+        {
+            inout.ShowErrorOnLCD("SDjH:lC links fail");
+            return;
+        }
+        int l = 0;
+        for (JsonObject& lElem : links)
+        {
+            Serial.print("    link ");
+            Serial.println(l);
+
+            JsonObject& link = lElem;
+            patternChain.chains[c].links[l]->link.timesToPlay = link["timesToPlay"];
+            patternChain.chains[c].links[l]->link.leadTrack = link["leadTrack"];
+            patternChain.chains[c].links[l]->link.nextLinkIndex = link["nextLinkIndex"];
+            int speedMult = link["speedMult"];
+            switch (speedMult)
+            {
+              case 0:
+                patternChain.chains[c].links[l]->link.speedMult = UNDEFINED;
+                break;
+              case 1:
+                patternChain.chains[c].links[l]->link.speedMult = NORMAL;
+                break;
+              case 2:
+                patternChain.chains[c].links[l]->link.speedMult = DOUBLE;
+                break;
+              case 3:
+                patternChain.chains[c].links[l]->link.speedMult = TRIPLE;
+                break;
+              case 4:
+                patternChain.chains[c].links[l]->link.speedMult = QUAD;
+                break;
+              default:
+                patternChain.chains[c].links[l]->link.speedMult = UNDEFINED;
+                break;
+            }
+            JsonArray& tracks = link["trackUsedInLink"];
+            if (!tracks.success())
+            {
+                inout.ShowErrorOnLCD("SDjH:lC tracks fail");
+                return;
+            }
+            int t = 0;
+            for (JsonObject& tElem : tracks)
+            {
+                JsonObject& track = tElem;
+                patternChain.chains[c].links[l]->link.trackUsedInLink[t] = true;
+                patternChain.chains[c].links[l]->link.patternPerTrack[t] = track["pattern"];
+                patternChain.chains[c].links[l]->link.mutePerTrack[t] =  track["muted"];
+
+                Serial.print("      track ");
+                Serial.print(t);
+                Serial.print("  pattern ");
+                byte pat = track["pattern"];
+                Serial.print(pat);
+                Serial.print("  mute ");
+                bool mute = track["mute"];
+                Serial.println(mute);
+
+                t++;
+            }
+            l++;
+        }
+        c++;
+    }
+    
+    Serial.println("loadChains done");
+
+    file.close();
+
+    printFile(chainFileName);
 
 }
 
@@ -18,8 +151,8 @@ void SDjsonHandler::saveChains()
 
     File file = SD.open(chainFileName, FILE_WRITE);
     if (!file) {
-    Serial.println(F("Failed to create chains file"));
-    return;
+        inout.ShowErrorOnLCD("SDjH:sC cFN fail");
+        return;
     }
 
     // Allocate the memory pool on the stack

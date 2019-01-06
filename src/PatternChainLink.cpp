@@ -64,7 +64,7 @@ bool PatternChainLink::setLengthOverride(byte length)
     return success;
 }
 
-bool PatternChainLink::setPathOverride(byte path)
+bool PatternChainLink::setPathOverride(int path)
 {
     bool success = false;
 
@@ -160,8 +160,6 @@ void PatternChainLink::primeLinktoPlay()
                 // TODO: This here is an error condition !
             } else {
                 
-                // PATTERNCHANGE
-
 
                 Serial.print("  seq ");
                 Serial.print(link.patternPerTrack[trackIndex]);
@@ -172,29 +170,60 @@ void PatternChainLink::primeLinktoPlay()
                 else
                     Serial.println("  unmuted ");
 
-
+                // PATTERNCHANGE
                 sequencer.setCurrentTrack(trackNum);
                 PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[trackIndex]);
-
-                if(currentMode == pattern_select || currentMode == chain_edit)
-                    inout.simpleIndicatorModeTrellisButtonPressed
-                            (link.patternPerTrack[trackIndex] + STEPSOFFSET);
-
-                // if(currentMode == path_select)
-                //    inout.pathModeTrellisButtonPressed
-                //          ((int)link.pathPerTrack[trackIndex] + STEPSOFFSET);
-
-                // if(currentMode == length_edit)
-                //    inout.lengthModeTrellisIndicatorUpdate() //...nonexistent...
-
-                // but all the other modes...
                 
-
                 // TRACKMUTECHANGE
                 sequencer.setTrackMute(trackNum, link.mutePerTrack[trackIndex]);
 
-                if(currentMode == track_mute)
-                    inout.trackMuteTrellisButtonPressed(trackNum - 1 + STEPSOFFSET);
+                // OVERRIDES
+                if(trackNum == link.leadTrack)
+                {
+                    if(link.pathOverride < 255)
+                    {
+                        sequencer.setPath(link.pathOverride % STEPSOFFSET);
+                        inout.ShowPathNumberOnLCD(link.pathOverride % STEPSOFFSET);
+                    }
+                
+                    if(link.lengthOverride < 255)
+                    {
+                        byte seqMaxLength = sequencer.getMaxLength();  // still redundant MAXLENGTH
+                            if (link.lengthOverride <= seqMaxLength)
+                                sequencer.setLength(link.lengthOverride);
+                            else
+                                inout.ShowErrorOnLCD("PCL:PLtP lO RNG", link.lengthOverride);
+                    }
+                }
+
+                // sync trellis, LCD
+                switch(currentMode)
+                {
+                    case pattern_select:
+                    case chain_edit:
+                        inout.simpleIndicatorModeTrellisButtonPressed
+                            (link.patternPerTrack[trackIndex] + STEPSOFFSET);
+                        break;
+
+                    case path_select:
+                        inout.pathModeTrellisButtonPressed
+                            (sequencer.getPath() + STEPSOFFSET);
+                        inout.ShowInfoOnLCD(sequencer.getPathName());
+                        inout.SetLCDinfoTimeout();
+                        break;
+
+                    case length_edit:
+                        inout.simpleIndicatorModeTrellisButtonPressed(sequencer.getLength() - 1 + STEPSOFFSET);
+                        break;
+
+                    case track_mute:
+                        inout.trackMuteTrellisButtonPressed(trackNum - 1 + STEPSOFFSET);
+                        break;
+
+                    default:
+                        break;
+                    // but all the other modes...
+                }
             }
         } else {
 

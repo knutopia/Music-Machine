@@ -40,6 +40,7 @@ class Track
       byte getMaxSequenceIndex();
       byte getPrevPlaybackStep();
       const char* getPathName();
+      int getPathNumber();
       StepSequence* getCurrentSequenceRef();
       StepSequence* getSequenceRef(int index);
       StepSequence* getRootSequenceRef(int index);

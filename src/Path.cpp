@@ -67,6 +67,12 @@ const char* Path::getPathName()
     return m_pathNames[m_currentPath];
 }
 
+int Path::getCurrentPathNumber()
+{
+    return m_currentPath;
+}
+
+
 //Helper methods
 void Path::resetStep() 
 {

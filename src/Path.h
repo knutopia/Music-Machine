@@ -21,6 +21,7 @@ class Path
     void setNextPath();
     void setPrevPath();
     const char* getPathName();
+    int getCurrentPathNumber();
     
     //Helper methods
     void resetStep();

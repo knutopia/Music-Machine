@@ -340,6 +340,11 @@ const char* Track::getPathName()
       return trackPath.getPathName();
 }
 
+int Track::getPathNumber()
+{
+      return trackPath.getCurrentPathNumber();
+}
+
 void Track::setRecallBufferActive(bool trueOrFalse)
 {
       b_recallBufferIsActive = trueOrFalse;

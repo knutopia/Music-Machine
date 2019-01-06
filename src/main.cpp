@@ -656,6 +656,9 @@ void runQueuedActions()
                 
                 sequencer.setCurrentTrack(qTrack);
                 ChangePatternLengthCb(qParam);
+                if(currentMode == length_edit)
+                    inout.simpleIndicatorModeTrellisButtonPressed
+                          (sequencer.getLength() - 1 + STEPSOFFSET);
                 break;
 
             case TRACKMUTECHANGE:

@@ -14,7 +14,7 @@ struct ChainLink {
     byte leadTrack;
     byte nextLinkIndex = 255;
     byte lengthOverride = 255;
-    byte pathOverride = 255;
+    int pathOverride = 255;
 };
 
 class PatternChainLink
@@ -32,7 +32,7 @@ class PatternChainLink
 
     // setters
     bool setLengthOverride(byte length);
-    bool setPathOverride(byte path);
+    bool setPathOverride(int path);
     bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
     void setNextLinkIndex(byte linkNum);

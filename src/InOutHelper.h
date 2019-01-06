@@ -68,6 +68,7 @@ class InOutHelper
     void ShowSynParOnLCD(const char label[], int value);
     void ShowSynParOnLCD(const char label[], float value);
     void ShowErrorOnLCD(const char error[]);
+    void ShowErrorOnLCD(const char error[], byte value);
     void ShowErrorOnLCD(const char error[], const char context[]);
     void ShowSequenceNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);

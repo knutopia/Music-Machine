@@ -7,7 +7,6 @@
 class Path
 {
   public:
-    enum{max_path_steps = 16};
     
     Path();
 

@@ -49,6 +49,35 @@ byte PatternChainLink::getTimesToPlay()
 }
 
 // setters
+
+bool PatternChainLink::setLengthOverride(byte length)
+{
+    bool success = false;
+
+    if(length > 0 && length <= MAXNOTES)
+    {
+        link.lengthOverride = length;
+        success = true;
+    } else
+        inout.ShowErrorOnLCD("PCL:sLO inval len", length);
+
+    return success;
+}
+
+bool PatternChainLink::setPathOverride(byte path)
+{
+    bool success = false;
+
+    if(path < 16)
+    {
+        link.pathOverride = path;
+        success = true;
+    } else
+        inout.ShowErrorOnLCD("PCL:sPO inval path", path);
+
+    return success;    
+}
+
 void PatternChainLink::setTimesToPlay(byte times)
 {
     link.timesToPlay = times;

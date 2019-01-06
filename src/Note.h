@@ -35,8 +35,8 @@ struct note {
     uint8_t holdsAfter;
     uint8_t mutesAfter;
 
-//      byte m_probability[max_notes];
-//      byte m_retrig[max_notes];
+//      byte m_probability[MAXNOTES];
+//      byte m_retrig[MAXNOTES];
 
 //      byte m_length;
 //      byte m_transposition;

@@ -1938,11 +1938,33 @@ void InOutHelper::ClearBoolSteps(bool arrayPointer[], int arrayLength)
 // LCD Helpers
 void InOutHelper::ShowErrorOnLCD(const char error[])
 {
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s                ", error);
+    int curLen = strlen(buffer);
+
+    lcd.setCursor(0, 0);
+    lcd.print(buffer);
+
+/*
     lcd.setCursor(0, 0);
     lcd.print("                 ");
     lcd.setCursor(0, 0);
     lcd.print(error);
     Serial.println(error);
+*/
+}
+
+
+void InOutHelper::ShowErrorOnLCD(const char error[], byte value)
+{
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s %d              ", error, value);
+    int curLen = strlen(buffer);
+
+    lcd.setCursor(0, 0);
+    lcd.print(buffer);
 }
 
 

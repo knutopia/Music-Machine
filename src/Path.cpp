@@ -49,17 +49,17 @@ bool Path::checkForSequenceStart()
 
 void Path::setPath(int index)
 {
-    m_currentPath = index % max_path_steps;
+    m_currentPath = index % MAXPATHSTEPS;
 }
 
 void Path::setNextPath()
 {
-    m_currentPath = (++m_currentPath)  % max_path_steps;
+    m_currentPath = (++m_currentPath)  % MAXPATHSTEPS;
 }
 
 void Path::setPrevPath()
 {
-    m_currentPath = (--m_currentPath)  % max_path_steps;
+    m_currentPath = (--m_currentPath)  % MAXPATHSTEPS;
 }
 
 const char* Path::getPathName()

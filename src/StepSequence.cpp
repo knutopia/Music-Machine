@@ -11,7 +11,7 @@ extern InOutHelper inout;
 
 StepSequence::StepSequence()
 {
-    m_length = max_notes;
+    m_length = MAXNOTES;
     m_transposition = 0;
     m_path = 0;
     reset();
@@ -25,7 +25,7 @@ void StepSequence::begin()
 void StepSequence::reset()
 {
         //Initialize sequence flat
-    for(int n = 0; n < max_notes; n++)
+    for(int n = 0; n < MAXNOTES; n++)
     {
         m_notes[n] = 32;
         m_duration[n] = .5;
@@ -124,7 +124,7 @@ byte StepSequence::assembleMutes(const note aNote, Path aPath)
 
 void StepSequence::copySeqTo(StepSequence &destination) 
 {
-    for(byte n = 0; n < max_notes; n++)
+    for(byte n = 0; n < MAXNOTES; n++)
     {
         destination.setNote(n, m_notes[n]); 
         destination.setDuration(n, m_duration[n]);
@@ -143,7 +143,7 @@ void StepSequence::copySeqTo(StepSequence &destination)
 
 void StepSequence::copySeqTo(StepSequence *destination) 
 {
-    for(byte n = 0; n < max_notes; n++)
+    for(byte n = 0; n < MAXNOTES; n++)
     {
         destination->setNote(n, m_notes[n]); 
         destination->setDuration(n, m_duration[n]);
@@ -165,7 +165,7 @@ void StepSequence::copySeqTo(StepSequence *destination)
 
 byte StepSequence::getNote(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_notes[_step];
     } 
@@ -174,7 +174,7 @@ byte StepSequence::getNote(int _step)
 
 float StepSequence::getDuration(int _step) // kg
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_duration[_step];
     } 
@@ -183,7 +183,7 @@ float StepSequence::getDuration(int _step) // kg
 
 byte StepSequence::getProbability(int _step) // kg
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_probability[_step];
     } 
@@ -192,7 +192,7 @@ byte StepSequence::getProbability(int _step) // kg
     
 byte StepSequence::getTicks(int _step) // kg
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_ticks[_step];
     } 
@@ -213,7 +213,7 @@ void StepSequence::setTransposition(byte trans)
 
 bool StepSequence::getMute(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_unmuted[_step];
     } 
@@ -222,7 +222,7 @@ bool StepSequence::getMute(int _step)
 
 bool StepSequence::getHold(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_hold[_step];
     } 
@@ -231,7 +231,7 @@ bool StepSequence::getHold(int _step)
 
 byte StepSequence::getAccent(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_accent[_step];
     } 
@@ -240,7 +240,7 @@ byte StepSequence::getAccent(int _step)
 
 byte StepSequence::getRetrig(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_retrig[_step];
     } 
@@ -249,7 +249,7 @@ byte StepSequence::getRetrig(int _step)
 
 byte StepSequence::getVelocity(int _step)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         return m_velocity[_step];
     } 
@@ -262,7 +262,7 @@ bool StepSequence::playItOrNot(int _step)
     // and check if the step isn't holding from the previous step
     
     bool retVal = false;
-    if (_step >=0 && _step < max_notes)
+    if (_step >=0 && _step < MAXNOTES)
     {
         if( !m_hold[_step] && m_unmuted[_step] )
         {
@@ -321,7 +321,7 @@ note StepSequence::getSequenceNoteParams(int _step, Path aPath)
 {
     note thisNote;
 
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         thisNote.notEmpty = true;
         thisNote.retrigClickDivider = getRetrigDivider(m_retrig[_step]);
@@ -356,7 +356,7 @@ note StepSequence::getSequenceNoteParams(int _step, Path aPath)
 
 byte StepSequence::getLength(){return m_length;};
 
-int StepSequence::getMaxLength(){return max_notes;};
+int StepSequence::getMaxLength(){return MAXNOTES;};
 
 byte StepSequence::getPath(){return m_path;}
 
@@ -365,7 +365,7 @@ byte StepSequence::getPath(){return m_path;}
 
 void StepSequence::setNote(int _step, byte note)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_notes[_step] = note;  
     }
@@ -373,7 +373,7 @@ void StepSequence::setNote(int _step, byte note)
 
 void StepSequence::setLength(byte _length)
 {
-    if(_length <= max_notes && _length >0)
+    if(_length <= MAXNOTES && _length >0)
     {
         m_length = _length;
     } 
@@ -381,7 +381,7 @@ void StepSequence::setLength(byte _length)
 
 void StepSequence::setDuration(int _step, float duration) // kg...
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_duration[_step] = duration;  
     }      
@@ -389,7 +389,7 @@ void StepSequence::setDuration(int _step, float duration) // kg...
 
 void StepSequence::setProbability(int _step, byte probabil) // kg...
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_probability[_step] = probabil;  
     }      
@@ -397,7 +397,7 @@ void StepSequence::setProbability(int _step, byte probabil) // kg...
     
 void StepSequence::setTicks(int _step, float repetition) // kg...
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_ticks[_step] = repetition;  
     }      
@@ -405,7 +405,7 @@ void StepSequence::setTicks(int _step, float repetition) // kg...
 
 void StepSequence::setMute(int _step, bool muteFlag)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_unmuted[_step] = muteFlag;  
     }
@@ -413,7 +413,7 @@ void StepSequence::setMute(int _step, bool muteFlag)
 
 void StepSequence::setHold(int _step, bool holdFlag)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_hold[_step] = holdFlag;  
     }
@@ -421,7 +421,7 @@ void StepSequence::setHold(int _step, bool holdFlag)
 
 void StepSequence::setAccent(int _step, byte accent)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_accent[_step] = accent;  
     }
@@ -429,7 +429,7 @@ void StepSequence::setAccent(int _step, byte accent)
 
 void StepSequence::setRetrig(int _step, byte retrig)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_retrig[_step] = retrig;  
     }
@@ -437,7 +437,7 @@ void StepSequence::setRetrig(int _step, byte retrig)
 
 void StepSequence::setVelocity(int _step, byte velocity)
 {
-    if(_step >=0 && _step < max_notes)
+    if(_step >=0 && _step < MAXNOTES)
     {
         m_velocity[_step] = velocity;  
     }
@@ -453,7 +453,7 @@ void StepSequence::setPath(byte path)
 void StepSequence::printSequence()
 {
     Serial.println("Note\tDuratn\tProb\tRepeat\tNotMute\tHold\tAccent\tRetrig\tVelocity");
-    for(int n = 0; n < max_notes; n++)
+    for(int n = 0; n < MAXNOTES; n++)
     {
         Serial.print(m_notes[n]); 
         Serial.print("\t"); 

@@ -19,6 +19,10 @@ enum seqModes {first,
                track_mute,
                last};
 
+enum{MAXNOTES = 16};
+
+enum{MAXPATHSTEPS = 16};
+
 enum sequenceVariations {ROOT = 0, EDIT = 255};   // unused            
 
 enum trellisButton {SAVETOSDBUTTON, SYNTHEDITBUTTON, QUEUEBUTTON, QUEUEPRIMEBUTTON, 

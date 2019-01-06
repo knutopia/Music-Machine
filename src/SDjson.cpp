@@ -37,10 +37,6 @@ void SDjsonHandler::loadChains()
     }
     Serial.println("  parseObject success");
 
-    int maxChains = MAXCHAINCOUNT;
-    int maxLinks = MAXLINKSPERCHAIN;
-
-
 //  root["maxChains"] = maxChains;
     int maxChainsInFile = root["maxChains"];
 
@@ -85,6 +81,9 @@ void SDjsonHandler::loadChains()
             patternChain.chains[c].links[l]->link.timesToPlay = link["timesToPlay"];
             patternChain.chains[c].links[l]->link.leadTrack = link["leadTrack"];
             patternChain.chains[c].links[l]->link.nextLinkIndex = link["nextLinkIndex"];
+            patternChain.chains[c].links[l]->link.lengthOverride = link["lengthOverride"];
+            patternChain.chains[c].links[l]->link.pathOverride = link["pathOverride"];
+
             int speedMult = link["speedMult"];
             switch (speedMult)
             {
@@ -200,6 +199,8 @@ struct ChainLink {
     speedFactor speedMult = UNDEFINED;
     byte leadTrack;
     byte nextLinkIndex = 255;
+    byte lengthOverride = 255;
+    byte pathOverride = 255;
 }; */
 
     int maxChains = MAXCHAINCOUNT;
@@ -226,6 +227,9 @@ struct ChainLink {
             link["speedMult"] = int(patternChain.chains[f].links[l]->link.speedMult);
             link["leadTrack"] = patternChain.chains[f].links[l]->link.leadTrack;
             link["nextLinkIndex"] = patternChain.chains[f].links[l]->link.nextLinkIndex;
+            link["lengthOverride"] = patternChain.chains[f].links[l]->link.lengthOverride;
+            link["pathOverride"] = patternChain.chains[f].links[l]->link.pathOverride;
+            
             JsonArray& tracksUsedInLink = link.createNestedArray("trackUsedInLink");
 
             for(int t = 0; t < TRACKCOUNT; t++)

@@ -8,9 +8,7 @@
 
 class StepSequence
 {
-    public:
-        enum{max_notes = 16};
-    
+    public:    
         StepSequence();
 
         void begin();
@@ -57,15 +55,15 @@ class StepSequence
         byte assembleMutes(const note aNote, Path aPath);
 
 //      note m_noteStruct;
-        byte m_notes[max_notes];
-        float m_duration[max_notes];   // float
-        byte m_probability[max_notes];
-        byte m_ticks[max_notes];
-        bool m_unmuted[max_notes];     // bool true = unmuted
-        bool m_hold[max_notes];        // bool
-        byte m_accent[max_notes];
-        byte m_retrig[max_notes];
-        byte m_velocity[max_notes];
+        byte m_notes[MAXNOTES];
+        float m_duration[MAXNOTES];   // float
+        byte m_probability[MAXNOTES];
+        byte m_ticks[MAXNOTES];
+        bool m_unmuted[MAXNOTES];     // bool true = unmuted
+        bool m_hold[MAXNOTES];        // bool
+        byte m_accent[MAXNOTES];
+        byte m_retrig[MAXNOTES];
+        byte m_velocity[MAXNOTES];
         byte m_length;
         byte m_transposition;
         byte m_path;        

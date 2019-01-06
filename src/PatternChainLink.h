@@ -13,6 +13,8 @@ struct ChainLink {
     speedFactor speedMult = UNDEFINED;
     byte leadTrack;
     byte nextLinkIndex = 255;
+    byte lengthOverride = 255;
+    byte pathOverride = 255;
 };
 
 class PatternChainLink
@@ -29,6 +31,8 @@ class PatternChainLink
     byte getTimesToPlay();
 
     // setters
+    bool setLengthOverride(byte length);
+    bool setPathOverride(byte path);
     bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
     void setNextLinkIndex(byte linkNum);

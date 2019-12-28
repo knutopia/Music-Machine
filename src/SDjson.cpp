@@ -25,10 +25,11 @@ void SDjsonHandler::loadChains()
                                                             + JSON_ARRAY_SIZE(TRACKCOUNT)
                                                             + TRACKCOUNT * JSON_OBJECT_SIZE(4)));
 
-    StaticJsonBuffer<capacity> jsonBuffer;
+//  StaticJsonBuffer<capacity> jsonBuffer;
+    StaticJsonDocument<capacity> jsonDoc;
 
     // Parse the root object
-    JsonObject &root = jsonBuffer.parseObject(file);
+/*  JsonObject &root = jsonBuffer.parseObject(file);
 
     if (!root.success())
     {
@@ -36,19 +37,38 @@ void SDjsonHandler::loadChains()
         return;
     }
     Serial.println("  parseObject success");
+*/
 
-//  root["maxChains"] = maxChains;
+    auto error = deserializeJson(jsonDoc, file);
+    if (error) {
+        inout.ShowErrorOnLCD("SDjH:lC des fail");
+        return;
+    } else
+        Serial.println("  deserialize success");
+    
+    JsonObject root = jsonDoc.as<JsonObject>();
+
     int maxChainsInFile = root["maxChains"];
 
     Serial.print("  maxChainsInFile: ");
     Serial.println(maxChainsInFile);
 
-    JsonArray& chains = root["chains"];
+/*  JsonArray& chains = root["chains"];
+
     if (!chains.success())
     {
         inout.ShowErrorOnLCD("SDjH:lC chains fail");
         return;
     }
+*/
+
+    JsonArray chains = root["chains"];
+
+/*  if (error) {
+        inout.ShowErrorOnLCD("SDjH:lC chains fail");
+        return;
+    }
+*/
     Serial.println("  parseArray success");
 
     int count = chains.size();    
@@ -56,28 +76,33 @@ void SDjsonHandler::loadChains()
     Serial.println(count);
 
     int c = 0;
-    for (JsonObject& cElem : chains) 
+//  for (JsonObject& cElem : chains) 
+    for (JsonObject cElem : chains) 
     {
         Serial.print("  chain ");
         Serial.println(c);
 
-        JsonObject& chain = cElem;
+//      JsonObject& chain = cElem;
+        JsonObject chain = cElem;
         patternChain.chains[c].timesToPlay = chain["timesToPlay"];
         patternChain.chains[c].numberOfLinks = chain["numberOfLinks"];
         patternChain.chains[c].nextChain = chain["nextChain"];
-        JsonArray& links = chain["links"];
-        if (!links.success())
+//      JsonArray& links = chain["links"];
+        JsonArray links = chain["links"];
+/*      if (!links.success())
         {
             inout.ShowErrorOnLCD("SDjH:lC links fail");
             return;
         }
-        int l = 0;
-        for (JsonObject& lElem : links)
+*/      int l = 0;
+//      for (JsonObject& lElem : links)
+        for (JsonObject lElem : links)
         {
             Serial.print("    link ");
             Serial.println(l);
 
-            JsonObject& link = lElem;
+//          JsonObject& link = lElem;
+            JsonObject link = lElem;
             patternChain.chains[c].links[l]->link.timesToPlay = link["timesToPlay"];
             patternChain.chains[c].links[l]->link.leadTrack = link["leadTrack"];
             patternChain.chains[c].links[l]->link.nextLinkIndex = link["nextLinkIndex"];
@@ -106,16 +131,19 @@ void SDjsonHandler::loadChains()
                 patternChain.chains[c].links[l]->link.speedMult = UNDEFINED;
                 break;
             }
-            JsonArray& tracks = link["trackUsedInLink"];
-            if (!tracks.success())
+//          JsonArray& tracks = link["trackUsedInLink"];
+            JsonArray tracks = link["trackUsedInLink"];
+/*          if (!tracks.success())
             {
                 inout.ShowErrorOnLCD("SDjH:lC tracks fail");
                 return;
             }
-            int t = 0;
-            for (JsonObject& tElem : tracks)
+*/          int t = 0;
+//          for (JsonObject& tElem : tracks)
+            for (JsonObject tElem : tracks)
             {
-                JsonObject& track = tElem;
+//              JsonObject& track = tElem;
+                JsonObject track = tElem;
                 patternChain.chains[c].links[l]->link.trackUsedInLink[t] = true;
                 patternChain.chains[c].links[l]->link.patternPerTrack[t] = track["pattern"];
                 patternChain.chains[c].links[l]->link.mutePerTrack[t] =  track["muted"];
@@ -177,51 +205,41 @@ void SDjsonHandler::saveChains()
     Serial.println(capacity);
 
 
-    StaticJsonBuffer<capacity> jsonBuffer;
-//  StaticJsonBuffer<1024> jsonBuffer;
+//  StaticJsonBuffer<capacity> jsonBuffer;
+    StaticJsonDocument<capacity> jsonDoc;
 
     // Parse the root object
-    JsonObject &root = jsonBuffer.createObject();
-
-/*  
-struct Chain {
-    int timesToPlay;
-    PatternChainLink* links[MAXLINKSPERCHAIN];
-    byte numberOfLinks;
-    byte nextChain;
-};
-
-struct ChainLink {
-    byte patternPerTrack[TRACKCOUNT];
-    bool mutePerTrack[TRACKCOUNT];
-    bool trackUsedInLink[TRACKCOUNT];
-    int timesToPlay = 1;
-    speedFactor speedMult = UNDEFINED;
-    byte leadTrack;
-    byte nextLinkIndex = 255;
-    byte lengthOverride = 255;
-    byte pathOverride = 255;
-}; */
+//  JsonObject &root = jsonBuffer.createObject();
 
     int maxChains = MAXCHAINCOUNT;
     int maxLinks = MAXLINKSPERCHAIN;
 
-    root["maxChains"] = maxChains;
+//  root["maxChains"] = maxChains;
+    jsonDoc["maxChains"] = maxChains;
 
-    JsonArray& chains = root.createNestedArray("chains");
+//  doc["key"] = "value";
+//  doc["raw"] = serialized("[1,2,3]");
+//  serializeJson(doc, Serial);
+
+//  JsonArray& chains = root.createNestedArray("chains");
+    JsonArray chains = jsonDoc.createNestedArray("chains");
+    //####ERROR CHECK
 
     for(int f = 0; f < maxChains; f++)
     {
-        JsonObject& chain = chains.createNestedObject();
+//      JsonObject& chain = chains.createNestedObject();
+        JsonObject chain = chains.createNestedObject();
         chain["chainNumber"] = f;
         chain["timesToPlay"] = patternChain.chains[f].timesToPlay;
         chain["numberOfLinks"] = patternChain.chains[f].numberOfLinks;
         chain["nextChain"] = patternChain.chains[f].nextChain;
-        JsonArray& links = chain.createNestedArray("links");
+//      JsonArray& links = chain.createNestedArray("links");
+        JsonArray links = chain.createNestedArray("links");
 
         for(int l = 0; l < patternChain.chains[f].numberOfLinks; l++)
         {
-            JsonObject& link = links.createNestedObject();
+//          JsonObject& link = links.createNestedObject();
+            JsonObject link = links.createNestedObject();
             link["linkNumber"] = l;
             link["timesToPlay"] = patternChain.chains[f].links[l]->link.timesToPlay;
             link["speedMult"] = int(patternChain.chains[f].links[l]->link.speedMult);
@@ -230,13 +248,15 @@ struct ChainLink {
             link["lengthOverride"] = patternChain.chains[f].links[l]->link.lengthOverride;
             link["pathOverride"] = patternChain.chains[f].links[l]->link.pathOverride;
             
-            JsonArray& tracksUsedInLink = link.createNestedArray("trackUsedInLink");
+//          JsonArray& tracksUsedInLink = link.createNestedArray("trackUsedInLink");
+            JsonArray tracksUsedInLink = link.createNestedArray("trackUsedInLink");
 
             for(int t = 0; t < TRACKCOUNT; t++)
             {
                 if(patternChain.chains[f].links[l]->link.trackUsedInLink[t])
                 {
-                    JsonObject& track = tracksUsedInLink.createNestedObject();
+//                  JsonObject& track = tracksUsedInLink.createNestedObject();
+                    JsonObject track = tracksUsedInLink.createNestedObject();
                     track["trackIndex"] = t;
                     track["pattern"] = patternChain.chains[f].links[l]->link.patternPerTrack[t];
                     track["muted"] = patternChain.chains[f].links[l]->link.mutePerTrack[t];
@@ -246,9 +266,11 @@ struct ChainLink {
     }
         
     // Serialize JSON to file
-    if (root.prettyPrintTo(file) == 0) {
+//  if (root.prettyPrintTo(file) == 0) {
+    
+    auto error = serializeJsonPretty(jsonDoc, Serial);
+    if(error)
         inout.ShowErrorOnLCD("SDjH:sC writefail");
-    }
 
     file.close();
 
@@ -262,13 +284,24 @@ void SDjsonHandler::loadConfiguration(const char *filename, JsonConfig &config) 
   // Allocate the memory pool on the stack.
   // Don't forget to change the capacity to match your JSON document.
   // Use arduinojson.org/assistant to compute the capacity.
-  StaticJsonBuffer<512> jsonBuffer;
+//StaticJsonBuffer<512> jsonBuffer;
+  StaticJsonDocument<512> jsonDoc;
 
   // Parse the root object
-  JsonObject &root = jsonBuffer.parseObject(file);
+/*JsonObject &root = jsonBuffer.parseObject(file);
 
   if (!root.success())
     Serial.println(F("Failed to read file, using default configuration"));
+*/
+
+  auto error = deserializeJson(jsonDoc, file);
+  if (error) {
+    inout.ShowErrorOnLCD("SDlC: fail-default");
+    Serial.println(F("Failed to read file, using default configuration"));
+    file.close();
+    return;
+  }
+  JsonObject root = jsonDoc.as<JsonObject>();
 
   // Copy values from the JsonObject to the Config
   config.port = root["port"] | 2731;
@@ -295,18 +328,24 @@ void SDjsonHandler::saveConfiguration(const char *filename, const JsonConfig &co
   // Allocate the memory pool on the stack
   // Don't forget to change the capacity to match your JSON document.
   // Use https://arduinojson.org/assistant/ to compute the capacity.
-  StaticJsonBuffer<256> jsonBuffer;
+//StaticJsonBuffer<256> jsonBuffer;
+  StaticJsonDocument<256> jsonDoc;
 
   // Parse the root object
-  JsonObject &root = jsonBuffer.createObject();
+//JsonObject &root = jsonBuffer.createObject();
+  JsonObject root = jsonDoc.as<JsonObject>();
 
   // Set the values
   root["hostname"] = config.hostname;
   root["port"] = config.port;
 
   // Serialize JSON to file
-  if (root.printTo(file) == 0) {
-    Serial.println(F("Failed to write to file"));
+//if (root.printTo(file) == 0) {
+
+  auto error = serializeJson(jsonDoc, Serial);
+  if(error) {
+      inout.ShowErrorOnLCD("SDpF: writefail");
+      Serial.println(F("Failed to write to file"));
   }
 
   // Close the file (File's destructor doesn't close the file)

@@ -4,7 +4,7 @@
 #include "NoteOffList.h"
 #include "NotePerClick.h"
 
-// #define MIDION true
+#define MIDION true
 
 extern SynthEngine synth;
 extern InOutHelper inout;

@@ -36,7 +36,7 @@ PATTERNMODEBUTTON
         Pick a pattern using right keypad    
     
     pattern_save
-        Capture edits from current buffer to current pattern 
+        Pick a pattern to capture edits from current buffer to
     
     chain_edit
         Enter chain edit / song mode

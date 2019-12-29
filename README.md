@@ -45,6 +45,8 @@ PATTERNMODEBUTTON
     
     chain_edit
         Enter chain edit / song mode
+        
+    (Hold:) commit current pattern edit buffer to current pattern
     
 MUTEMODEBUTTON
 

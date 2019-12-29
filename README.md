@@ -5,6 +5,7 @@ Step sequencer / synthesizer with real time access for playability
 * 16 patterns, up to 16 steps each
 * 2 sets of buffers
 * Single / multi step edit
+* Queue up realtime edits during playback
 * Step selection shortcuts
 * Swing
 * Synth engine with parameter editing
@@ -17,9 +18,13 @@ Step sequencer / synthesizer with real time access for playability
                track_mute
                
 ## Encoder Functions
+4 encoders under the LCD display:
 
+Common functions: Pitch for selected steps, Duration for selected steps, Swing (global), Tempo (global)
 
-## Play Control Buttons:
+Other functions for synth edit.
+
+## Play Control Buttons
 
 PLAYBUTTON  Start / stop play
   
@@ -28,7 +33,7 @@ REWINDBUTTON  Rewind, (hold:)Reset ADDRESS SAVE ALL
 SELECTBUTTON  Cycle step selection: select no steps - select all steps - select current selection  |  Confirm actions
                
 
-## Main Buttons and Their Modes:
+## Main Buttons and Their Modes
 
 PATTERNMODEBUTTON
 
@@ -70,24 +75,28 @@ PATHEDITMODEBUTTON
     path_select
         Select a playback path for the pattern
 
-## Left Keypad keys:
+## Left Keypad Keys
 
-### Top row:
-> SAVETOSDBUTTON,   SYNTHEDITBUTTON,  QUEUEBUTTON,          QUEUEPRIMEBUTTON
+### Top Row
+SAVETOSDBUTTON Save mem to SD
 
-> Save mem to SD    Enter synth edit  Start to queue edits  Arm queued edits
+SYNTHEDITBUTTON Enter synth editing
 
-### 2nd row:
+QUEUEBUTTON Start to queue realtime edits
+
+QUEUEPRIMEBUTTON Arm queued edits
+
+### 2nd Row
 NORMALSPEEDBUTTON, DOUBLESPEEDBUTTON, TRIPLESPEEDBUTTON, QUADSPEEDBUTTON
 
 Change playback speed multiplier
 
-### 3rd row:
+### 3rd Row
 LOWPROBBUTTON, MEDPROBBUTTON, HIGHPROPBBUTTON, FULLPROBBUTTON
 
 Change probability of selected steps
 
-### 4th row:
+### 4th Row
 ONETICKBUTTON, TWOTICKBUTTON, THREETICKBUTTON, FOURTICKBUTTON
 
 Change racheting of selected steps

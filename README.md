@@ -2,15 +2,28 @@
 
 Step sequencer / synthesizer with real time access for playability
 
+* Keypad for pattern editing
+* 2nd keypad for quick access to utilities
+* Six mode buttons for quick editing
+* Dedicated play control buttons
+* LCD display with 4 encoders
+
 * 16 patterns, up to 16 steps each
 * 2 sets of buffers
 * Single / multi step edit
 * Queue up realtime edits during playback
 * Step selection shortcuts
+* Joystick for realtime 2d control
 * Swing
 * Synth engine with parameter editing
+* MIDI out
 * Song edit (in progress)
 * SD storage
+               
+### TO ADDRESS
+* Chain edit
+* Midi
+* Joystick
                
 ## Encoder Functions
 4 encoders under the LCD display:

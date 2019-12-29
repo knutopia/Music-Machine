@@ -22,7 +22,7 @@ Step sequencer / synthesizer with real time access for playability
 
 Common functions: Pitch for selected steps, Duration for selected steps, Swing (global), Tempo (global)
 
-Other functions for synth edit.
+Other functions for synth edit
 
 ## Play Control Buttons
 
@@ -30,7 +30,7 @@ PLAYBUTTON  Start / stop play
   
 REWINDBUTTON  Rewind, (hold:)Reset ADDRESS SAVE ALL
 
-SELECTBUTTON  Cycle step selection: select no steps - select all steps - select current selection  |  Confirm actions
+SELECTBUTTON  Cycle step selection: select no steps - select all steps - select current selection  |  Also: confirm actions
                
 
 ## Main Buttons and Their Modes

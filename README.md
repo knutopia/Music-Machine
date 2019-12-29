@@ -11,11 +11,6 @@ Step sequencer / synthesizer with real time access for playability
 * Synth engine with parameter editing
 * Song edit (in progress)
 * SD storage
-
-### Modes TO ADDRESS
-               save_to_sd,         
-               track_select,
-               track_mute
                
 ## Encoder Functions
 4 encoders under the LCD display:
@@ -62,6 +57,12 @@ STEPEDITMODEBUTTON
         Select steps to edit pitch, duration
         Selection is sticky
         
+    track_select
+        Select which track to direct current realtime edits to
+    
+    track_mute
+        Select tracks to mute
+
     (Hold:) reset Trellis (keypad) display
                
 ACCENTEDITMODEBUTTON

@@ -28,7 +28,7 @@ Other functions for synth edit
 
 PLAYBUTTON  Start / stop play
   
-REWINDBUTTON  Rewind, (hold:)Reset ADDRESS SAVE ALL
+REWINDBUTTON  Rewind, (hold:) Save to SD, reset playback counter
 
 SELECTBUTTON  Cycle step selection: select no steps - select all steps - select current selection  |  Also: confirm actions
                
@@ -61,6 +61,8 @@ STEPEDITMODEBUTTON
     step_edit
         Select steps to edit pitch, duration
         Selection is sticky
+        
+    (Hold:) reset Trellis (keypad) display
                
 ACCENTEDITMODEBUTTON
 
@@ -82,7 +84,7 @@ PATHEDITMODEBUTTON
 ### Top Row
 SAVETOSDBUTTON Save mem to SD
 
-SYNTHEDITBUTTON Enter synth editing
+SYNTHEDITBUTTON Enter synth editing | (hold:) commit current synth edits to current synth patch
 
 QUEUEBUTTON Start to queue realtime edits
 

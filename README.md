@@ -26,6 +26,14 @@ Features:
 * Chain edit
 * Midi
 * Joystick
+
+## Buffer Mechanics
+Each pattern has a saved state and an edit buffer. 
+Changing something on the saved state copies the changed version into the edit buffer.
+Changes to the edit buffer accumulate in the edit buffer.
+Using the Pattern Mode Button, edits can be committed to the saved state of the current pattern, or to another pattern.
+
+
                
 ## Encoder Functions
 4 encoders under the LCD display:

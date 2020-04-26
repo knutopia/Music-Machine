@@ -31,7 +31,7 @@ Features:
 Each pattern has a "root" and an "edit" buffer. 
 Changing something on the root copies the changed version into the edit buffer.
 Changes to the edit buffer accumulate in the edit buffer.
-Using the Pattern Mode Button, edits can be committed to the root of the current pattern, or to another pattern.
+Using the Pattern Mode Button, root and edit buffer can be swapped, edits can be committed to the root, and edits can be saved to the root of another pattern.
 Saving to SD card saves all the edit buffers to become roots.
 
 
@@ -57,7 +57,9 @@ SELECTBUTTON  Cycle step selection: select no steps - select all steps - select 
 PATTERNMODEBUTTON
 
     pattern_select 
-        Pick a pattern using right keypad    
+        Pick a pattern using right keypad
+        Press the button again to toggle between pattern root and edit buffer.
+        (Hold:) commit current pattern edit buffer to current pattern
     
     pattern_save
         Pick a pattern to capture edits from current buffer to
@@ -65,7 +67,6 @@ PATTERNMODEBUTTON
     chain_edit
         Enter chain edit / song mode
         
-    (Hold:) commit current pattern edit buffer to current pattern
     
 MUTEMODEBUTTON
 

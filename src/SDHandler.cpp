@@ -87,10 +87,10 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         Serial.println("writeTrackToSDcard: seqs.txt opened successfully");
 
         byte trackBuf = sequencer.getCurrentTrack();
-        int seqBuf = sequencer.getCurrentSequence();
+        int seqBuf = sequencer.getCurrentPattern();
         
         sequencer.setCurrentTrack(trackNum);
-        int storedTrackSeqBuf = sequencer.getCurrentSequence();
+        int storedTrackSeqBuf = sequencer.getCurrentPattern();
 
         myFile.println();
         myFile.println();
@@ -98,17 +98,17 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         myFile.println(trackNum);
 
         Serial.print("Storing");
-        for(int c = 0; c< StepSequencer::max_sequences; c++)
+        for(int c = 0; c< StepSequencer::max_patterns; c++)
         {
-            //Select the sequence with index c
+            //Select the pattern with index c
             sequencer.swap_edit_root_seqs(c);
-            sequencer.setCurrentSequence(c);
+            sequencer.setCurrentPattern(c);
             
-//          sequencer.printSequence();
+//          sequencer.printPattern();
             
             myFile.println();
             myFile.println();
-            myFile.print("Sequence = ");
+            myFile.print("Pattern = ");
             myFile.println(c);
             myFile.print("Length = ");
             myFile.println(sequencer.getLength());
@@ -150,12 +150,12 @@ bool SDHandler::writeTrackToSDcard(byte trackNum)
         myFile.close();
         success = true;
         Serial.println();
-        Serial.println("Sequence saving done.");
+        Serial.println("Pattern saving done.");
         Serial.println();
 
-        sequencer.setCurrentSequence(storedTrackSeqBuf);
+        sequencer.setCurrentPattern(storedTrackSeqBuf);
         sequencer.setCurrentTrack(trackBuf);
-        sequencer.setCurrentSequence(seqBuf);
+        sequencer.setCurrentPattern(seqBuf);
   
     } else {
       // if the file didn't open, print an error:
@@ -173,7 +173,7 @@ bool SDHandler::readTracksFromSDcard()
     byte index = 0;
     
     int trackBuf = sequencer.getCurrentTrack();
-    sequencer.bufferAllTrackSeqIndices(BUFFER);
+    sequencer.bufferAllTrackPatternIndices(BUFFER);
 
     Serial.print("readTracksFromSDcard: track before loading is ");
     Serial.println(trackBuf);
@@ -207,7 +207,7 @@ bool SDHandler::readTracksFromSDcard()
       success = true;
     }
     sequencer.setCurrentTrack(trackBuf);
-    sequencer.bufferAllTrackSeqIndices(RESTORE);
+    sequencer.bufferAllTrackPatternIndices(RESTORE);
     return success;
 }
 
@@ -431,12 +431,13 @@ void SDHandler::parseAndAssignTrackSD(char *buff)
                 Serial.println(FreeMem());
             }
             
-            if(strcmp(name, "Sequence") == 0) 
+            if((strcmp(name, "Sequence" == 0 )) 
+                || (strcmp(name, "Pattern") == 0)) 
             {
-                Serial.print("Sequence ");
+                Serial.print("Pattern ");
                 Serial.println(valu);
 
-                sequencer.setCurrentSequence(atoi(valu));
+                sequencer.setCurrentPattern(atoi(valu));
 
                 Serial.print("  Mem: ");
                 Serial.println(FreeMem());

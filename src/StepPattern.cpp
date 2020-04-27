@@ -1,5 +1,5 @@
 
-#include "StepSequence.h"
+#include "StepPattern.h"
 #include "Timebase.h"
 #include "Path.h"
 #include "InOutHelper.h"
@@ -9,7 +9,7 @@ extern Timebase metro;
 extern int midiTranspose;
 extern InOutHelper inout;
 
-StepSequence::StepSequence()
+StepPattern::StepPattern()
 {
     m_length = MAXNOTES;
     m_transposition = 0;
@@ -17,14 +17,14 @@ StepSequence::StepSequence()
     reset();
 };
 
-void StepSequence::begin()
+void StepPattern::begin()
 {
     reset();
 }
 
-void StepSequence::reset()
+void StepPattern::reset()
 {
-        //Initialize sequence flat
+        //Initialize pattern flat
     for(int n = 0; n < MAXNOTES; n++)
     {
         m_notes[n] = 32;
@@ -39,7 +39,7 @@ void StepSequence::reset()
     }
 }
 
-unsigned long StepSequence::calcNextNoteDuration(const note aNote)
+unsigned long StepPattern::calcNextNoteDuration(const note aNote)
 {
     unsigned long retVal;
 
@@ -67,7 +67,7 @@ unsigned long StepSequence::calcNextNoteDuration(const note aNote)
     return retVal;
 }
 
-byte StepSequence::assembleHolds(const note aNote, Path aPath)
+byte StepPattern::assembleHolds(const note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -94,7 +94,7 @@ byte StepSequence::assembleHolds(const note aNote, Path aPath)
     return holdStepCount;
 }
 
-byte StepSequence::assembleMutes(const note aNote, Path aPath)
+byte StepPattern::assembleMutes(const note aNote, Path aPath)
 {
     // use getStepPosAfterNext to look ahead for holds. 
     // count consecutive forward-holds, to pass into getStepDurationMS
@@ -122,7 +122,7 @@ byte StepSequence::assembleMutes(const note aNote, Path aPath)
     return muteStepCount;
 }
 
-void StepSequence::copySeqTo(StepSequence &destination) 
+void StepPattern::copyPatternTo(StepPattern &destination) 
 {
     for(byte n = 0; n < MAXNOTES; n++)
     {
@@ -141,7 +141,7 @@ void StepSequence::copySeqTo(StepSequence &destination)
     destination.setPath(m_path);
 }
 
-void StepSequence::copySeqTo(StepSequence *destination) 
+void StepPattern::copyPatternTo(StepPattern *destination) 
 {
     for(byte n = 0; n < MAXNOTES; n++)
     {
@@ -163,7 +163,7 @@ void StepSequence::copySeqTo(StepSequence *destination)
 
 // getters
 
-byte StepSequence::getNote(int _step)
+byte StepPattern::getNote(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -172,7 +172,7 @@ byte StepSequence::getNote(int _step)
     return -1;  //error
 }
 
-float StepSequence::getDuration(int _step) // kg
+float StepPattern::getDuration(int _step) // kg
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -181,7 +181,7 @@ float StepSequence::getDuration(int _step) // kg
     return -1;  //error
 }
 
-byte StepSequence::getProbability(int _step) // kg
+byte StepPattern::getProbability(int _step) // kg
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -190,7 +190,7 @@ byte StepSequence::getProbability(int _step) // kg
     return -1;  //error
 }
     
-byte StepSequence::getTicks(int _step) // kg
+byte StepPattern::getTicks(int _step) // kg
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -199,19 +199,19 @@ byte StepSequence::getTicks(int _step) // kg
     return -1;  //error
 }
 
-byte StepSequence::getTransposedNote(int _step)
+byte StepPattern::getTransposedNote(int _step)
 {
     return getNote(_step) + m_transposition; 
 }
 
-byte StepSequence::getTransposition(){return m_transposition;};
+byte StepPattern::getTransposition(){return m_transposition;};
 
-void StepSequence::setTransposition(byte trans)
+void StepPattern::setTransposition(byte trans)
 {
     m_transposition = trans; 
 }
 
-bool StepSequence::getMute(int _step)
+bool StepPattern::getMute(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -220,7 +220,7 @@ bool StepSequence::getMute(int _step)
     return false;  //error
 }
 
-bool StepSequence::getHold(int _step)
+bool StepPattern::getHold(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -229,7 +229,7 @@ bool StepSequence::getHold(int _step)
     return false;  //error
 }
 
-byte StepSequence::getAccent(int _step)
+byte StepPattern::getAccent(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -238,7 +238,7 @@ byte StepSequence::getAccent(int _step)
     return false;  //error
 }
 
-byte StepSequence::getRetrig(int _step)
+byte StepPattern::getRetrig(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -247,7 +247,7 @@ byte StepSequence::getRetrig(int _step)
     return false;  //error
 }
 
-byte StepSequence::getVelocity(int _step)
+byte StepPattern::getVelocity(int _step)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -256,7 +256,7 @@ byte StepSequence::getVelocity(int _step)
     return false;  //error
 }
 
-bool StepSequence::playItOrNot(int _step)
+bool StepPattern::playItOrNot(int _step)
 {
     // take step probability into account 
     // and check if the step isn't holding from the previous step
@@ -292,7 +292,7 @@ bool StepSequence::playItOrNot(int _step)
     return retVal;
 }
 
-retrigDivisions StepSequence::getRetrigDivider(int retrigs) 
+retrigDivisions StepPattern::getRetrigDivider(int retrigs) 
 {
     retrigDivisions retVal;
 
@@ -317,7 +317,7 @@ retrigDivisions StepSequence::getRetrigDivider(int retrigs)
     return retVal;
 }
 
-note StepSequence::getSequenceNoteParams(int _step, Path aPath)
+note StepPattern::getPatternNoteParams(int _step, Path aPath)
 {
     note thisNote;
 
@@ -354,16 +354,16 @@ note StepSequence::getSequenceNoteParams(int _step, Path aPath)
     return thisNote;
 }
 
-byte StepSequence::getLength(){return m_length;};
+byte StepPattern::getLength(){return m_length;};
 
-int StepSequence::getMaxLength(){return MAXNOTES;};
+int StepPattern::getMaxLength(){return MAXNOTES;};
 
-byte StepSequence::getPath(){return m_path;}
+byte StepPattern::getPath(){return m_path;}
 
 
 // setters
 
-void StepSequence::setNote(int _step, byte note)
+void StepPattern::setNote(int _step, byte note)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -371,7 +371,7 @@ void StepSequence::setNote(int _step, byte note)
     }
 }
 
-void StepSequence::setLength(byte _length)
+void StepPattern::setLength(byte _length)
 {
     if(_length <= MAXNOTES && _length >0)
     {
@@ -379,7 +379,7 @@ void StepSequence::setLength(byte _length)
     } 
 }
 
-void StepSequence::setDuration(int _step, float duration) // kg...
+void StepPattern::setDuration(int _step, float duration) // kg...
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -387,7 +387,7 @@ void StepSequence::setDuration(int _step, float duration) // kg...
     }      
 }
 
-void StepSequence::setProbability(int _step, byte probabil) // kg...
+void StepPattern::setProbability(int _step, byte probabil) // kg...
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -395,7 +395,7 @@ void StepSequence::setProbability(int _step, byte probabil) // kg...
     }      
 }
     
-void StepSequence::setTicks(int _step, float repetition) // kg...
+void StepPattern::setTicks(int _step, float repetition) // kg...
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -403,7 +403,7 @@ void StepSequence::setTicks(int _step, float repetition) // kg...
     }      
 }
 
-void StepSequence::setMute(int _step, bool muteFlag)
+void StepPattern::setMute(int _step, bool muteFlag)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -411,7 +411,7 @@ void StepSequence::setMute(int _step, bool muteFlag)
     }
 }
 
-void StepSequence::setHold(int _step, bool holdFlag)
+void StepPattern::setHold(int _step, bool holdFlag)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -419,7 +419,7 @@ void StepSequence::setHold(int _step, bool holdFlag)
     }
 }
 
-void StepSequence::setAccent(int _step, byte accent)
+void StepPattern::setAccent(int _step, byte accent)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -427,7 +427,7 @@ void StepSequence::setAccent(int _step, byte accent)
     }
 }
 
-void StepSequence::setRetrig(int _step, byte retrig)
+void StepPattern::setRetrig(int _step, byte retrig)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -435,7 +435,7 @@ void StepSequence::setRetrig(int _step, byte retrig)
     }
 }
 
-void StepSequence::setVelocity(int _step, byte velocity)
+void StepPattern::setVelocity(int _step, byte velocity)
 {
     if(_step >=0 && _step < MAXNOTES)
     {
@@ -443,14 +443,14 @@ void StepSequence::setVelocity(int _step, byte velocity)
     }
 }
 
-void StepSequence::setPath(byte path)
+void StepPattern::setPath(byte path)
 {
     m_path = path;
 }
 
 // Utility
 
-void StepSequence::printSequence()
+void StepPattern::printPattern()
 {
     Serial.println("Note\tDuratn\tProb\tRepeat\tNotMute\tHold\tAccent\tRetrig\tVelocity");
     for(int n = 0; n < MAXNOTES; n++)

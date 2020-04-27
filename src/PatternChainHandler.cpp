@@ -7,7 +7,7 @@ extern InOutHelper inout;
 extern SDjsonHandler jsonHandler;
 
 byte PatternChainHandler::currentLeadTrack;
-intFunc PatternChainHandler::updateSequenceNumberCb;
+intFunc PatternChainHandler::updatePatternNumberCb;
 speedFactorFunc PatternChainHandler::updateSpeedMultiplierCb;
 
 PatternChainHandler::PatternChainHandler()
@@ -25,11 +25,11 @@ PatternChainHandler::~PatternChainHandler()
 };
 
 void PatternChainHandler::begin(simpleFunc stopCbPointer,
-                                intFunc changeSequenceNumberCbPointer,
+                                intFunc changePatternNumberCbPointer,
                                 speedFactorFunc changeSpeedMultiplierCbPointer)
 {
     stopPlaybackCb = stopCbPointer;
-    updateSequenceNumberCb = changeSequenceNumberCbPointer;
+    updatePatternNumberCb = changePatternNumberCbPointer;
     updateSpeedMultiplierCb = changeSpeedMultiplierCbPointer;
 
     for(int f = 0; f < MAXCHAINCOUNT; f++)

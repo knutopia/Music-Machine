@@ -172,7 +172,7 @@ void PatternChainLink::primeLinktoPlay()
 
                 // PATTERNCHANGE
                 sequencer.setCurrentTrack(trackNum);
-                PatternChainHandler::updateSequenceNumberCb(link.patternPerTrack[trackIndex]);
+                PatternChainHandler::updatePatternNumberCb(link.patternPerTrack[trackIndex]);
                 
                 // TRACKMUTECHANGE
                 sequencer.setTrackMute(trackNum, link.mutePerTrack[trackIndex]);

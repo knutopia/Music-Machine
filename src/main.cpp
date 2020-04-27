@@ -20,7 +20,7 @@
 #include "InOutHelper.h"
 #include "SynthPatch.h"
 #include "SynthEngine.h"
-#include "StepSequence.h"
+#include "StepPattern.h"
 #include "StepSequencer.h"
 #include "Path.h"
 #include "Timebase.h"
@@ -53,7 +53,7 @@ unsigned long g_note_off_time = 0;
 volatile bool vb_clickHappened = false;          //follow up closely after each click
 volatile unsigned long v_note_trigger_time = 0;
 
-int save_sequence_destination = -1;
+int save_pattern_destination = -1;
 bool save_to_SD_done = false;
 boolean storingData = false;
 
@@ -153,9 +153,9 @@ void QueueActionCb(actionID whatAction, byte param, byte track);
 void ChangeModeCb(bool forward);
 void ChangeRepetitionCb(int noteRepetition,  boolean activeSteps[]);
 void ChangePatternLengthCb(int patternLength);
-void ChangeSequenceNumberCb(int seqNum);
+void ChangePatternNumberCb(int seqNum);
 void ChangeTrackCb(int trackNum);
-void ChangeSaveSequenceDestinationCb(int seqNum);
+void ChangeSavePatternDestinationCb(int seqNum);
 void ChangeTempoCb(int newTempo);
 void ChangeSpeedMultiplierCb(speedFactor mult);
 void SaveToSdCb();
@@ -168,7 +168,7 @@ void runQueuedActions();
 void prep_next_note_direct();
 void prepNextClick();
 void prepNoteGlobals();
-void followNoteOff();
+void followNoteOff();       // generate note-offs as needed
 void handleRewindButton();
 void stopPlayback();
 
@@ -252,14 +252,14 @@ void ChangePatternLengthCb(int patternLength) {
 }
 
 
-void ChangeSequenceNumberCb(int seqNum) {
+void ChangePatternNumberCb(int seqNum) {
   
     if(!g_queueing)
     {
-        sequencer.setCurrentSequence(seqNum);
-        inout.ShowSequenceNumberOnLCD(seqNum);
+        sequencer.setCurrentPattern(seqNum);
+        inout.ShowPatternNumberOnLCD(seqNum);
         inout.ShowPathNumberOnLCD(sequencer.getPath());
-//      sequencer.printSequence();
+//      sequencer.printPattern();
     } else {
 
         QueueActionCb(PATTERNCHANGE, (byte) seqNum, sequencer.getCurrentTrack());
@@ -278,10 +278,10 @@ void ChangeTrackCb(int trackNum) {
     Serial.println(sequencer.getCurrentTrack());
 }
 
-void ChangeSaveSequenceDestinationCb(int seqNum) {
+void ChangeSavePatternDestinationCb(int seqNum) {
           
-    save_sequence_destination = seqNum;
-    inout.ShowValueInfoOnLCD("Save to Seq", seqNum);
+    save_pattern_destination = seqNum;
+    inout.ShowValueInfoOnLCD("Save to Pat", seqNum);
 }
 
 
@@ -321,7 +321,7 @@ void SaveToSdCb()
             for(int f=1; f <= TRACKCOUNT; f++)
                 if(!sdCard.writeTrackToSDcard(f))
                     tracksSaved = false;
-        }
+        } // TO DO: Error handling
 
         patchesBackedUp = sdCard.backupPatchFile();
         if(patchesBackedUp)
@@ -464,7 +464,7 @@ void setup()
     activeStepClicks.begin(EmergencyCb);
 
     patternChain.begin(StopPlaybackCb,
-                       ChangeSequenceNumberCb,
+                       ChangePatternNumberCb,
                        ChangeSpeedMultiplierCb);    
 
     Serial.println("Reading sequences from SD");
@@ -480,8 +480,8 @@ void setup()
     inout.begin(ChangeModeCb, 
                 ChangeRepetitionCb, 
                 ChangePatternLengthCb, 
-                ChangeSequenceNumberCb,
-                ChangeSaveSequenceDestinationCb,
+                ChangePatternNumberCb,
+                ChangeSavePatternDestinationCb,
                 ChangeTempoCb,
                 ChangeSpeedMultiplierCb,
                 SaveToSdCb,
@@ -543,6 +543,7 @@ void loop()
     } else {
 //      loopcount++;
 
+        // generate note-offs as needed
         followNoteOff();
 
         if(clickTrack < metro.loopCutoff)
@@ -627,7 +628,7 @@ void runQueuedActions()
                 out.append(" ");
 
                 sequencer.setCurrentTrack(qTrack);
-                ChangeSequenceNumberCb(qParam);
+                ChangePatternNumberCb(qParam);
                 if(currentMode == pattern_select)
                     inout.simpleIndicatorModeTrellisButtonPressed(qParam + STEPSOFFSET);
                 break;
@@ -912,6 +913,7 @@ void prepNoteGlobals()
 #endif
 }
 
+// generate note-offs as needed
 void followNoteOff()
 {
     int foo = 0;

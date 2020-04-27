@@ -23,7 +23,7 @@ enum{MAXNOTES = 16};
 
 enum{MAXPATHSTEPS = 16};
 
-enum sequenceVariations {ROOT = 0, EDIT = 255};   // unused            
+enum patternVariations {ROOT = 0, EDIT = 255};   // unused            
 
 enum trellisButton {SAVETOSDBUTTON, SYNTHEDITBUTTON, QUEUEBUTTON, QUEUEPRIMEBUTTON, 
                      NORMALSPEEDBUTTON, DOUBLESPEEDBUTTON, TRIPLESPEEDBUTTON, QUADSPEEDBUTTON,
@@ -87,7 +87,7 @@ enum {BPMCONSTANT = 60000000};
 // enum noteTimingType {Beat, Ticking, Retrig, TickingRetrig};
 
 // enum trackTypes {Melody, Drum, Logic};
-enum trackTypes {STEPSEQUENCE, SIMPLEBEAT};
+enum trackTypes {STEPPATTERN, SIMPLEBEAT};
 
 enum instruments {Synth, Bassdrum, Snaredrum};
 
@@ -105,6 +105,7 @@ enum bufferOrRestore {BUFFER = true, RESTORE = false};
 
 enum midiVelocities {NORMALVEL = 1, ACCENTVEL = 127};
 
+// actions that can be queued
 enum actionID {NOACTION, PATTERNCHANGE, PATHCHANGE, LENGTHCHANGE, TRACKMUTECHANGE, SPEEDMULTIPLIERCHANGE, SYNCTRACKS};
 
 enum {QUEUEMAXLEN = 6 * TRACKCOUNT};

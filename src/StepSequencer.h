@@ -1,11 +1,11 @@
 //Arduino for Musicians
-//StepSequencer: A container class for StepSequence objects
+//StepSequence: A container class for StepPattern objects
 
 #ifndef __STEPSEQUENCER
 #define __STEPSEQUENCER
 
 #include <Arduino.h>
-#include "StepSequence.h"
+#include "StepPattern.h"
 #include "Track.h"
 #include "TrackList.h"
 #include "LinkedNoteList.h"
@@ -22,7 +22,7 @@ class StepSequencer
 
     public:
       //Use enumeration to define a class constant
-      enum{max_sequences = 16};
+      enum{max_patterns = 16};
     
       //Public constructor and methods
       StepSequencer();
@@ -30,9 +30,9 @@ class StepSequencer
 //    bool playItOrNot(int _step);
 //    void prime_edit_buffers();
 //    void reset_edit_seq(int seqnum);
-      void save_sequence(int destination);
-      void save_all_sequences();
-      void save_edit_seq_to_root(int seqnum);
+      void save_pattern(int destination);
+      void save_all_patterns();
+      void save_edit_pattern_to_root(int seqnum);
       void copy_edit_buffers_to_roots();
       void swap_edit_root_seqs(int seqnum);
       bool toggle_pattern_recall();
@@ -54,7 +54,7 @@ class StepSequencer
       byte getPath(); // kg
       const char* getPathName();
 
-      int getCurrentSequence();
+      int getCurrentPattern();
       byte getCurrentTrack();
       byte getPreviousStep();
       byte getLowestSelectedNote(boolean selectedNotes[]);
@@ -82,7 +82,7 @@ class StepSequencer
       void setRetrig(int _step, byte retrig);
       void setVelocity(int _step, byte velocity);
       void setPath(byte path);
-      void setCurrentSequence(int index);
+      void setCurrentPattern(int index);
       void setCurrentTrack(byte trackNum);
       void updateNoteList();
       void updateStepClickList();
@@ -94,12 +94,12 @@ class StepSequencer
       //Helper method
       bool playOrNot(int index);
 
-      void resetSequence(int index);
-      void selectPreviousSequence();
-      void selectNextSequence();
-      void printSequence();
+      void resetPattern(int index);
+      void selectPreviousPattern();
+      void selectNextPattern();
+      void printPattern();
       bool notesArrayEmpty(boolean notesArray[]);
-      void bufferAllTrackSeqIndices(bool bufOrRestore);
+      void bufferAllTrackPatternIndices(bool bufOrRestore);
       void retrieveMutedTracks(bool arrayPointer[], int arrayLength);
       bool setTrackMute(byte trackNum, bool muteFlag);
       byte toggleCurrentTrackMute();
@@ -118,14 +118,14 @@ class StepSequencer
       CbWhenStuck PanicCb;
 
       // These two moved into Track:
-//    int m_currentSequence;     // index of currently active sequence
+//    int m_currentPattern;     // index of currently active pattern
 //    bool m_recall_buffer_active; // is there something in the recall buffer ?
 
-      //This array stores the sequences
-      StepSequence m_sequence[max_sequences];                           // current, edit buffer
-      StepSequence m_sequence_root[max_sequences];
-      StepSequence m_beat_sequence[max_sequences];
-      StepSequence m_beat_sequence_root[max_sequences];
+      //This array stores the patterns
+      StepPattern m_pattern[max_patterns];                           // current, edit buffer
+      StepPattern m_pattern_root[max_patterns];
+      StepPattern m_beat_pattern[max_patterns];
+      StepPattern m_beat_pattern_root[max_patterns];
       
       LinkedTrackList m_activeTracks;
       Track tmpTrack1;

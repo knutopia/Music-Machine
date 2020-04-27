@@ -26,7 +26,7 @@ class PatternChainHandler
     ~PatternChainHandler();
 
     void begin(simpleFunc stopCbPointer,
-               intFunc changeSequenceNumberCbPointer,
+               intFunc changePatternNumberCbPointer,
                speedFactorFunc changeSpeedMultiplierCbPointer);
     
     // setters
@@ -49,7 +49,7 @@ class PatternChainHandler
 
     // class data
     static byte currentLeadTrack;
-    static intFunc updateSequenceNumberCb;
+    static intFunc updatePatternNumberCb;
     static speedFactorFunc updateSpeedMultiplierCb;
 
     // data

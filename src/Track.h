@@ -5,7 +5,7 @@
 #include "Arduino.h"
 #include "Enum.h"
 #include "Note.h"
-#include "StepSequence.h"
+#include "StepPattern.h"
 #include "Path.h"
 
 // Callback
@@ -20,14 +20,14 @@ class Track
       //Public constructor and methods
       Track();
       void begin(byte number);
-      void begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number);
-      note getTrackNoteParams(int step, byte curSequence);
+      void begin(StepPattern patternsPtr[], StepPattern rootPatternsPtr[], byte patternsCount, byte number);
+      note getTrackNoteParams(int step, byte curPattern);
       note getTrackNoteParams(int step);
       note getTrackNoteParams();
       void unMute();
       void mute();
       void setName(char *namePar);
-      bool setCurrentSequenceIndex(byte newIndex);
+      bool setCurrentPatternIndex(byte newIndex);
       void advanceStepPosition();
       void resetStepPosition();
       void prepFirstStep();
@@ -36,14 +36,14 @@ class Track
 
       char* getName();
       byte getNumber();
-      byte getCurrentSequenceIndex();
-      byte getMaxSequenceIndex();
+      byte getCurrentPatternIndex();
+      byte getMaxPatternIndex();
       byte getPrevPlaybackStep();
       const char* getPathName();
       int getPathNumber();
-      StepSequence* getCurrentSequenceRef();
-      StepSequence* getSequenceRef(int index);
-      StepSequence* getRootSequenceRef(int index);
+      StepPattern* getCurrentPatternRef();
+      StepPattern* getPatternRef(int index);
+      StepPattern* getRootPatternRef(int index);
       void setRecallBufferActive(bool trueOrFalse);
       bool recallBufferIsActive();
       bool isMuted();
@@ -55,11 +55,11 @@ class Track
       //Class data members:
       
       trackTypes trackType;
-      StepSequence *sequences;
-      StepSequence *rootSequences;
-      StepSequence *currentSequence;
-      byte currentSequenceIndex;
-      byte maxSequenceIndex;
+      StepPattern *patterns;
+      StepPattern *rootPatterns;
+      StepPattern *currentPattern;
+      byte currentPatternIndex;
+      byte maxPatternIndex;
       instruments instrument;
       bool b_isMuted = false;
       bool b_recallBufferIsActive = false;

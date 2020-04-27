@@ -17,17 +17,17 @@ void Track::begin(byte number)
       trackNumber = number;
 }
 
-void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], byte sequencesCount, byte number)
+void Track::begin(StepPattern patternsPtr[], StepPattern rootPatternsPtr[], byte patternsCount, byte number)
 {
-      trackType = STEPSEQUENCE;
-      sequences = sequencesPtr;
-      rootSequences = rootSequencesPtr;
-      maxSequenceIndex = sequencesCount - 1;
+      trackType = STEPPATTERN;
+      patterns = patternsPtr;
+      rootPatterns = rootPatternsPtr;
+      maxPatternIndex = patternsCount - 1;
       b_isMuted = false;
       trackNumber = number;
-      currentSequenceIndex = 0;
-      currentSequence = &sequences[0];
-      trackPath.setPath(currentSequence->getPath());
+      currentPatternIndex = 0;
+      currentPattern = &patterns[0];
+      trackPath.setPath(currentPattern->getPath());
 }
 
 
@@ -35,29 +35,29 @@ void Track::begin(StepSequence sequencesPtr[], StepSequence rootSequencesPtr[], 
 
 note Track::getTrackNoteParams(int step)
 {
-      return getTrackNoteParams(step, currentSequenceIndex);
+      return getTrackNoteParams(step, currentPatternIndex);
 }
 
-note Track::getTrackNoteParams(int step, byte curSequence)
+note Track::getTrackNoteParams(int step, byte curPattern)
 {
       note retNote;
       note retrievedNote;
 
       switch (trackType)
       {
-            case STEPSEQUENCE:
-                  if(curSequence < maxSequenceIndex)
-                        if(&sequences[curSequence] != NULL)
-//                      if(typeid(sequences[curSequence]) == typeid(retNote))
-                              retrievedNote = sequences[curSequence].getSequenceNoteParams(step, trackPath);
+            case STEPPATTERN:
+                  if(curPattern < maxPatternIndex)
+                        if(&patterns[curPattern] != NULL)
+//                      if(typeid(patterns[curPattern]) == typeid(retNote))
+                              retrievedNote = patterns[curPattern].getPatternNoteParams(step, trackPath);
                         else
                         {
                               inout.ShowErrorOnLCD("gNP1 s[cS] FAIL");
                               break;
                         }
                   else
-                        if(&sequences[maxSequenceIndex] != NULL)
-                              retrievedNote = sequences[maxSequenceIndex].getSequenceNoteParams(step, trackPath);
+                        if(&patterns[maxPatternIndex] != NULL)
+                              retrievedNote = patterns[maxPatternIndex].getPatternNoteParams(step, trackPath);
                         else
                         {
                               inout.ShowErrorOnLCD("gNP1 s[mSI] NULL");
@@ -79,8 +79,8 @@ note Track::getTrackNoteParams(int step, byte curSequence)
       Serial.print(retrievedNote.swingTicks);
       Serial.print(" for step ");
       Serial.print(step);
-      Serial.print(" of sequence ");
-      Serial.print(curSequence);
+      Serial.print(" of pattern ");
+      Serial.print(curPattern);
       Serial.print(" nn track ");
       Serial.println(trackNumber);
 #endif
@@ -103,9 +103,9 @@ note Track::getTrackNoteParams()
 
       switch (trackType)
       {
-            case STEPSEQUENCE:
-                  if(currentSequence != NULL)
-                        retrievedNote = currentSequence->getSequenceNoteParams(playbackStep, trackPath);
+            case STEPPATTERN:
+                  if(currentPattern != NULL)
+                        retrievedNote = currentPattern->getPatternNoteParams(playbackStep, trackPath);
                   else
                         inout.ShowErrorOnLCD("gNP2 cS NULL");
                   break;
@@ -126,8 +126,8 @@ note Track::getTrackNoteParams()
       Serial.print(retrievedNote.swingTicks);
       Serial.print(" for step ");
       Serial.print(playbackStep);
-      Serial.print(" of sequence ");
-      Serial.print(currentSequenceIndex);
+      Serial.print(" of pattern ");
+      Serial.print(currentPatternIndex);
       Serial.print(" nn track ");
       Serial.println(trackNumber);
 #endif
@@ -176,19 +176,19 @@ void Track::setName(char *namePar)
 }
 
 
-bool Track::setCurrentSequenceIndex(byte newIndex)
+bool Track::setCurrentPatternIndex(byte newIndex)
 {
       bool success = false;
-      if( newIndex <= maxSequenceIndex)
+      if( newIndex <= maxPatternIndex)
       {
-            currentSequenceIndex = newIndex;
-            currentSequence = &sequences[newIndex];
-            if(currentSequence == NULL)
+            currentPatternIndex = newIndex;
+            currentPattern = &patterns[newIndex];
+            if(currentPattern == NULL)
             {
                   inout.ShowErrorOnLCD("setCSI cS NULL");
                   return success;
             }
-            trackPath.setPath(currentSequence->getPath());
+            trackPath.setPath(currentPattern->getPath());
             success = true;
       }
       return success;
@@ -196,10 +196,10 @@ bool Track::setCurrentSequenceIndex(byte newIndex)
 
 void Track::advanceStepPosition()
 {
-      if(currentSequence != NULL)
+      if(currentPattern != NULL)
       {
             prevPlaybackStep = playbackStep;
-            playbackStep = trackPath.getAndAdvanceStepPos(currentSequence->getLength());
+            playbackStep = trackPath.getAndAdvanceStepPos(currentPattern->getLength());
       } else
             inout.ShowErrorOnLCD("gNoteP cS NULL");
 }
@@ -213,9 +213,9 @@ void Track::resetStepPosition()
 void Track::prepFirstStep()
 {
 
-      if(currentSequence != NULL)
+      if(currentPattern != NULL)
       {
-            byte seqLength = currentSequence->getLength(); // truncate step to available sequence length
+            byte seqLength = currentPattern->getLength(); // truncate step to available pattern length
             if(playbackStep >= seqLength)
             {
                   inout.ShowErrorOnLCD("YOWZA prepFirstStep");
@@ -240,9 +240,9 @@ void Track::prepFirstStep()
 
 void Track::setPath(byte path)
 {
-      if(currentSequence != NULL)
+      if(currentPattern != NULL)
       {
-            currentSequence->setPath(path);
+            currentPattern->setPath(path);
             trackPath.setPath(path);
       } else 
             inout.ShowErrorOnLCD("setPath cS NULL");
@@ -250,38 +250,38 @@ void Track::setPath(byte path)
 
 void Track::updatePath()
 {
-      if(currentSequence != NULL)
+      if(currentPattern != NULL)
       {
-            trackPath.setPath(currentSequence->getPath());
+            trackPath.setPath(currentPattern->getPath());
       } else 
             inout.ShowErrorOnLCD("updatePath cS NULL");
 }
 
-StepSequence* Track::getCurrentSequenceRef()
+StepPattern* Track::getCurrentPatternRef()
 {
-      if(currentSequence != NULL)
-            return currentSequence;
+      if(currentPattern != NULL)
+            return currentPattern;
       else 
       {
-            Serial.print("getCurrentSequenceRef fail on track ");
+            Serial.print("getCurrentPatternRef fail on track ");
             Serial.println(trackNumber);
-            return &sequences[0];
+            return &patterns[0];
       }
 }
 
-StepSequence* Track::getSequenceRef(int index)
+StepPattern* Track::getPatternRef(int index)
 {
-      StepSequence* retVal = NULL;
-      if(index <= maxSequenceIndex)
+      StepPattern* retVal = NULL;
+      if(index <= maxPatternIndex)
       {
-            if(sequences != NULL)
-                  retVal = &sequences[index];
+            if(patterns != NULL)
+                  retVal = &patterns[index];
             else{
-                  Serial.print("getSequenceRef fail on track ");
+                  Serial.print("getPatternRef fail on track ");
                   Serial.println(trackNumber);
             }
       } else {
-                  Serial.print("getSequenceRef index ");
+                  Serial.print("getPatternRef index ");
                   Serial.print(index);
                   Serial.print(" out of range on track ");
                   Serial.println(trackNumber);
@@ -289,19 +289,19 @@ StepSequence* Track::getSequenceRef(int index)
       return retVal;
 }
 
-StepSequence* Track::getRootSequenceRef(int index)
+StepPattern* Track::getRootPatternRef(int index)
 {
-      StepSequence* retVal = NULL;
-      if(index <= maxSequenceIndex)
+      StepPattern* retVal = NULL;
+      if(index <= maxPatternIndex)
       {
-            if(rootSequences != NULL)
-                  retVal = &rootSequences[index];
+            if(rootPatterns != NULL)
+                  retVal = &rootPatterns[index];
             else{
-                  Serial.print("getRootSequenceRef fail on track ");
+                  Serial.print("getRootPatternRef fail on track ");
                   Serial.println(trackNumber);
             }
       } else {
-                  Serial.print("getRootSequenceRef index ");
+                  Serial.print("getRootPatternRef index ");
                   Serial.print(index);
                   Serial.print(" out of range on track ");
                   Serial.println(trackNumber);
@@ -320,9 +320,9 @@ byte Track::getNumber()
       return trackNumber;
 }
 
-byte Track::getCurrentSequenceIndex()
+byte Track::getCurrentPatternIndex()
 {
-      return currentSequenceIndex;
+      return currentPatternIndex;
 }
 
 byte Track::getPrevPlaybackStep()
@@ -330,9 +330,9 @@ byte Track::getPrevPlaybackStep()
       return prevPlaybackStep;
 }
 
-byte Track::getMaxSequenceIndex()
+byte Track::getMaxPatternIndex()
 {
-      return maxSequenceIndex;
+      return maxPatternIndex;
 }
 
 const char* Track::getPathName()
@@ -364,8 +364,8 @@ bool Track::isTrackPatternRollOverStep()
 {
       bool retVal = false;
 
-      if(currentSequence != NULL)
-            retVal = trackPath.detectPatternRollover(currentSequence->getLength());
+      if(currentPattern != NULL)
+            retVal = trackPath.detectPatternRollover(currentPattern->getLength());
       else
             inout.ShowErrorOnLCD("iTPROS cS NULL");
 

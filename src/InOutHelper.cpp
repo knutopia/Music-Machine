@@ -31,7 +31,7 @@ extern const char *modeNames[];
 extern StepSequencer sequencer;
 extern Timebase metro;
 extern SynthEngine synth;
-extern int save_sequence_destination;
+extern int save_pattern_destination;
 extern bool save_to_SD_done;
 extern bool shiftActive;
 extern bool g_queueing;
@@ -116,8 +116,8 @@ InOutHelper::InOutHelper()
 void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
                         ReactToInputIntArray updateRepetitionCbPointer,
                         ReactToInputInt updatePatternLengthCbPointer,
-                        ReactToInputInt updateSequenceNumberCbPointer,
-                        ReactToInputInt updateSaveSequenceDestPointer,
+                        ReactToInputInt updatePatternNumberCbPointer,
+                        ReactToInputInt updateSavePatternDestPointer,
                         ReactToInputInt updateTempoPointer,
                         ReactToInputSpeedFactor updateSpeedMultiplierPointer,
                         ReactToInput SaveToSdCbPointer,
@@ -129,8 +129,8 @@ void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
   updateModeCb = updateModeCbPointer;
   updateRepetitionCb = updateRepetitionCbPointer;
   updatePatternLengthCb = updatePatternLengthCbPointer;
-  updateSequenceNumberCb = updateSequenceNumberCbPointer;
-  updateSaveSequenceDestCb = updateSaveSequenceDestPointer;
+  updatePatternNumberCb = updatePatternNumberCbPointer;
+  updateSavePatternDestCb = updateSavePatternDestPointer;
   updateTempoCb = updateTempoPointer;
   updateSpeedMultiplierCb = updateSpeedMultiplierPointer;
   updateTrackCb = updateTrackCbPointer;
@@ -206,13 +206,13 @@ void InOutHelper::setupNewMode() {
           Serial.println(stepsToCheck[i]);
         }        
 */      
-        StepButtonCb = updateSequenceNumberCb; // selection handling as a callback instead ?        
+        StepButtonCb = updatePatternNumberCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
         initTrackEncoder = true;
         SetupPatternSelectModeTrellis();
         break;      
       case pattern_save:
-        StepButtonCb = updateSaveSequenceDestCb; // selection handling as a callback instead ?        
+        StepButtonCb = updateSavePatternDestCb; // selection handling as a callback instead ?        
         StartStopButtonCb = startStopCb;
         initTrackEncoder = true;
         SetupPatternSaveModeTrellis();
@@ -345,7 +345,7 @@ void InOutHelper::ResetTrellis() {
 void InOutHelper::SetupMuteOrHoldModeTrellis() {
 
     stepsToCheck = helperSteps;      
-    RetrieveSequenceStates();
+    RetrievePatternStates();
     
     LiteUpTrellisSteps(helperSteps);
 }
@@ -361,7 +361,7 @@ void InOutHelper::SetupSelectEditTrellis() {
 void InOutHelper::SetupAccentModeTrellis() {
 
     stepsToCheck = helperSteps;      
-    RetrieveSequenceStates();
+    RetrievePatternStates();
     
     LiteUpTrellisSteps(helperSteps);
 }
@@ -379,27 +379,27 @@ void InOutHelper::SetupLengthModeTrellis() {
 
 void InOutHelper::SetupPatternSelectModeTrellis() {
     
-    int seqNum = sequencer.getCurrentSequence();
+    int seqNum = sequencer.getCurrentPattern();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
     helperSteps[seqNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-    ShowSequenceNumberOnLCD(seqNum);
+    ShowPatternNumberOnLCD(seqNum);
 }
 
 
 void InOutHelper::SetupPatternSaveModeTrellis() {
     
-    int seqNum = sequencer.getCurrentSequence();
+    int seqNum = sequencer.getCurrentPattern();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
     helperSteps[seqNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-    ShowSequenceNumberOnLCD(seqNum);
+    ShowPatternNumberOnLCD(seqNum);
 }
 
 
@@ -407,14 +407,14 @@ void InOutHelper::SetupChainEditModeTrellis() {
     
     // TODO
     
-//  int seqNum = sequencer.getCurrentSequence();
+//  int seqNum = sequencer.getCurrentPattern();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
 //  helperSteps[seqNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-//  ShowSequenceNumberOnLCD(seqNum);
+//  ShowPatternNumberOnLCD(seqNum);
 }
 
 
@@ -1094,7 +1094,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               break;
             case length_edit:       // TODO: ADD QUEUEING
             case pattern_select:
-              save_sequence_destination = -1;
+              save_pattern_destination = -1;
               QueueableSimpleIndicatorModeTrellisButtonPressed(i);
               break;
             case pattern_save:
@@ -1471,11 +1471,11 @@ void InOutHelper::handleSelectButton()
           {
             bool recall = sequencer.toggle_pattern_recall();
             if (recall) {
-              ShowValueInfoOnLCD("Restoring root", sequencer.getCurrentSequence());
+              ShowValueInfoOnLCD("Restoring root", sequencer.getCurrentPattern());
               SetLCDinfoTimeout();
 
             } else {
-              ShowValueInfoOnLCD("Recalling edit", sequencer.getCurrentSequence());
+              ShowValueInfoOnLCD("Recalling edit", sequencer.getCurrentPattern());
               SetLCDinfoTimeout();
             }
 //          playpath.setPath(sequencer.getPath());
@@ -1483,11 +1483,11 @@ void InOutHelper::handleSelectButton()
           break;
         case pattern_save:
           {
-            if (save_sequence_destination != -1) {
-              sequencer.save_sequence(save_sequence_destination);
-              ShowValueInfoOnLCD("Saved to seq", save_sequence_destination);
+            if (save_pattern_destination != -1) {
+              sequencer.save_pattern(save_pattern_destination);
+              ShowValueInfoOnLCD("Saved to seq", save_pattern_destination);
               SetLCDinfoTimeout();
-              save_sequence_destination = -1;
+              save_pattern_destination = -1;
 
               currentMode = pattern_select;
               setupNewMode();
@@ -1593,19 +1593,18 @@ void InOutHelper::handleModeButtons()
     if (PatternModeButton.update() && PatternModeButton.fell()) {
       if (currentMode == pattern_select) {
         currentMode = pattern_save;
-//      selectOrSave = pattern_save;
         selectOrSave = pattern_select;
       } else
         if (currentMode == pattern_save) {
           currentMode = chain_edit;
           selectOrSave = pattern_select;
-          save_sequence_destination = -1;
+          save_pattern_destination = -1;
           ClearInfoOnLCD();
         } else
           if (currentMode == chain_edit) {
             currentMode = pattern_select;
             selectOrSave = pattern_select;
-            save_sequence_destination = -1;
+            save_pattern_destination = -1;
             ClearInfoOnLCD();
           } else
             currentMode = selectOrSave;
@@ -1718,18 +1717,18 @@ void InOutHelper::handleButtonHolds()
 {
   unsigned long held = GetHoldableButtonPressed(PATTERNMODEBUTTON);
 
-  // holding pattern mode button saves current sequence edit buffer to current sequence
+  // holding pattern mode button saves current pattern edit buffer to current pattern
   // TODO: invoke save mode with destination choices
   
   if (held > 0) {
     currentHoldAction = SAVESEQ;
-    if (save_sequence_destination == -1) {
-      save_sequence_destination = sequencer.getCurrentSequence();
+    if (save_pattern_destination == -1) {
+      save_pattern_destination = sequencer.getCurrentPattern();
     }      
     if (trackActionHoldTime(held, SAVESEQ)) {
-        sequencer.save_sequence(save_sequence_destination);
-        ShowSequenceNumberOnLCD(save_sequence_destination);
-        save_sequence_destination = -1;
+        sequencer.save_pattern(save_pattern_destination);
+        ShowPatternNumberOnLCD(save_pattern_destination);
+        save_pattern_destination = -1;
     }
   } else {
       
@@ -1754,7 +1753,7 @@ void InOutHelper::handleButtonHolds()
             currentHoldAction = SAVETOSD;
             if (trackActionHoldTime(held, SAVETOSD))
             {
-                sequencer.save_all_sequences();
+                sequencer.save_all_patterns();
                 SaveToSdCb();
             }
         }
@@ -1901,7 +1900,7 @@ void InOutHelper::RemoveStepIndicatorOnLCD()
 
 
 // Sequencer Helpers
-void InOutHelper::RetrieveSequenceStates()
+void InOutHelper::RetrievePatternStates()
 {
     byte seqMaxLength = sequencer.getMaxLength(); //hoping this matches array size
 //  byte seqLength = sequencer.getLength();
@@ -1921,7 +1920,7 @@ void InOutHelper::RetrieveSequenceStates()
         Serial.println("accent edit");
       break;
       default:
-        ShowErrorOnLCD("YOWZA uncaught mode in RetrieveSequenceStates");
+        ShowErrorOnLCD("YOWZA uncaught mode in RetrievePatternStates");
         Serial.print("mode: ");
         Serial.println(currentMode);
     }
@@ -2263,7 +2262,7 @@ void InOutHelper::ShowMemoryOnLCD(int mem)
 }
 
 
-void InOutHelper::ShowSequenceNumberOnLCD(int seqNum)
+void InOutHelper::ShowPatternNumberOnLCD(int seqNum)
 {
     lcd.setCursor(18, 2);
     lcd.print("  ");  
@@ -2346,7 +2345,7 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
         break;
         
       case SAVESEQ:
-        destination = save_sequence_destination;
+        destination = save_pattern_destination;
         switch (state)
         {
           case SHOWNOTHING:
@@ -2356,11 +2355,11 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
             SetLCDinfoTimeout();
             break;
           case ACTION:
-            ShowValueInfoOnLCD("Saving sequence", destination);
+            ShowValueInfoOnLCD("Saving pattern", destination);
             SetLCDinfoTimeout();
             break;
           case DONE:
-            ShowInfoOnLCD("Saved sequence.");
+            ShowInfoOnLCD("Saved pattern.");
             SetLCDinfoTimeout();
             break;
           case INACTIVE:

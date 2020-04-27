@@ -1,20 +1,20 @@
-#ifndef __STEPSEQUENCE
-#define __STEPSEQUENCE
+#ifndef __STEPPATTERN
+#define __STEPPATTERN
 
 #include <Arduino.h>
 #include "Enum.h"
 #include "Note.h"
 #include "Path.h"
 
-class StepSequence
+class StepPattern
 {
     public:    
-        StepSequence();
+        StepPattern();
 
         void begin();
         void reset();
-        void copySeqTo(StepSequence &destination);
-        void copySeqTo(StepSequence *destination);
+        void copyPatternTo(StepPattern &destination);
+        void copyPatternTo(StepPattern *destination);
         byte getNote(int _step);
         float getDuration(int _step); // kg
         byte getProbability(int _step); // kg
@@ -29,7 +29,7 @@ class StepSequence
         byte getVelocity(int _step);
         bool playItOrNot(int _step);
         retrigDivisions getRetrigDivider(int count);
-        note getSequenceNoteParams(int _step, Path aPath);
+        note getPatternNoteParams(int _step, Path aPath);
         byte getLength();
         int getMaxLength();
         byte getPath();
@@ -47,7 +47,7 @@ class StepSequence
         void setPath(byte path);
 
         // Utility
-        void printSequence();
+        void printPattern();
 
     private:
         unsigned long calcNextNoteDuration(const note aNote);

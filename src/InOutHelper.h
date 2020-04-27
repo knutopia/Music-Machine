@@ -30,8 +30,8 @@ class InOutHelper
     void begin(ReactToInputBool updateModeCbPointer, 
                 ReactToInputIntArray updateRepetitionPointer,
                 ReactToInputInt updatePatternLengthPointer,
-                ReactToInputInt updateSequenceNumberPointer,
-                ReactToInputInt updateSaveSequenceDestPointer,
+                ReactToInputInt updatePatternNumberPointer,
+                ReactToInputInt updateSavePatternDestPointer,
                 ReactToInputInt updateTempoPointer,
                 ReactToInputSpeedFactor updateSpeedMultiplierPointer,
                 ReactToInput SaveToSdCbPointer,
@@ -70,7 +70,7 @@ class InOutHelper
     void ShowErrorOnLCD(const char error[]);
     void ShowErrorOnLCD(const char error[], byte value);
     void ShowErrorOnLCD(const char error[], const char context[]);
-    void ShowSequenceNumberOnLCD(int seqNum);
+    void ShowPatternNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
     void ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
@@ -130,7 +130,7 @@ class InOutHelper
     bool PrimeQueueButtonPressed();
     
     void LiteUpTrellisSteps(bool helperSteps[]);
-    void RetrieveSequenceStates();
+    void RetrievePatternStates();
     void ClearBoolSteps(bool arrayPointer[], int arrayLength);
     
     void ClearInfoOnLCD();
@@ -143,8 +143,8 @@ class InOutHelper
     ReactToInputBool updateModeCb;
     ReactToInputIntArray updateRepetitionCb;
     ReactToInputInt updatePatternLengthCb;
-    ReactToInputInt updateSequenceNumberCb;
-    ReactToInputInt updateSaveSequenceDestCb;
+    ReactToInputInt updatePatternNumberCb;
+    ReactToInputInt updateSavePatternDestCb;
     ReactToInputInt updateTempoCb;
     ReactToInputSpeedFactor updateSpeedMultiplierCb;
     ReactToInput SaveToSdCb;

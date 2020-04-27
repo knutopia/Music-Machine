@@ -40,7 +40,7 @@ bool Path::detectPatternRollover(byte seqLength)
     return retVal;
 }
 
-bool Path::checkForSequenceStart()
+bool Path::checkForPatternStart()
 {
     bool retVal = false;
     if((m_currentStep) == 0) retVal = true;

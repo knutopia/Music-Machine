@@ -2,12 +2,15 @@
 
 Step sequencer / synthesizer with real time access for playability
 
+<img src="images/hardware_prototype_small.jpg" width="300" alt="Hardware Prototype">
+
 Hardware:
 * Keypad for pattern editing
 * 2nd keypad for quick access to utilities
 * Six mode buttons for quick editing
 * Dedicated play control buttons
 * LCD display with 4 encoders
+* Teensy 3.6
 
 Features:
 * 16 patterns, up to 16 steps each

@@ -2,8 +2,8 @@
 // inspired by Arduino for Musicians
 
 #define uint8_t byte
-#define MIDION true
-//#define DEBUG true
+//#define MIDION true
+#define DEBUG true
 
 // general
 //#include <EEPROM.h>
@@ -354,13 +354,6 @@ void StartStopCb()
         inout.ShowValueInfoOnLCD("Mem:", (int)FreeMem() );
         inout.SetLCDinfoTimeout();
     } else {
-
-#ifdef DEBUG
-    testLinkedNoteList();
-    testLinkedTrackList();
-    testPerClickNoteList();
-    testStepClickList();
-#endif
 
     if(currentMode == chain_edit)
     {

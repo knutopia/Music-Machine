@@ -1,4 +1,4 @@
-//#define DEBUG true
+#define DEBUG true
 
 #include "Track.h"
 #include "InOutHelper.h"

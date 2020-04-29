@@ -3,7 +3,7 @@
 #include "InOutHelper.h"
 #include "NotePerClick.h"
 
-//#define DEBUG true
+#define DEBUG true
 #define LISTCOUNT true
 
 extern StepClickList activeStepClicks;

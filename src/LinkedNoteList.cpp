@@ -1,7 +1,7 @@
 #include "LinkedNoteList.h"    
 #include "InOutHelper.h"
 
-//#define DEBUG true
+#define DEBUG true
 
 extern InOutHelper inout;
 

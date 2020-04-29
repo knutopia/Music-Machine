@@ -8,7 +8,7 @@
 #include "Timebase.h"
 #include "InOutHelper.h"
 
-//#define DEBUG true
+#define DEBUG true
 
 // LinkedNoteList StepSequencer::activeNotes;
 // StepClickList StepSequencer::activeStepClicks;

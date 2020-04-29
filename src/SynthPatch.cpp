@@ -71,8 +71,9 @@ void SynthPatch::copyPatchTo(SynthPatch &destination)
   {
     destination.params[pindex] = params[pindex];
   }
-
+#ifdef DEBUG
   Serial.print(" copyPatchTo ");
+#endif
 }
 
 float SynthPatch::get(int parName)

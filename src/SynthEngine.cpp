@@ -9,7 +9,9 @@
 #include <SD_t3.h>
 #include <SerialFlash.h>
 
-#define MIDION true
+//#define MIDION true
+
+#define DEBUG true
 
 // GUItool: begin automatically generated code
 AudioEffectWaveshaper    waveshape1;     //xy=412.22220611572266,861.0000276565552
@@ -409,6 +411,10 @@ void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
 {        
     const char* param_name = patch.paramNames[param];
 
+    #ifdef DEBUG
+        Serial.println("prepSynParEdit");
+    #endif
+
     if (patch.isInt(param)) 
     {
       int current_parval = patch.getI(param);
@@ -560,8 +566,10 @@ float SynthEngine::getEditPval(int paramName)
 
 void SynthEngine::saveToPatch(int p)
 {
+#ifdef DEBUG
   Serial.print("Saving to patch ");
   Serial.print(p);
+#endif
   
   m_edit_patch.copyPatchTo(m_patches[p]);
   setCurrentPatch(p);
@@ -570,8 +578,10 @@ void SynthEngine::saveToPatch(int p)
 
 void SynthEngine::activatePatch(int p)
 {
-  Serial.print("activatePatch ");
-  Serial.println(p);
+  #ifdef DEBUG
+    Serial.print("activatePatch ");
+    Serial.println(p);
+  #endif
   
   m_patches[p].copyPatchTo(m_edit_patch);      
 }
@@ -744,13 +754,16 @@ void SynthEngine::updateAudioEngine()
       break;
     case DelayTime:
       delay1.delay(0, getEditPval(DelayTime)*(g_step_duration/1000.0)); // DelayTime ??????
+
+#ifdef DEBUG      
       Serial.print("DelayTime ");
       Serial.print(getEditPval(DelayTime));
       Serial.print("  ms:");
       Serial.println(getEditPval(DelayTime)*(g_step_duration/1000.0));
       Serial.print("  g_step_duration:");
       Serial.println(g_step_duration);
-      
+#endif  
+
       break;
     case DelayedReverbTime:
       reverb1.reverbTime(getEditPval(DelayedReverbTime)); //DelayedReverbTime      

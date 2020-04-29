@@ -1602,12 +1602,18 @@ void InOutHelper::handleModeButtons()
           ClearInfoOnLCD();
         } else
           if (currentMode == chain_edit) {
-            currentMode = pattern_select;
+            currentMode = synth_edit;
             selectOrSave = pattern_select;
             save_pattern_destination = -1;
             ClearInfoOnLCD();
           } else
-            currentMode = selectOrSave;
+            if (currentMode == synth_edit) {
+              currentMode = pattern_select;
+              selectOrSave = pattern_select;
+              save_pattern_destination = -1;
+              ClearInfoOnLCD();
+            } else
+              currentMode = selectOrSave;
           
       setupNewMode();
       ShowModeOnLCD();        

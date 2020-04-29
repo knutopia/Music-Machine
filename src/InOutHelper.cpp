@@ -2092,7 +2092,7 @@ void InOutHelper::ShowSynParOnLCD(const char label[], float value)
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
     lcd.print(label);
-    lcd.setCursor(strlen(label), 1);
+    lcd.setCursor(strlen(label), 2);
     lcd.print(value);
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
 }

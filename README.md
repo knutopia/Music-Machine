@@ -68,7 +68,10 @@ PATTERNMODEBUTTON
         Pick a pattern to capture edits from current buffer to
     
     chain_edit
-        Enter chain edit / song mode
+        Chain edit / song mode
+        
+    synth_edit
+        Synth patch choice & editing
         
     
 MUTEMODEBUTTON

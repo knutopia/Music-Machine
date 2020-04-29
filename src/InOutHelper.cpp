@@ -15,6 +15,7 @@
 #include "Timebase.h"
 #include "StepSequencer.h"
 #include "SynthEngine.h"
+#include "PatternChainHandler.h"
 
 // Encoders:
 Encoder EncA(0, 1);
@@ -31,6 +32,7 @@ extern const char *modeNames[];
 extern StepSequencer sequencer;
 extern Timebase metro;
 extern SynthEngine synth;
+extern PatternChainHandler patternChain;
 extern int save_pattern_destination;
 extern bool save_to_SD_done;
 extern bool shiftActive;
@@ -123,6 +125,7 @@ void InOutHelper::begin(ReactToInput updateModeCbPointer,
                         ReactToInput SaveToSdCbPointer,
                         ReactToInput startStopCbPointer,
                         ReactToInputInt updateSynthCbPointer,
+                        ReactToInputInt updateChainCbPointer,
                         ReactToInputInt updateTrackCbPointer,
                         ReactToInputAction recordActionCbPointer) {
 
@@ -139,6 +142,7 @@ void InOutHelper::begin(ReactToInput updateModeCbPointer,
   SaveToSdCb = SaveToSdCbPointer;
   startStopCb = startStopCbPointer;
   updateSynthCb = updateSynthCbPointer;
+  updateChainCb = updateChainCbPointer;
 
   // no arcade button presses tracked
   for(byte i = 0; i < HOLDABLEBUTTONCOUNT; i++) {
@@ -218,7 +222,7 @@ void InOutHelper::setupNewMode() {
         SetupPatternSaveModeTrellis();
         break;      
       case chain_edit:
-        StepButtonCb = NULL;    
+        StepButtonCb = updateChainCb;    
         StartStopButtonCb = startStopCb; // use a separate one for chain play ?
         initTrackEncoder = true;
         SetupChainEditModeTrellis();
@@ -481,6 +485,10 @@ void InOutHelper::handleEncoders() {
           HandleSynthEncoders();
           break;
 
+      case chain_edit:
+          HandleChainEncoders();
+          break;
+
       case pattern_select:
       case pattern_save:
       case track_select:
@@ -570,6 +578,13 @@ void InOutHelper::HandleSynthEncoders() {
       }
       oldPositionB = newPosition;
     }
+}
+
+
+void InOutHelper::HandleChainEncoders() {
+
+//  copy this from HandleSynthEncoders()
+//  patternChain.handleEncoder(###, ###);
 }
 
 void InOutHelper::HandleTranspositionEncoderA() {
@@ -1515,6 +1530,11 @@ void InOutHelper::handleSelectButton()
               selectionChanged = true;
               save_to_SD_done = false;
             }
+          }
+          break;
+        case chain_edit:
+          {
+             patternChain.handleSelectButton();
           }
           break;
         case path_select:

@@ -13,7 +13,7 @@ speedFactorFunc PatternChainHandler::updateSpeedMultiplierCb;
 PatternChainHandler::PatternChainHandler()
 {
     
-};
+}
 
 PatternChainHandler::~PatternChainHandler()
 {
@@ -22,7 +22,7 @@ PatternChainHandler::~PatternChainHandler()
         for(int l = 0; l < chains[f].numberOfLinks; l++)
             if( chains[f].links[l] != NULL)
                 delete chains[f].links[l];
-};
+}
 
 void PatternChainHandler::begin(simpleFunc stopCbPointer,
                                 intFunc changePatternNumberCbPointer,
@@ -105,7 +105,7 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
 //    jsonSetup();
 
 
-};
+}
 
 // setters
 bool PatternChainHandler::setCurrentChain(byte index)
@@ -173,13 +173,13 @@ void PatternChainHandler::setTimesToPlay(byte times)
     }
     
     currentChain->timesToPlay = times;
-};
+}
 
 // for editing...
 void PatternChainHandler::selectLink(byte linkNum)
 {
 
-};
+}
 
 PatternChainLink* PatternChainHandler::appendLink()
 {
@@ -222,17 +222,17 @@ PatternChainLink* PatternChainHandler::appendLink()
     newLink->begin();
     
     return newLink;
-};
+}
 
 bool PatternChainHandler::removeLink()
 {
     return true;
-};
+}
 
 void PatternChainHandler::clearLink()
 {
 
-};
+}
 
 // management during play
 
@@ -405,7 +405,7 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
 
         return false;
     }
-};
+}
 
 void PatternChainHandler::updateChainAndLinkDisplay()
 {
@@ -464,4 +464,20 @@ bool PatternChainHandler::timeForNextChain()
         }
 
     return retVal;
+}
+
+void PatternChainHandler::handleSelectButton()
+{
+
+}
+
+void PatternChainHandler::handleEncoder(int encoder, int value)
+{
+
+}
+
+//handle trellis buttons to choose chain or link
+void PatternChainHandler::handleButton(int butNum)
+{
+
 };

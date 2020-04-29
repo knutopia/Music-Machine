@@ -47,6 +47,11 @@ class PatternChainHandler
     void updateChainAndLinkDisplay();
     void reset();
 
+    // Input processing
+    void handleSelectButton();
+    void handleEncoder(int encoder, int value);
+    void handleButton(int butNum);
+
     // class data
     static byte currentLeadTrack;
     static intFunc updatePatternNumberCb;

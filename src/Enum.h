@@ -114,4 +114,17 @@ enum {MAXLINKSPERCHAIN = 4, MAXCHAINCOUNT = 4};
 
 enum playMode {PATTERNPLAY, CHAINPLAY};
 
+enum {linkEditOptionsCount = 21};
+
+enum linkEditOptions {CurrentChain, CurrentLink, 
+                      ChainTimesToPlay, ChainContent, NextChain,
+                      OverrideThisLink, InsertAfterCurrent,
+                      AppendtoChain, StartNewChain, 
+                      DeleteThisLink, DuplicateLink, 
+                      CopyLink, PasteLink, 
+                      LinkContent, LeadTrack,
+                      TimesToPlay, SpeedFactor,
+                      LengthOverride, PathOverride,
+                      PreviousLink, NextLink};       
+
 #endif

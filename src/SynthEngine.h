@@ -32,10 +32,12 @@ class SynthEngine
       void prepSynthAccent(byte empFlag);
       void prepPatchIfNeeded();
 //    void trackSafeHoldTime();
+
       void handleButtonRelease(int butNum);
       void handleButton(int butNum);
       int getButtonPressed();
       void handleEncoder(int encoder, int value);
+      
       int getCurrentPatchNumber();
       void prepSynPatchForEdit();
       void reportPerformance();

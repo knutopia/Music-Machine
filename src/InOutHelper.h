@@ -37,6 +37,7 @@ class InOutHelper
                 ReactToInput SaveToSdCbPointer,
                 ReactToInput startStopCbPointer,
                 ReactToInputInt updateSynthCbPointer,
+                ReactToInputInt updateChainCbPointer,
                 ReactToInputInt updateTrackCbPointer,
                 ReactToInputAction recordActionCbPointer);
 
@@ -111,6 +112,7 @@ class InOutHelper
     void ProcessTrellisButtonPress(uint8_t index);
     void UpdateTrellisStepIndicator(unsigned long time_now);
     void HandleSynthEncoders();
+    void HandleChainEncoders();
     void HandleTranspositionEncoderA();
     void HandleTrackEncoderA();
     void HandlePerformanceEncoders();
@@ -152,6 +154,7 @@ class InOutHelper
     ReactToInputInt StepButtonCb;
     ReactToInput StartStopButtonCb;
     ReactToInputInt updateSynthCb;
+    ReactToInputInt updateChainCb;
     ReactToInputInt updateTrackCb;
     ReactToInputAction recordActionCb;
     

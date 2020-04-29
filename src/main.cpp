@@ -162,6 +162,7 @@ void SaveToSdCb();
 void StartStopCb();
 void StopPlaybackCb();
 void SynthButtonCb(int butNum);
+void ChainButtonCb(int butNum);
 
 void OnNoteOn(byte channel, byte note, byte velocity);
 void runQueuedActions();
@@ -407,6 +408,11 @@ void SynthButtonCb(int butNum)
     synth.handleButton(butNum);
 }
 
+void ChainButtonCb(int butNum)
+{
+    patternChain.handleButton(butNum);
+}
+
 
 void OnNoteOn(byte channel, byte note, byte velocity) {
     if (midiBaseNote == 255)
@@ -473,6 +479,7 @@ void setup()
                 SaveToSdCb,
                 StartStopCb,
                 SynthButtonCb,
+                ChainButtonCb,
                 ChangeTrackCb,
                 QueueActionCb);
                 

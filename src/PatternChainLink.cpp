@@ -241,4 +241,17 @@ void PatternChainLink::primeLinktoPlay()
     Serial.println(" primeLinktoPlay done");
     Serial.println("");
 
-}
+};
+
+void PatternChainLink::prepChainLinkForEdit()
+{
+#ifdef DEBUG
+        Serial.println("prepChainLinkForEdit");
+#endif
+/*
+        retrievePatch(m_current_patch);
+        activatePatch(m_current_patch);                       // copy patch into edit patch
+*/
+        inout.ShowValueInfoOnLCD("Chain:", 1);
+
+};

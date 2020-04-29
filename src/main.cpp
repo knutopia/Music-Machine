@@ -203,25 +203,18 @@ void QueueActionCb(actionID whatAction, byte param, byte track)
 }
 
 
-// Callbacks for inputs
-void ChangeModeCb(bool forward)
-{
-    if (forward) {
-       currentMode++;
-       if(currentMode == last) currentMode = synth_edit;      // Wrap around
-       if(currentMode < synth_edit) currentMode = synth_edit; // Skip lower modes
-    } else {
-       currentMode--;
-       if(currentMode < synth_edit) currentMode = save_to_sd; // Wrap around    
-    }
-    
+// Callbacks for inputs: nothing happens here
+void ChangeModeCb()
+{    
+#ifdef DEBUG
+    Serial.println("ChangeModeCb");
+#endif
+
     switch (currentMode) {
-      case synth_edit:
-        synth.prepSynPatchForEdit(); // no synth global in inOutHelper, so doing this here
-        break;
       default:
         break;
     }
+    
 }
 
 

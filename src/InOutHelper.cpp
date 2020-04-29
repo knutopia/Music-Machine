@@ -113,7 +113,7 @@ InOutHelper::InOutHelper()
 }
 
 
-void InOutHelper::begin(ReactToInputBool updateModeCbPointer,
+void InOutHelper::begin(ReactToInput updateModeCbPointer,
                         ReactToInputIntArray updateRepetitionCbPointer,
                         ReactToInputInt updatePatternLengthCbPointer,
                         ReactToInputInt updatePatternNumberCbPointer,
@@ -276,6 +276,7 @@ void InOutHelper::setupNewMode() {
         StartStopButtonCb = startStopCb;
         initTrackEncoder = true;
         SetupSynthEditTrellis();
+        synth.prepSynPatchForEdit();
         break;
       case save_to_sd:
         StepButtonCb = NULL;
@@ -929,7 +930,7 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
           ShowModeOnLCD();        
           selectionChanged = true;
 
-//        updateModeCb(true);
+        //updateModeCb();        
 
         } else {
           ShowInfoOnLCD("Retrig 1");
@@ -1591,6 +1592,7 @@ void InOutHelper::handleModeButtons()
     static int stepOrTrack = step_edit;
     
     if (PatternModeButton.update() && PatternModeButton.fell()) {
+      ClearInfoOnLCD();
       if (currentMode == pattern_select) {
         currentMode = pattern_save;
         selectOrSave = pattern_select;
@@ -1599,19 +1601,19 @@ void InOutHelper::handleModeButtons()
           currentMode = chain_edit;
           selectOrSave = pattern_select;
           save_pattern_destination = -1;
-          ClearInfoOnLCD();
+//        ClearInfoOnLCD();
         } else
           if (currentMode == chain_edit) {
             currentMode = synth_edit;
             selectOrSave = pattern_select;
             save_pattern_destination = -1;
-            ClearInfoOnLCD();
+//          ClearInfoOnLCD();
           } else
             if (currentMode == synth_edit) {
               currentMode = pattern_select;
               selectOrSave = pattern_select;
               save_pattern_destination = -1;
-              ClearInfoOnLCD();
+//            ClearInfoOnLCD();
             } else
               currentMode = selectOrSave;
           
@@ -1626,6 +1628,7 @@ void InOutHelper::handleModeButtons()
 
 
     if (StepEditModeButton.update() && StepEditModeButton.fell()) {
+      ClearInfoOnLCD();
       if (currentMode == step_edit) {
         currentMode = track_select;
 //      stepOrTrack = track_select;
@@ -1664,6 +1667,7 @@ void InOutHelper::handleModeButtons()
 */
 
     if (MuteModeButton.update() && MuteModeButton.fell()) {
+      ClearInfoOnLCD();
       if (currentMode == step_hold) {
         currentMode = step_mute;
         muteOrHold = step_mute;
@@ -1683,6 +1687,7 @@ void InOutHelper::handleModeButtons()
       }
 
     if (AccentEditModeButton.update() && AccentEditModeButton.fell()) {
+      ClearInfoOnLCD();
       currentMode = accent_edit;
       setupNewMode();
       ShowModeOnLCD();        
@@ -1694,6 +1699,7 @@ void InOutHelper::handleModeButtons()
       }
   
     if (LengthEditModeButton.update() && LengthEditModeButton.fell()) {
+      ClearInfoOnLCD();
       currentMode = length_edit;
       setupNewMode();
       ShowModeOnLCD();        
@@ -1705,6 +1711,7 @@ void InOutHelper::handleModeButtons()
       }
   
     if (PathEditModeButton.update() && PathEditModeButton.fell()) {
+      ClearInfoOnLCD();
       currentMode = path_select;
       setupNewMode();
       ShowModeOnLCD();        

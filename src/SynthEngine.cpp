@@ -107,7 +107,10 @@ void SynthEngine::begin()
 //sgtl5000_1.autoVolumeControl(2,1,0,-18,0.5,2.0);
 //  sgtl5000_1.autoVolumeEnable();
 
+#ifdef DEBUG
   Serial.println("SynthEngine begin ");
+#endif
+
   retrievePatch(m_current_patch);
   activatePatch(m_current_patch);
 
@@ -402,6 +405,10 @@ void SynthEngine::handleEncoderA(int value)
 
 void SynthEngine::prepSynPatchForEdit()
 {
+#ifdef DEBUG
+        Serial.println("prepSynPatchForEdit");
+#endif
+
         retrievePatch(m_current_patch);
         activatePatch(m_current_patch);                       // copy patch into edit patch
         inout.ShowValueInfoOnLCD("Patch:", m_current_patch);
@@ -411,9 +418,9 @@ void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
 {        
     const char* param_name = patch.paramNames[param];
 
-    #ifdef DEBUG
+#ifdef DEBUG
         Serial.println("prepSynParEdit");
-    #endif
+#endif
 
     if (patch.isInt(param)) 
     {

@@ -27,7 +27,7 @@ class InOutHelper
 
   public:
     InOutHelper();
-    void begin(ReactToInputBool updateModeCbPointer, 
+    void begin(ReactToInput updateModeCbPointer, 
                 ReactToInputIntArray updateRepetitionPointer,
                 ReactToInputInt updatePatternLengthPointer,
                 ReactToInputInt updatePatternNumberPointer,
@@ -140,7 +140,7 @@ class InOutHelper
     void ShowStepOnLCD(int step, bool isActive);
     void showStepInfoOnLCD(int step);
 
-    ReactToInputBool updateModeCb;
+    ReactToInput updateModeCb;
     ReactToInputIntArray updateRepetitionCb;
     ReactToInputInt updatePatternLengthCb;
     ReactToInputInt updatePatternNumberCb;

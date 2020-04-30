@@ -150,7 +150,7 @@ ActionQueue queuedActions;
 
 void EmergencyCb();
 void QueueActionCb(actionID whatAction, byte param, byte track);
-void ChangeModeCb(bool forward);
+void ChangeModeCb();
 void ChangeRepetitionCb(int noteRepetition,  boolean activeSteps[]);
 void ChangePatternLengthCb(int patternLength);
 void ChangePatternNumberCb(int seqNum);

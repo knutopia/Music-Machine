@@ -27,7 +27,7 @@ class InOutHelper
 
   public:
     InOutHelper();
-    void begin(ReactToInput updateModeCbPointer, 
+    void begin( ReactToInput updateModeCbPointer, 
                 ReactToInputIntArray updateRepetitionPointer,
                 ReactToInputInt updatePatternLengthPointer,
                 ReactToInputInt updatePatternNumberPointer,
@@ -74,7 +74,7 @@ class InOutHelper
     void ShowPatternNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
-    void ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
+    void ShowChainLinkPlayOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
                             const byte link, const byte curLinkPlay, const byte maxLinkPlays);
 //  void ShowStoreMessage(int state);
     void ShowHoldActionMessage(holdActionProcess state, holdActionMode mode);

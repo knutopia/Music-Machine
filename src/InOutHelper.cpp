@@ -129,6 +129,7 @@ void InOutHelper::begin(ReactToInput updateModeCbPointer,
                         ReactToInputInt updateTrackCbPointer,
                         ReactToInputAction recordActionCbPointer) {
 
+
   updateModeCb = updateModeCbPointer;
   updateRepetitionCb = updateRepetitionCbPointer;
   updatePatternLengthCb = updatePatternLengthCbPointer;
@@ -2330,7 +2331,7 @@ void InOutHelper::ShowPathNumberOnLCD(byte pathNum)
 }
 
 
-void InOutHelper::ShowChainLinkOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
+void InOutHelper::ShowChainLinkPlayOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
                                      const byte link, const byte curLinkPlay, const byte maxLinkPlays)
 {
   char buffer [20];

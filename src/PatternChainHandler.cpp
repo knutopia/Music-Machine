@@ -255,12 +255,12 @@ void PatternChainHandler::startChainPlay()
         return;
     }
 
-    inout.ShowChainLinkOnLCD(currentChainIndex,
-                             currentChainPlayCount,
-                             currentChain->timesToPlay,
-                             currentLinkIndex, 
-                             currentLink->getCurrentPlayCount(), 
-                             currentLink->getTimesToPlay());
+    inout.ShowChainLinkPlayOnLCD(currentChainIndex,
+                                 currentChainPlayCount,
+                                 currentChain->timesToPlay,
+                                 currentLinkIndex, 
+                                 currentLink->getCurrentPlayCount(), 
+                                 currentLink->getTimesToPlay());
 }
 
 bool PatternChainHandler::updateLinkOrChainIfNeeded()
@@ -409,12 +409,12 @@ bool PatternChainHandler::updateLinkOrChainIfNeeded()
 
 void PatternChainHandler::updateChainAndLinkDisplay()
 {
-    inout.ShowChainLinkOnLCD(currentChainIndex,
-                            currentChainPlayCount,
-                            currentChain->timesToPlay,
-                            currentLinkIndex, 
-                            currentLink->getCurrentPlayCount(), 
-                            currentLink->getTimesToPlay());
+    inout.ShowChainLinkPlayOnLCD(currentChainIndex,
+                                 currentChainPlayCount,
+                                 currentChain->timesToPlay,
+                                 currentLinkIndex, 
+                                 currentLink->getCurrentPlayCount(), 
+                                 currentLink->getTimesToPlay());
 }
 
 void PatternChainHandler::playCurrentChainLink()
@@ -464,6 +464,23 @@ bool PatternChainHandler::timeForNextChain()
         }
 
     return retVal;
+}
+
+void PatternChainHandler::prepPatternChainForEdit()
+{
+#ifdef DEBUG
+        Serial.println("prepPatternChainForEdit");
+#endif
+
+/*
+    inout.ShowChainLinkPlayOnLCD(currentChainIndex,
+                            currentChainPlayCount,
+                            currentChain->timesToPlay,
+                            currentLinkIndex, 
+                            currentLink->getCurrentPlayCount(), 
+                            currentLink->getTimesToPlay());
+*/
+        currentLink->prepChainLinkForEdit();
 }
 
 void PatternChainHandler::handleSelectButton()

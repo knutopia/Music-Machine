@@ -48,6 +48,7 @@ class PatternChainHandler
     void reset();
 
     // Input processing
+    void prepPatternChainForEdit();
     void handleSelectButton();
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);

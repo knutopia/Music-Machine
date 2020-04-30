@@ -116,15 +116,15 @@ enum playMode {PATTERNPLAY, CHAINPLAY};
 
 enum {linkEditOptionsCount = 21};
 
-enum linkEditOptions {CurrentChain, CurrentLink, 
-                      ChainTimesToPlay, ChainContent, NextChain,
-                      OverrideThisLink, InsertAfterCurrent,
-                      AppendtoChain, StartNewChain, 
-                      DeleteThisLink, DuplicateLink, 
-                      CopyLink, PasteLink, 
-                      LinkContent, LeadTrack,
-                      TimesToPlay, SpeedFactor,
-                      LengthOverride, PathOverride,
-                      PreviousLink, NextLink};       
+enum linkEditOptions {CurrentChain = 0, CurrentLink = 1, 
+                      ChainTimesToPlay = 2, ChainContent = 3, NextChain = 4,
+                      OverrideThisLink = 5, InsertAfterCurrent = 6,
+                      AppendtoChain = 7, StartNewChain = 8, 
+                      DeleteThisLink = 9, DuplicateLink = 10, 
+                      CopyLink = 11, PasteLink = 12, 
+                      LinkContent = 13, LeadTrack = 14,
+                      TimesToPlay = 15, SpeedFactor = 16,
+                      LengthOverride = 17, PathOverride = 18,
+                      PreviousLink = 19, NextLink = 20};       
 
 #endif

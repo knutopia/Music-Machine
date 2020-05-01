@@ -654,12 +654,12 @@ int PatternChainHandler::captureEditParamStartVal()
         case LengthOverride:
             retVal = currentLink->getLengthOverride();
             if (retVal == OVERRIDEINACTIVE)
-                retVal = 0;
+                retVal = 17;
             Serial.print(" getLengthOverride ");
             Serial.print(retVal);
             Serial.print(" ");
             break;
-        
+
         case PathOverride:
             retVal = currentLink->getPathOverride();
             if (retVal == OVERRIDEINACTIVE)
@@ -720,17 +720,17 @@ void PatternChainHandler::editParam(int value)
                 currentLink->setSpeedMult(value);
                 break;
             }
-            case LengthOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            case LengthOverride:
             {
-                value = putInRange(value, 17, 0); //SHIFT DISPLAY PARAM
-                if (value > 0)
+                value = putInRange(value, 17, 1); //SHIFT DISPLAY PARAM
+                if (value < 17)
                     currentLink->setLengthOverride(value);
                 else
                     currentLink->setLengthOverride(OVERRIDEINACTIVE);
                 
                 break;
             }
-            case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            case PathOverride:
             {   
                 value = putInRange(value, 17, 0);
                 if (value <16)

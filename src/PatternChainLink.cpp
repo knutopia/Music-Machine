@@ -14,6 +14,8 @@ PatternChainLink::PatternChainLink()
 {
     link.nextLinkIndex = 255;
     link.timesToPlay = 0;
+    link.lengthOverride = OVERRIDEINACTIVE;
+    link.pathOverride = OVERRIDEINACTIVE;
 };
 
 
@@ -58,26 +60,32 @@ speedFactor PatternChainLink::getSpeedMult()
     return link.speedMult;
 }
 
-byte PatternChainLink::getLengthOverride()
+int PatternChainLink::getLengthOverride()
 {
     return link.lengthOverride;
 }
 
-byte PatternChainLink::getPathOverride()
+int PatternChainLink::getPathOverride()
 {
     return link.pathOverride;
 }
 
 // setters
 
-bool PatternChainLink::setLengthOverride(byte length)
+bool PatternChainLink::setLengthOverride(int length)
 {
     bool success = false;
 
-    if(length > 0 && length <= MAXNOTES)
+    // -1 = no override active
+    if(length > 0 && length <= MAXNOTES || length == OVERRIDEINACTIVE)
     {
         link.lengthOverride = length;
         success = true;
+
+        Serial.print(" C ");
+        Serial.print(length);
+        Serial.print(" ");
+
     } else
         inout.ShowErrorOnLCD("PCL:sLO inval len", length);
 
@@ -88,7 +96,8 @@ bool PatternChainLink::setPathOverride(int path)
 {
     bool success = false;
 
-    if(path < 16)
+    // -1 = no override active
+    if(path < 16 || path == -1)
     {
         link.pathOverride = path;
         success = true;
@@ -235,19 +244,19 @@ void PatternChainLink::primeLinktoPlay()
                 // OVERRIDES
                 if(trackNum == link.leadTrack)
                 {
-                    if(link.pathOverride < 255)
+                    if(link.pathOverride > -1)
                     {
                         sequencer.setPath(link.pathOverride % STEPSOFFSET);
                         inout.ShowPathNumberOnLCD(link.pathOverride % STEPSOFFSET);
                     }
                 
-                    if(link.lengthOverride < 255)
+                    if(link.lengthOverride > -1)
                     {
                         byte seqMaxLength = sequencer.getMaxLength();  // still redundant MAXLENGTH
-                            if (link.lengthOverride <= seqMaxLength)
-                                sequencer.setLength(link.lengthOverride);
-                            else
-                                inout.ShowErrorOnLCD("PCL:PLtP lO RNG", link.lengthOverride);
+                        if (link.lengthOverride <= seqMaxLength)
+                            sequencer.setLength(link.lengthOverride);
+                        else
+                            inout.ShowErrorOnLCD("PCL:PLtP lO RNG", link.lengthOverride);
                     }
                 }
 

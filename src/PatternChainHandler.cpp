@@ -514,7 +514,8 @@ void PatternChainHandler::prepPatternChainForEdit()
 
 void PatternChainHandler::showEditParam()
 {
-        int i_param_val = UNUSED;
+        int i_param_use = USEINTPARAM;
+        int i_param_val = 0;
         char* s_param_val = "                    ";
 
         const char* param_name = EditOptionNames[currentEditParamIndex];
@@ -539,13 +540,13 @@ void PatternChainHandler::showEditParam()
             }
             case ChainContent:
             {
-                i_param_val = USECHARPARAM;
+                i_param_use = USECHARPARAM;
                 s_param_val = "(...)";
                 break;
             }
             case LinkContent:
             {
-                i_param_val = USECHARPARAM;
+                i_param_use = USECHARPARAM;
                 s_param_val = "(...)";
                 break;
             }
@@ -566,34 +567,50 @@ void PatternChainHandler::showEditParam()
             }
             case LengthOverride:
             {
-                i_param_val = currentLink->getLengthOverride();
+                int foo = currentLink->getLengthOverride();
+                if (foo == OVERRIDEINACTIVE)
+                {
+                    i_param_use = USECHARPARAM;
+                    s_param_val = "Off";
+                } else {
+                    i_param_val = foo;
+                }
                 break;
             }
             case PathOverride:
             {
-                i_param_val = currentLink->getPathOverride();
+                int foo = currentLink->getPathOverride();
+                if (foo == OVERRIDEINACTIVE)
+                {
+                    i_param_use = USECHARPARAM;
+                    s_param_val = "Off";
+                } else
+                    i_param_val = foo;
                 break;
             }
             default:
             {
-                inout.ShowErrorOnLCD("PCH:sEP Default ", currentEditParamIndex);
+                i_param_use = UNUSED;
                 break;                
             }
         }
 
-        if(i_param_val == UNUSED)
+        if(i_param_use == UNUSED)
             inout.ShowActionOnLCD(param_name);
         else
-            if(i_param_val == USECHARPARAM)
+            if(i_param_use == USECHARPARAM) {
                 inout.ShowParamOnLCD(param_name, s_param_val);
-            else
-                inout.ShowParamOnLCD(param_name, i_param_val);
-
 #ifdef DEBUG
-        Serial.print(param_name);
-        Serial.println(i_param_val);
+                Serial.print(param_name);
+                Serial.println(s_param_val);
 #endif
-
+            } else {
+                inout.ShowParamOnLCD(param_name, i_param_val);
+#ifdef DEBUG
+                Serial.print(param_name);
+                Serial.println(i_param_val);
+#endif
+            }
 /*
 CurrentChain, CurrentLink, ChainTimesToPlay, ChainContent
  PreviousChain, NextChain, OverrideThisLink, InsertAfterCurrent
@@ -636,6 +653,11 @@ int PatternChainHandler::captureEditParamStartVal()
         
         case LengthOverride:
             retVal = currentLink->getLengthOverride();
+            if (retVal == OVERRIDEINACTIVE)
+                retVal = 0;
+            Serial.print(" getLengthOverride ");
+            Serial.print(retVal);
+            Serial.print(" ");
             break;
         
         case PathOverride:
@@ -651,8 +673,8 @@ int PatternChainHandler::captureEditParamStartVal()
 void PatternChainHandler::editParam(int value)
 {
 #ifdef DEBUG
-        Serial.print("#editParam currentEditParamIndex ");
-        Serial.print(currentEditParamIndex);
+        Serial.print("#editParam value ");
+        Serial.println(value);
 #endif
 
         switch (currentEditParamIndex)
@@ -695,15 +717,17 @@ void PatternChainHandler::editParam(int value)
             }
             case LengthOverride: // TODO: this needs to be range 17, to capture "Undefined"
             {
-                value = putInRange(value, 16, 1);
-                currentLink->setLengthOverride(value);
-                Serial.print("#7");
+                value = putInRange(value, 17, 0); //SHIFT DISPLAY PARAM
+                if (value > 0)
+                    currentLink->setLengthOverride(value);
+                else
+                    currentLink->setLengthOverride(OVERRIDEINACTIVE);
+                
                 break;
             }
             case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
-            {   value = putInRange(value, 16, 0);
+            {   value = putInRange(value, 17, -1);
                 currentLink->setPathOverride(value);
-                Serial.print("#8");
                 break;
             }
             default:
@@ -743,7 +767,14 @@ void PatternChainHandler::handleEncoder(int encoder, int value)
                         showEditParam();
                         break;
                 case ParamEdit:
+                        Serial.print("Before edit: ");
+                        Serial.print(value);
+                        Serial.print(" ");
+                        Serial.println(editParamStartVal);
+
                         editParam(value + editParamStartVal);
+
+                        Serial.print("After edit: ");
                         Serial.print(value);
                         Serial.print(" ");
                         Serial.println(editParamStartVal);
@@ -783,6 +814,7 @@ void PatternChainHandler::handleButton(int butNum)
 int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)
 {
     int retval;
+    int orig = iVar;
 
     if (iVar < iMin)
         while(iVar < 0) iVar += (iRange);
@@ -791,7 +823,7 @@ int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)
         retval += (iRange);
 
     Serial.print("putInRange ");
-    Serial.print(iVar);
+    Serial.print(orig);
     Serial.print(" ");
     Serial.println(retval);
 

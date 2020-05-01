@@ -55,6 +55,14 @@ byte PatternChainLink::getLeadTrack()
     return link.leadTrack;
 }
 
+bool PatternChainLink::isTrackUsedInLink(int trackNum)
+{
+    if(trackNum <= TRACKCOUNT && link.trackUsedInLink[trackNum])
+        return true;
+    else
+        return false;
+}
+
 speedFactor PatternChainLink::getSpeedMult()
 {
     return link.speedMult;

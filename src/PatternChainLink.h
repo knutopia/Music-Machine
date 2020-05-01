@@ -57,6 +57,7 @@ class PatternChainLink
     byte getCurrentPlayCount();
     int getTimesToPlay();
     byte getLeadTrack();
+    bool isTrackUsedInLink(int trackNum);
     speedFactor getSpeedMult();
     int getLengthOverride();
     int getPathOverride();

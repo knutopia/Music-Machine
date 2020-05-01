@@ -704,8 +704,27 @@ void PatternChainHandler::editParam(int value)
             }
             case LeadTrack: // TODO: check included tracks here...
             {
-                value = putInRange(value, 16, 0);
-                bool success = currentLink->setLeadTrack(value);
+                bool done = false;
+                int sentry = 0;
+                do {
+                    value = putInRange(value, TRACKCOUNT, 1);
+                    if (currentLink->isTrackUsedInLink(value))
+                        if (currentLink->setLeadTrack(value))
+                            done = true;
+                        else {
+                            inout.ShowErrorOnLCD("PCH:eP LT fail", value);
+                            done = true;
+                        }
+                    else
+                    {
+                        value++;
+                        sentry++;
+                        if (sentry > TRACKCOUNT) {
+                            inout.ShowErrorOnLCD("PCH:eP LT epicfail", value);
+                            done = true;
+                        }
+                    }
+                } while (!done);
                 break;
             }
             case TimesToPlay:

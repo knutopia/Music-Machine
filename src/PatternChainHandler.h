@@ -73,6 +73,8 @@ class PatternChainHandler
     int currentEditParamIndex;
     bool m_b_reset_encoder_reference;
     int m_edit_state = ParamChoice;
+    int m_button_pressed_num;
+    unsigned long m_button_press_time;
 
     const char *EditOptionNames[PatternChainEditOptionsCount] = {
                           "Chain: ", "Link: ", 

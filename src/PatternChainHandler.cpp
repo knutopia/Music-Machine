@@ -14,7 +14,15 @@ speedFactorFunc PatternChainHandler::updateSpeedMultiplierCb;
 
 PatternChainHandler::PatternChainHandler()
 {
-    
+    currentChain = NULL;
+    currentChainIndex = 0;
+    currentLink = NULL;
+    currentLinkIndex = 0;
+    currentChainPlayCount = 0;
+    currentLeadTrack = 1;
+    m_b_reset_encoder_reference = true;
+    m_button_pressed_num = 0;
+    m_button_press_time = 0;    
 }
 
 PatternChainHandler::~PatternChainHandler()
@@ -41,15 +49,7 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
         chains[f].timesToPlay = 0;
         // leaving chains[f].links uninitialized
     }
-    currentChain = NULL;
-    currentChainIndex = 0;
-    currentLink = NULL;
-    currentLinkIndex = 0;
-    currentChainPlayCount = 0;
-    currentLeadTrack = 1;
-    m_b_reset_encoder_reference = true;
-
-
+    
     // set up test chain content
 
     PatternChainLink* newLink = appendLink();
@@ -680,8 +680,24 @@ void PatternChainHandler::handleEncoder(int encoder, int value)
 //handle trellis buttons to choose chain or link
 void PatternChainHandler::handleButton(int butNum)
 {
-
-};
+    // TODO: also do trellis button shortcuts here
+    // TODO: also do trellis button timing & release as save shortcut
+    // TODO: also do encoder button
+    switch (butNum) {
+      case EncoderA:
+        if (m_edit_state == ParamChoice) 
+          m_edit_state = ParamEdit;
+        else {
+          m_edit_state = ParamChoice;
+          m_b_reset_encoder_reference = true;
+        }
+        break;
+      default:  
+        m_button_pressed_num = butNum;
+        m_button_press_time = millis();
+        break;
+    }
+}
 
 //utility for encoder values, copied from SynthEngine
 int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)

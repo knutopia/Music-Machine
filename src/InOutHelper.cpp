@@ -1435,6 +1435,13 @@ void InOutHelper::handleEncoderButtons()
         if (EncButD.update() && EncButD.fell()) EncD.write(0);  // two for synth edit
         break;
 
+      case chain_edit:
+        if (EncButA.update() && EncButA.fell()) {
+          EncA.write(0);
+          if (StepButtonCb) StepButtonCb(EncoderA);          
+        }
+        break;
+
       case pattern_select:
       case pattern_save:
       case track_select:

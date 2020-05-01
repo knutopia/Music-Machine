@@ -102,7 +102,7 @@ bool PatternChainLink::setPathOverride(int path)
         link.pathOverride = path;
         success = true;
     } else
-        inout.ShowErrorOnLCD("PCL:sPO inval path", path);
+        inout.ShowErrorOnLCD("PCL:sPO inval p", path);
 
     return success;    
 }

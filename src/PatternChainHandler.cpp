@@ -662,6 +662,11 @@ int PatternChainHandler::captureEditParamStartVal()
         
         case PathOverride:
             retVal = currentLink->getPathOverride();
+            if (retVal == OVERRIDEINACTIVE)
+                retVal = 16;
+            Serial.print(" getPathOverride ");
+            Serial.print(retVal);
+            Serial.print(" ");
             break;
         
         default:
@@ -726,8 +731,13 @@ void PatternChainHandler::editParam(int value)
                 break;
             }
             case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
-            {   value = putInRange(value, 17, -1);
-                currentLink->setPathOverride(value);
+            {   
+                value = putInRange(value, 17, 0);
+                if (value <16)
+                    currentLink->setPathOverride(value);
+                else
+                    currentLink->setPathOverride(OVERRIDEINACTIVE);
+                    
                 break;
             }
             default:

@@ -54,6 +54,7 @@ class PatternChainHandler
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
     void showEditParam();
+    int captureEditParamStartVal();
     void editParam(int value);
 
 
@@ -71,6 +72,8 @@ class PatternChainHandler
     int putInRange(int iVar, int iRange, int iMin);
 
     int currentEditParamIndex;
+    int editParamStartVal;
+    byte b_currentEditParStart;
     bool m_b_reset_encoder_reference;
     int m_edit_state = ParamChoice;
     int m_button_pressed_num;

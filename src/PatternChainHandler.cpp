@@ -590,53 +590,109 @@ LinkContent, LeadTrack, TimesToPlay, SpeedFactor, LengthOverride, PathOverride
 */
 }
 
-void PatternChainHandler::editParam(int value)
+int PatternChainHandler::captureEditParamStartVal()
 {
+        int retVal = 0;
+        
         switch (currentEditParamIndex)
         {
         case CurrentChain:
-            value = putInRange(value, MAXCHAINCOUNT - 1 , 0);
-            setCurrentChain(value);
+            retVal = currentChainIndex;
             break;
         
         case CurrentLink:
-            value = putInRange(value, currentChain->numberOfLinks - 1 , 0);
-            setCurrentLink(value);
+            retVal = currentLinkIndex;
             break;
         
         case ChainTimesToPlay:
-            value = putInRange(value, 15, 0);
-            setTimesToPlay(value);
+            retVal = chains[currentChainIndex].timesToPlay;
             break;
-                
-        case LeadTrack: // TODO: check included tracks here...
-            value = putInRange(value, 15, 0);
-            currentLink->setLeadTrack(value);
+        
+        case LeadTrack:
+            retVal = currentLink->getLeadTrack();
             break;
         
         case TimesToPlay:
-            value = putInRange(value, 15, 0);
-            currentLink->setTimesToPlay(value);
+            retVal = currentLink->getTimesToPlay();
             break;
         
         case SpeedFactor:
-            value = putInRange(value, speedFactor::MAX, 0);
-            currentLink->setSpeedMult(value);
+            retVal = currentLink->getSpeedMult();
             break;
         
         case LengthOverride:
-            value = putInRange(value, 15, 0);
-            currentLink->setLengthOverride(value);
+            retVal = currentLink->getLengthOverride();
             break;
         
         case PathOverride:
-            value = putInRange(value, 15, 0);
-            currentLink->setPathOverride(value);
+            retVal = currentLink->getPathOverride();
             break;
         
         default:
             break;
         }
+        return retVal;
+}
+
+void PatternChainHandler::editParam(int value)
+{
+        switch (currentEditParamIndex)
+        {
+        case CurrentChain:
+            value = putInRange(value, MAXCHAINCOUNT, 0);
+            setCurrentChain(value);
+            Serial.print("#1");
+            break;
+        
+        case CurrentLink:
+            value = putInRange(value, currentChain->numberOfLinks, 0);
+            setCurrentLink(value);
+            Serial.print("#2");
+            break;
+        
+        case ChainTimesToPlay:
+            value = putInRange(value, 16, 1);
+            setTimesToPlay(value);
+            Serial.print("#3");
+            break;
+                
+        case LeadTrack: // TODO: check included tracks here...
+            value = putInRange(value, 16, 0);
+            bool success = currentLink->setLeadTrack(value);
+            Serial.print("#4");
+            break;
+        
+        case TimesToPlay:
+            value = putInRange(value, 16, 1);
+            currentLink->setTimesToPlay(value);
+            Serial.print("#5");
+            break;
+        
+        case SpeedFactor:
+            value = putInRange(value, (int)(speedFactor::MAX )+ 1, 0);
+            currentLink->setSpeedMult(value);
+            Serial.print("#6");
+            break;
+        
+        case LengthOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            value = putInRange(value, 16, 1);
+            currentLink->setLengthOverride(value);
+            Serial.print("#7");
+            break;
+        
+        case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            value = putInRange(value, 16, 0);
+            currentLink->setPathOverride(value);
+            Serial.print("#8");
+            break;
+        
+        default:
+            Serial.print("#DEFAULT with ");
+            Serial.print(currentEditParamIndex);
+            break;
+        }
+        Serial.print("  v in range:");
+        Serial.println(value);
 }
 
 void PatternChainHandler::handleSelectButton()
@@ -655,7 +711,7 @@ void PatternChainHandler::handleEncoder(int encoder, int value)
 
         if(encoder == EncoderA) {
             static int referenceParamIndex;
-    
+            
             if (m_b_reset_encoder_reference) {
                 m_b_reset_encoder_reference = false;
                 referenceParamIndex = currentEditParamIndex;
@@ -668,7 +724,11 @@ void PatternChainHandler::handleEncoder(int encoder, int value)
                         showEditParam();
                         break;
                 case ParamEdit:
-                        editParam(value);
+                        editParam(value + editParamStartVal);
+                        Serial.print(value);
+                        Serial.print(" ");
+                        Serial.println(editParamStartVal);
+                        
                         showEditParam();
                         break;
                 default:
@@ -685,11 +745,12 @@ void PatternChainHandler::handleButton(int butNum)
     // TODO: also do encoder button
     switch (butNum) {
       case EncoderA:
-        if (m_edit_state == ParamChoice) 
+        if (m_edit_state == ParamChoice) {
           m_edit_state = ParamEdit;
-        else {
+          editParamStartVal = captureEditParamStartVal();
+        } else {
           m_edit_state = ParamChoice;
-          m_b_reset_encoder_reference = true;
+          m_b_reset_encoder_reference = true; // ?????? TODO???
         }
         break;
       default:  
@@ -699,10 +760,21 @@ void PatternChainHandler::handleButton(int butNum)
     }
 }
 
-//utility for encoder values, copied from SynthEngine
+//utility for encoder values, copied from SynthEngine, plus inclusion of iMin
 int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)
 {
-    while(iVar < 0) iVar += (iRange);
-    int retval = iVar % iRange;
+    int retval;
+
+    if (iVar < iMin)
+        while(iVar < 0) iVar += (iRange);
+    retval = iVar % iRange;
+    if (retval < iMin)
+        retval += (iRange);
+
+    Serial.print("putInRange ");
+    Serial.print(iVar);
+    Serial.print(" ");
+    Serial.println(retval);
+
     return retval;
 }

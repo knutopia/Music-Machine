@@ -55,7 +55,7 @@ class PatternChainLink
 
     // getters
     byte getCurrentPlayCount();
-    byte getTimesToPlay();
+    int getTimesToPlay();
     byte getLeadTrack();
     speedFactor getSpeedMult();
     byte getLengthOverride();
@@ -65,7 +65,7 @@ class PatternChainLink
     bool setLengthOverride(byte length);
     bool setPathOverride(int path);
     bool setLeadTrack(byte trackNum);
-    void setTimesToPlay(byte times); 
+    void setTimesToPlay(int times); 
     void setSpeedMult(speedFactor times);
     void setSpeedMult(int times);
     void setNextLinkIndex(byte linkNum);

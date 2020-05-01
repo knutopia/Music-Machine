@@ -43,7 +43,7 @@ byte PatternChainLink::getCurrentPlayCount()
     return currentPlayCount;
 }
 
-byte PatternChainLink::getTimesToPlay()
+int PatternChainLink::getTimesToPlay()
 {
     return link.timesToPlay;
 }
@@ -98,7 +98,7 @@ bool PatternChainLink::setPathOverride(int path)
     return success;    
 }
 
-void PatternChainLink::setTimesToPlay(byte times)
+void PatternChainLink::setTimesToPlay(int times)
 {
     link.timesToPlay = times;
 }

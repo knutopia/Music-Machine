@@ -2030,6 +2030,17 @@ void InOutHelper::ShowErrorOnLCD(const char error[], byte value)
 }
 
 
+void InOutHelper::ShowErrorOnLCD(const char error[], int value)
+{
+    char buffer [21];
+
+    int foo = snprintf(buffer, 21, "%s %d              ", error, value);
+
+    lcd.setCursor(0, 0);
+    lcd.print(buffer);
+}
+
+
 void InOutHelper::ShowErrorOnLCD(const char error[], const char context[])
 {
     lcd.setCursor(0, 0);

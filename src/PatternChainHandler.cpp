@@ -521,50 +521,64 @@ void PatternChainHandler::showEditParam()
 
         switch (currentEditParamIndex)
         {
-        case CurrentChain:
-            i_param_val = currentChainIndex;
-            break;
-        
-        case CurrentLink:
-            i_param_val = currentLinkIndex;
-            break;
-        
-        case ChainTimesToPlay:
-            i_param_val = chains[currentChainIndex].timesToPlay;
-            break;
-        
-        case ChainContent:
-            i_param_val = USECHARPARAM;
-            s_param_val = "(...)";
-            break;
-        
-        case LinkContent:
-            i_param_val = USECHARPARAM;
-            s_param_val = "(...)";
-            break;
-        
-        case LeadTrack:
-            i_param_val = currentLink->getLeadTrack();
-            break;
-        
-        case TimesToPlay:
-            i_param_val = currentLink->getTimesToPlay();
-            break;
-        
-        case SpeedFactor:
-            i_param_val = currentLink->getSpeedMult();
-            break;
-        
-        case LengthOverride:
-            i_param_val = currentLink->getLengthOverride();
-            break;
-        
-        case PathOverride:
-            i_param_val = currentLink->getPathOverride();
-            break;
-        
-        default:
-            break;
+            case CurrentChain:
+            {
+                i_param_val = currentChainIndex;
+                break;
+            }
+            case CurrentLink:
+            {
+
+                i_param_val = currentLinkIndex;
+                break;
+            }
+            case ChainTimesToPlay:
+            {
+                i_param_val = chains[currentChainIndex].timesToPlay;
+                break;
+            }
+            case ChainContent:
+            {
+                i_param_val = USECHARPARAM;
+                s_param_val = "(...)";
+                break;
+            }
+            case LinkContent:
+            {
+                i_param_val = USECHARPARAM;
+                s_param_val = "(...)";
+                break;
+            }
+            case LeadTrack:
+            {
+                i_param_val = currentLink->getLeadTrack();
+                break;
+            }
+            case TimesToPlay:
+            {
+                i_param_val = currentLink->getTimesToPlay();
+                break;
+            }
+            case SpeedFactor:
+            {
+                i_param_val = currentLink->getSpeedMult();
+                break;
+            }
+            case LengthOverride:
+            {
+                i_param_val = currentLink->getLengthOverride();
+                break;
+            }
+            case PathOverride:
+            {
+                i_param_val = currentLink->getPathOverride();
+                break;
+            }
+            default:
+            {
+                inout.ShowErrorOnLCD("PCH:sEP Default ", currentEditParamIndex);
+                break;                
+            }
         }
 
         if(i_param_val == UNUSED)
@@ -636,63 +650,68 @@ int PatternChainHandler::captureEditParamStartVal()
 
 void PatternChainHandler::editParam(int value)
 {
+#ifdef DEBUG
+        Serial.print("#editParam currentEditParamIndex ");
+        Serial.print(currentEditParamIndex);
+#endif
+
         switch (currentEditParamIndex)
         {
-        case CurrentChain:
-            value = putInRange(value, MAXCHAINCOUNT, 0);
-            setCurrentChain(value);
-            Serial.print("#1");
-            break;
-        
-        case CurrentLink:
-            value = putInRange(value, currentChain->numberOfLinks, 0);
-            setCurrentLink(value);
-            Serial.print("#2");
-            break;
-        
-        case ChainTimesToPlay:
-            value = putInRange(value, 16, 1);
-            setTimesToPlay(value);
-            Serial.print("#3");
-            break;
-                
-        case LeadTrack: // TODO: check included tracks here...
-            value = putInRange(value, 16, 0);
-            bool success = currentLink->setLeadTrack(value);
-            Serial.print("#4");
-            break;
-        
-        case TimesToPlay:
-            value = putInRange(value, 16, 1);
-            currentLink->setTimesToPlay(value);
-            Serial.print("#5");
-            break;
-        
-        case SpeedFactor:
-            value = putInRange(value, (int)(speedFactor::MAX )+ 1, 0);
-            currentLink->setSpeedMult(value);
-            Serial.print("#6");
-            break;
-        
-        case LengthOverride: // TODO: this needs to be range 17, to capture "Undefined"
-            value = putInRange(value, 16, 1);
-            currentLink->setLengthOverride(value);
-            Serial.print("#7");
-            break;
-        
-        case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
-            value = putInRange(value, 16, 0);
-            currentLink->setPathOverride(value);
-            Serial.print("#8");
-            break;
-        
-        default:
-            Serial.print("#DEFAULT with ");
-            Serial.print(currentEditParamIndex);
-            break;
+            case CurrentChain:
+            {
+                value = putInRange(value, MAXCHAINCOUNT, 0);
+                setCurrentChain(value);
+                break;
+            }
+            case CurrentLink:
+            {
+                value = putInRange(value, currentChain->numberOfLinks, 0);
+                setCurrentLink(value);
+                break;
+            }
+            case ChainTimesToPlay:
+            {
+                value = putInRange(value, 16, 1);
+                setTimesToPlay(value);
+                break;
+            }
+            case LeadTrack: // TODO: check included tracks here...
+            {
+                value = putInRange(value, 16, 0);
+                bool success = currentLink->setLeadTrack(value);
+                break;
+            }
+            case TimesToPlay:
+            {
+                value = putInRange(value, 16, 1);
+                currentLink->setTimesToPlay(value);
+                break;
+            }
+            case SpeedFactor:
+            {
+                value = putInRange(value, (int)(speedFactor::MAX )+ 1, 0);
+                currentLink->setSpeedMult(value);
+                break;
+            }
+            case LengthOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            {
+                value = putInRange(value, 16, 1);
+                currentLink->setLengthOverride(value);
+                Serial.print("#7");
+                break;
+            }
+            case PathOverride: // TODO: this needs to be range 17, to capture "Undefined"
+            {   value = putInRange(value, 16, 0);
+                currentLink->setPathOverride(value);
+                Serial.print("#8");
+                break;
+            }
+            default:
+            {
+                inout.ShowErrorOnLCD("PCH:eP Default ", value);
+                break;                
+            }
         }
-        Serial.print("  v in range:");
-        Serial.println(value);
 }
 
 void PatternChainHandler::handleSelectButton()

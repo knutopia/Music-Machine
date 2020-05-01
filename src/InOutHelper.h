@@ -72,6 +72,7 @@ class InOutHelper
     void ShowActionOnLCD(const char label[]);
     void ShowErrorOnLCD(const char error[]);
     void ShowErrorOnLCD(const char error[], byte value);
+    void ShowErrorOnLCD(const char error[], int value);
     void ShowErrorOnLCD(const char error[], const char context[]);
     void ShowPatternNumberOnLCD(int seqNum);
     void ShowTrackNumberOnLCD(byte trackNum);

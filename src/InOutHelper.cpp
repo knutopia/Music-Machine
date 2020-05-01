@@ -227,6 +227,7 @@ void InOutHelper::setupNewMode() {
         StartStopButtonCb = startStopCb; // use a separate one for chain play ?
         initTrackEncoder = true;
         SetupChainEditModeTrellis();
+        patternChain.prepPatternChainForEdit();
         break;  
 
       case step_mute: 
@@ -583,9 +584,32 @@ void InOutHelper::HandleSynthEncoders() {
 
 
 void InOutHelper::HandleChainEncoders() {
+    long newPosition;
+    static long oldPositionA  = 0;    
+    static int valueA = 0;
+    static int prevValueA = 0;
 
-//  copy this from HandleSynthEncoders()
-//  patternChain.handleEncoder(###, ###);
+    // use selectionChanged to track parameter choice
+    if (selectionChanged) {
+      selectionChanged = false;      
+      EncA.write(0);
+      oldPositionA = 0;
+      valueA = 0;
+      prevValueA = 0;      
+    }
+
+    newPosition = EncA.read();
+
+    if (newPosition != oldPositionA)
+    {
+      valueA = newPosition / 4;
+      if (valueA != prevValueA)
+      {
+        patternChain.handleEncoder(EncoderA, valueA);
+        prevValueA = valueA;
+      }
+      oldPositionA = newPosition;
+    }
 }
 
 void InOutHelper::HandleTranspositionEncoderA() {
@@ -2111,7 +2135,7 @@ void InOutHelper::ShowValueInfoOnLCD(const char label[], float value)
 */
 }
 
-void InOutHelper::ShowSynParOnLCD(const char label[], int value)
+void InOutHelper::ShowParamOnLCD(const char label[], int value)
 {
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
@@ -2121,7 +2145,7 @@ void InOutHelper::ShowSynParOnLCD(const char label[], int value)
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
 }
 
-void InOutHelper::ShowSynParOnLCD(const char label[], float value)
+void InOutHelper::ShowParamOnLCD(const char label[], float value)
 {
     ClearInfoOnLCD();
     lcd.setCursor(0, 2);
@@ -2129,6 +2153,24 @@ void InOutHelper::ShowSynParOnLCD(const char label[], float value)
     lcd.setCursor(strlen(label), 2);
     lcd.print(value);
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
+}
+
+void InOutHelper::ShowParamOnLCD(const char label[], const char value[])
+{
+    ClearInfoOnLCD();
+    lcd.setCursor(0, 2);
+    lcd.print(label);
+    lcd.setCursor(strlen(label), 2);
+    lcd.print(value);
+    ValueOrButtonOnLCDLength = constrain(strlen(label) + strlen(value), 0, 20);
+}
+
+void InOutHelper::ShowActionOnLCD(const char label[])
+{
+    ClearInfoOnLCD();
+    lcd.setCursor(0, 2);
+    lcd.print(label);
+    ValueOrButtonOnLCDLength = constrain(strlen(label), 0, 20);
 }
 
 void InOutHelper::ClearInfoOnLCD()

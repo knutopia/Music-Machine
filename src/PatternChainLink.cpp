@@ -48,6 +48,26 @@ byte PatternChainLink::getTimesToPlay()
     return link.timesToPlay;
 }
 
+byte PatternChainLink::getLeadTrack()
+{
+    return link.leadTrack;
+}
+
+speedFactor PatternChainLink::getSpeedMult()
+{
+    return link.speedMult;
+}
+
+byte PatternChainLink::getLengthOverride()
+{
+    return link.lengthOverride;
+}
+
+byte PatternChainLink::getPathOverride()
+{
+    return link.pathOverride;
+}
+
 // setters
 
 bool PatternChainLink::setLengthOverride(byte length)
@@ -81,7 +101,42 @@ bool PatternChainLink::setPathOverride(int path)
 void PatternChainLink::setTimesToPlay(byte times)
 {
     link.timesToPlay = times;
-};
+}
+
+void PatternChainLink::setSpeedMult(speedFactor times)
+{
+    link.speedMult = times;
+}
+
+void PatternChainLink::setSpeedMult(int times)
+{
+    switch (times)
+    {
+    case UNDEFINED:
+        link.speedMult = UNDEFINED;
+        break;
+    
+    case NORMAL:
+        link.speedMult = NORMAL;
+        break;
+    
+    case DOUBLE:
+        link.speedMult = DOUBLE;
+        break;
+    
+    case TRIPLE:
+        link.speedMult = TRIPLE;
+        break;
+    
+    case QUAD:
+        link.speedMult = QUAD;
+        break;
+    
+    default:
+        inout.ShowErrorOnLCD("PCL:sSM inval arg", times);
+        break;
+    }
+}
 
 bool PatternChainLink::setLeadTrack(byte trackNum)
 {
@@ -94,23 +149,23 @@ bool PatternChainLink::setLeadTrack(byte trackNum)
         link.leadTrack = trackNum;
     }
     return success;
-};
+}
 
 void PatternChainLink::setNextLinkIndex(byte linkNum)
 {
     link.nextLinkIndex = linkNum;
-};
+}
 
 void PatternChainLink::resetPlayCount()
 {
     currentPlayCount = 0;
-};
+}
 
 // getters
 byte PatternChainLink::getNextLinkIndex()
 {
     return link.nextLinkIndex;
-};
+}
 
 // to use during play
 bool PatternChainLink::timeForNextLinkIndex()
@@ -131,12 +186,12 @@ bool PatternChainLink::timeForNextLinkIndex()
         Serial.println(link.timesToPlay);
     }
     return retVal;
-};
+}
 
 void PatternChainLink::incrementLinkPlayCount()
 {
     currentPlayCount++;
-};
+}
 
 void PatternChainLink::primeLinktoPlay()
 {
@@ -241,17 +296,4 @@ void PatternChainLink::primeLinktoPlay()
     Serial.println(" primeLinktoPlay done");
     Serial.println("");
 
-};
-
-void PatternChainLink::prepChainLinkForEdit()
-{
-#ifdef DEBUG
-        Serial.println("prepChainLinkForEdit");
-#endif
-/*
-        retrievePatch(m_current_patch);
-        activatePatch(m_current_patch);                       // copy patch into edit patch
-*/
-        inout.ShowValueInfoOnLCD("Chain:", 1);
-
-};
+}

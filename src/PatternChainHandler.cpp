@@ -3,6 +3,8 @@
 #include "StepSequencer.h"
 #include "SDjson.h"
 
+#define DEBUG true
+
 extern InOutHelper inout;
 extern SDjsonHandler jsonHandler;
 
@@ -45,6 +47,8 @@ void PatternChainHandler::begin(simpleFunc stopCbPointer,
     currentLinkIndex = 0;
     currentChainPlayCount = 0;
     currentLeadTrack = 1;
+    m_b_reset_encoder_reference = true;
+
 
     // set up test chain content
 
@@ -124,6 +128,28 @@ bool PatternChainHandler::setCurrentChain(byte index)
         inout.ShowErrorOnLCD("PCH:sCC:curCh NULL");
         return false;
     }
+    return true;
+}
+
+bool PatternChainHandler::setCurrentLink(byte index)
+{
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sCL:curCh NULL");
+        return false;
+    }
+
+    if (index > currentChain->numberOfLinks - 1)
+        index = 0;
+
+    currentLink = currentChain->links[index];
+    if (currentLink == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sCL:curLi NULL");
+        return false;
+    }    
+
+    currentLinkIndex = index;
     return true;
 }
 
@@ -480,17 +506,175 @@ void PatternChainHandler::prepPatternChainForEdit()
                             currentLink->getCurrentPlayCount(), 
                             currentLink->getTimesToPlay());
 */
-        currentLink->prepChainLinkForEdit();
+        currentEditParamIndex = 0;
+        m_b_reset_encoder_reference = true;
+//      inout.ShowValueInfoOnLCD("Chain:", 1);
+        showEditParam();
+}
+
+void PatternChainHandler::showEditParam()
+{
+        int i_param_val = UNUSED;
+        char* s_param_val = "                    ";
+
+        const char* param_name = EditOptionNames[currentEditParamIndex];
+
+        switch (currentEditParamIndex)
+        {
+        case CurrentChain:
+            i_param_val = currentChainIndex;
+            break;
+        
+        case CurrentLink:
+            i_param_val = currentLinkIndex;
+            break;
+        
+        case ChainTimesToPlay:
+            i_param_val = chains[currentChainIndex].timesToPlay;
+            break;
+        
+        case ChainContent:
+            i_param_val = USECHARPARAM;
+            s_param_val = "(...)";
+            break;
+        
+        case LinkContent:
+            i_param_val = USECHARPARAM;
+            s_param_val = "(...)";
+            break;
+        
+        case LeadTrack:
+            i_param_val = currentLink->getLeadTrack();
+            break;
+        
+        case TimesToPlay:
+            i_param_val = currentLink->getTimesToPlay();
+            break;
+        
+        case SpeedFactor:
+            i_param_val = currentLink->getSpeedMult();
+            break;
+        
+        case LengthOverride:
+            i_param_val = currentLink->getLengthOverride();
+            break;
+        
+        case PathOverride:
+            i_param_val = currentLink->getPathOverride();
+            break;
+        
+        default:
+            break;
+        }
+
+        if(i_param_val == UNUSED)
+            inout.ShowActionOnLCD(param_name);
+        else
+            if(i_param_val == USECHARPARAM)
+                inout.ShowParamOnLCD(param_name, s_param_val);
+            else
+                inout.ShowParamOnLCD(param_name, i_param_val);
+
+#ifdef DEBUG
+        Serial.print(param_name);
+        Serial.println(i_param_val);
+#endif
+
+/*
+CurrentChain, CurrentLink, ChainTimesToPlay, ChainContent
+ PreviousChain, NextChain, OverrideThisLink, InsertAfterCurrent
+ AppendtoChain, StartNewChain, DeleteThisLink, DuplicateLink
+ CopyLink, PasteLink
+LinkContent, LeadTrack, TimesToPlay, SpeedFactor, LengthOverride, PathOverride
+ PreviousLink, NextLink
+*/
+}
+
+void PatternChainHandler::editParam(int value)
+{
+        switch (currentEditParamIndex)
+        {
+        case CurrentChain:
+            value = putInRange(value, MAXCHAINCOUNT - 1 , 0);
+            setCurrentChain(value);
+            break;
+        
+        case CurrentLink:
+            value = putInRange(value, currentChain->numberOfLinks - 1 , 0);
+            setCurrentLink(value);
+            break;
+        
+        case ChainTimesToPlay:
+            value = putInRange(value, 15, 0);
+            setTimesToPlay(value);
+            break;
+                
+        case LeadTrack: // TODO: check included tracks here...
+            value = putInRange(value, 15, 0);
+            currentLink->setLeadTrack(value);
+            break;
+        
+        case TimesToPlay:
+            value = putInRange(value, 15, 0);
+            currentLink->setTimesToPlay(value);
+            break;
+        
+        case SpeedFactor:
+            value = putInRange(value, speedFactor::MAX, 0);
+            currentLink->setSpeedMult(value);
+            break;
+        
+        case LengthOverride:
+            value = putInRange(value, 15, 0);
+            currentLink->setLengthOverride(value);
+            break;
+        
+        case PathOverride:
+            value = putInRange(value, 15, 0);
+            currentLink->setPathOverride(value);
+            break;
+        
+        default:
+            break;
+        }
 }
 
 void PatternChainHandler::handleSelectButton()
 {
+#ifdef DEBUG
+        Serial.println("PCH:handleSelectButton");
+#endif
 
 }
 
 void PatternChainHandler::handleEncoder(int encoder, int value)
 {
+#ifdef DEBUG
+        Serial.println("PCH:handleEncoder");
+#endif
 
+        if(encoder == EncoderA) {
+            static int referenceParamIndex;
+    
+            if (m_b_reset_encoder_reference) {
+                m_b_reset_encoder_reference = false;
+                referenceParamIndex = currentEditParamIndex;
+            }
+
+            switch (m_edit_state) {
+                case ParamChoice:
+                        // cycle through values
+                        currentEditParamIndex = putInRange(value, PatternChainEditOptionsCount, 0);
+                        showEditParam();
+                        break;
+                case ParamEdit:
+                        editParam(value);
+                        showEditParam();
+                        break;
+                default:
+                        break;
+            }
+        }
 }
 
 //handle trellis buttons to choose chain or link
@@ -498,3 +682,11 @@ void PatternChainHandler::handleButton(int butNum)
 {
 
 };
+
+//utility for encoder values, copied from SynthEngine
+int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)
+{
+    while(iVar < 0) iVar += (iRange);
+    int retval = iVar % iRange;
+    return retval;
+}

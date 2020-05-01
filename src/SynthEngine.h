@@ -77,7 +77,7 @@ class SynthEngine
       int m_edit_state = PatchChoice;
   
       int m_current_patch;
-      bool m_b_reset_selector_reference;
+      bool m_b_reset_encoder_reference;
       int m_current_param;
       int m_previous_encB_value;
       int m_reference_Iparval;

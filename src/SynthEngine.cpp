@@ -80,7 +80,7 @@ SynthEngine::SynthEngine()
   m_Midi_NoteforOff = 255;
   m_current_patch = 1;
   m_queue_new_patch = -1;
-  m_b_reset_selector_reference = true;
+  m_b_reset_encoder_reference = true;
   m_current_param = 0;
   m_previous_encB_value = 0;
   m_reference_Iparval = 0;
@@ -315,7 +315,7 @@ void SynthEngine::prepPatchIfNeeded()
     if (m_queue_new_patch >= 0 ) {
       m_current_patch = m_queue_new_patch;
       m_queue_new_patch  = -1;
-      m_b_reset_selector_reference = true;
+      m_b_reset_encoder_reference = true;
       prepSynPatchForEdit();
     } 
 }
@@ -348,7 +348,7 @@ void SynthEngine::handleButton(int butNum)
         else {
           m_edit_state = PatchChoice;
           prepSynPatchForEdit();
-          m_b_reset_selector_reference = true;
+          m_b_reset_encoder_reference = true;
         }
         break;
       case EncoderB:
@@ -382,8 +382,8 @@ void SynthEngine::handleEncoderA(int value)
     static int reference_patch;
     static int reference_param;
     
-    if (m_b_reset_selector_reference) {
-      m_b_reset_selector_reference = false;
+    if (m_b_reset_encoder_reference) {
+      m_b_reset_encoder_reference = false;
       reference_patch = m_current_patch;
       reference_param = m_current_param;
     }
@@ -432,7 +432,7 @@ void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
       m_reference_Iparval = current_parval - m_previous_encB_value;
       m_reference_Iparval = putInFullRangeI(m_reference_Iparval, val_delta, min_val, 1); //#####
 
-      inout.ShowSynParOnLCD(param_name, (int)patch.get(param));
+      inout.ShowParamOnLCD(param_name, (int)patch.get(param));
       
     } else {
       //float current_parval = patch.get(param);
@@ -444,7 +444,7 @@ void SynthEngine::prepSynParEdit(SynthPatch patch, int param)
       m_reference_Fparval = patch.get(param);
 //    m_reference_Fparval = putInFullRangeF(m_reference_Fparval, val_delta, min_val, .1); //#####
 
-      inout.ShowSynParOnLCD(param_name, patch.get(param));
+      inout.ShowParamOnLCD(param_name, patch.get(param));
     }
 }
 
@@ -467,7 +467,7 @@ void SynthEngine::handleEncoderB(int value)
           current_parval = putInFullRangeI(m_reference_Iparval + value, val_delta, min_val, 1); //#####
           m_edit_patch.setI(m_current_param, current_parval);
           const char* param_name = m_edit_patch.paramNames[m_current_param];
-          inout.ShowSynParOnLCD(param_name, m_edit_patch.getI(m_current_param));
+          inout.ShowParamOnLCD(param_name, m_edit_patch.getI(m_current_param));
 
         } else {
           float current_parval = m_edit_patch.get(m_current_param);
@@ -485,7 +485,7 @@ void SynthEngine::handleEncoderB(int value)
           } 
           m_edit_patch.set(m_current_param, current_parval);
           const char* param_name = m_edit_patch.paramNames[m_current_param];
-          inout.ShowSynParOnLCD(param_name, m_edit_patch.get(m_current_param));  
+          inout.ShowParamOnLCD(param_name, m_edit_patch.get(m_current_param));  
         }
         updateAudioEngine();
       }

@@ -31,6 +31,7 @@ class PatternChainHandler
     
     // setters
     bool setCurrentChain(byte index);
+    bool setCurrentLink(byte index);
     bool setNextChain(byte chainIndex, byte nextIndex);
     void setTimesToPlay(byte times);
 
@@ -47,11 +48,14 @@ class PatternChainHandler
     void updateChainAndLinkDisplay();
     void reset();
 
-    // Input processing
+    // Input processing / editing
     void prepPatternChainForEdit();
     void handleSelectButton();
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
+    void showEditParam();
+    void editParam(int value);
+
 
     // class data
     static byte currentLeadTrack;
@@ -64,6 +68,24 @@ class PatternChainHandler
   private:
 
     simpleFunc stopPlaybackCb;
+    int putInRange(int iVar, int iRange, int iMin);
+
+    int currentEditParamIndex;
+    bool m_b_reset_encoder_reference;
+    int m_edit_state = ParamChoice;
+
+    const char *EditOptionNames[PatternChainEditOptionsCount] = {
+                          "Chain: ", "Link: ", 
+                          "Ch Plays: ", "Chain Content:", 
+                          "[Previous Chain]", "[Next Chain]",
+                          "[Override Link]", "[Insert After]",
+                          "[Append to Chain]", "[Start New Chain]", 
+                          "[Delete This Link]", "[Duplicate Link]", 
+                          "[Copy Link]", "[Paste Link]", 
+                          "Link Content:", "Lead Track:",
+                          "Times to Play:", "Speed Factor:",
+                          "Length Override:", "Path Override:",
+                          "[Previous Link]", "[Next Link]"};       
 
     bool timeForNextChain(); // utility
 

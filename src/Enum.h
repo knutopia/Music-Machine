@@ -48,7 +48,7 @@ enum {BUTTONHOLDTIME = 1000};
 
 enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET, SAVETOSD};
 
-enum speedFactor {UNDEFINED = 0, NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4};
+enum speedFactor {UNDEFINED = 0, NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4, MAX = 4};
 
 enum stepProbability {LOWPROB = 0, MEDPROB = 1, HIGHPROB = 2, FULLPROB = 3};
 
@@ -76,7 +76,7 @@ enum synParNames {VCO1waveform, VCO1pulsewidth,
                   VCAEnvAttack, VCAEnvHold, VCAEnvDecay,
                   VCAEnvSustain, VCAEnvRelease}; //add some sort of filter output choice for delay filter
                   
-enum synEditStates {PatchChoice, ParamEdit};
+enum auxEditStates {PatchChoice, ParamChoice, ParamEdit}; //synth editing, chain editing
 
 enum {lcdTimeoutDuration = 2000};
 
@@ -114,17 +114,20 @@ enum {MAXLINKSPERCHAIN = 4, MAXCHAINCOUNT = 4};
 
 enum playMode {PATTERNPLAY, CHAINPLAY};
 
-enum {linkEditOptionsCount = 21};
+enum {PatternChainEditOptionsCount = 22};
 
 enum linkEditOptions {CurrentChain = 0, CurrentLink = 1, 
-                      ChainTimesToPlay = 2, ChainContent = 3, NextChain = 4,
-                      OverrideThisLink = 5, InsertAfterCurrent = 6,
-                      AppendtoChain = 7, StartNewChain = 8, 
-                      DeleteThisLink = 9, DuplicateLink = 10, 
-                      CopyLink = 11, PasteLink = 12, 
-                      LinkContent = 13, LeadTrack = 14,
-                      TimesToPlay = 15, SpeedFactor = 16,
-                      LengthOverride = 17, PathOverride = 18,
-                      PreviousLink = 19, NextLink = 20};       
+                      ChainTimesToPlay = 2, ChainContent = 3, 
+                      PreviousChain = 4, NextChain = 5,
+                      OverrideThisLink = 6, InsertAfterCurrent = 7,
+                      AppendtoChain = 8, StartNewChain = 9, 
+                      DeleteThisLink = 10, DuplicateLink = 11, 
+                      CopyLink = 12, PasteLink = 13, 
+                      LinkContent = 14, LeadTrack = 15,
+                      TimesToPlay = 16, SpeedFactor = 17,
+                      LengthOverride = 18, PathOverride = 19,
+                      PreviousLink = 20, NextLink = 21};       
+
+enum paramUsed {UNUSED = -1, USECHARPARAM = -2};
 
 #endif

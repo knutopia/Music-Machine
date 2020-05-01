@@ -56,12 +56,18 @@ class PatternChainLink
     // getters
     byte getCurrentPlayCount();
     byte getTimesToPlay();
+    byte getLeadTrack();
+    speedFactor getSpeedMult();
+    byte getLengthOverride();
+    byte getPathOverride();
 
     // setters
     bool setLengthOverride(byte length);
     bool setPathOverride(int path);
     bool setLeadTrack(byte trackNum);
     void setTimesToPlay(byte times); 
+    void setSpeedMult(speedFactor times);
+    void setSpeedMult(int times);
     void setNextLinkIndex(byte linkNum);
     byte getNextLinkIndex();
     void resetPlayCount();
@@ -73,21 +79,6 @@ class PatternChainLink
 
     // public for serialization
     ChainLink link;
-
-    // to handle UI
-    void prepChainLinkForEdit();
-
-    const char *LinkEditOptionNames[linkEditOptionsCount] = {
-                          "Current Chain", "Current Link", 
-                          "Ch Times To Play", "Chain Content", "Next Chain",
-                          "Override This Link", "Insert After Current",
-                          "Append to Chain", "Start New Chain", 
-                          "Delete This Link", "Duplicate Link", 
-                          "Copy Link", "Paste Link", 
-                          "Link Content", "Lead Track",
-                          "Times to Play", "Speed Factor",
-                          "Length Override", "Path Override",
-                          "Previous Link", "Next Link"};       
 
   private:
 

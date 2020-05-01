@@ -66,8 +66,10 @@ class InOutHelper
     void ShowMemoryOnLCD(int mem);
     void SetLCDinfoTimeout();
     void SetLCDinfoLabelTimeout();
-    void ShowSynParOnLCD(const char label[], int value);
-    void ShowSynParOnLCD(const char label[], float value);
+    void ShowParamOnLCD(const char label[], int value);
+    void ShowParamOnLCD(const char label[], float value);
+    void ShowParamOnLCD(const char label[], const char value[]);
+    void ShowActionOnLCD(const char label[]);
     void ShowErrorOnLCD(const char error[]);
     void ShowErrorOnLCD(const char error[], byte value);
     void ShowErrorOnLCD(const char error[], const char context[]);

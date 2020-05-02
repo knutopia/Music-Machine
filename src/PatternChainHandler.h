@@ -48,14 +48,11 @@ class PatternChainHandler
     void updateChainAndLinkDisplay();
     void reset();
 
-    // Input processing / editing
+    // input processing / editing
     void prepPatternChainForEdit();
     void handleSelectButton();
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
-    void showEditParam();
-    int captureEditParamStartVal();
-    void editParam(int value);
 
 
     // class data
@@ -67,6 +64,17 @@ class PatternChainHandler
     Chain chains[MAXCHAINCOUNT];
 
   private:
+
+    // input processing / editing
+    void showEditParam();
+    int captureEditParamStartVal();
+    void editParam(int value);
+
+    bool setActionTarget(byte linkIndex);
+    bool actionTargetValid();
+    void resetActionTarget();
+    void savePatternsToLink(byte targetChainIndex, byte targetlinkIndex);
+
 
     simpleFunc stopPlaybackCb;
     int putInRange(int iVar, int iRange, int iMin);
@@ -83,9 +91,9 @@ class PatternChainHandler
                           "Chain:", "(Chain ", 
                           "Ch Plays: ", "Chain Content:", 
                           "[Previous Chain]", "[Next Chain]",
-                          "[Override Link]", "[Insert After]",
+                          "[SaveToLink:", "[Insert After]",
                           "[Append to Chain]", "[Start New Chain]", 
-                          "[Delete This Link]", "[Duplicate Link]", 
+                          "[Delete Link]", "[Duplicate Link]", 
                           "[Copy Link]", "[Paste Link]", 
                           "Link Content:", "Lead Track:",
                           "Link Plays:", "Speed*:",
@@ -100,6 +108,9 @@ class PatternChainHandler
     PatternChainLink* currentLink;
     byte currentLinkIndex;
     int currentChainPlayCount;
+    byte actionTargetChainIndex;
+    byte actionTargetLinkIndex;
+    bool b_actionTargetActive;
 };
 
 #endif

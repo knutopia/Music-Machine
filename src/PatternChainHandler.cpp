@@ -18,6 +18,9 @@ PatternChainHandler::PatternChainHandler()
     currentChainIndex = 0;
     currentLink = NULL;
     currentLinkIndex = 0;
+    actionTargetLinkIndex = 0;
+    actionTargetChainIndex = 0;
+    b_actionTargetActive = false;
     currentChainPlayCount = 0;
     currentLeadTrack = 1;
     m_b_reset_encoder_reference = true;
@@ -151,6 +154,76 @@ bool PatternChainHandler::setCurrentLink(byte index)
 
     currentLinkIndex = index;
     return true;
+}
+
+bool PatternChainHandler::setActionTarget(byte linkIndex)
+{
+    if (&chains[currentChainIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sATL:curCIx NULL");
+        return false;
+    }
+
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sATL:curCh NULL");
+        return false;
+    }
+
+    if (linkIndex > currentChain->numberOfLinks - 1)
+    {
+        inout.ShowErrorOnLCD("PCH:sATL:lI oor");
+        return false;
+    }    
+
+    if (currentChain->links[linkIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sATL:fLi NULL");
+        return false;
+    }    
+    actionTargetChainIndex = currentChainIndex;
+    actionTargetLinkIndex = linkIndex;
+    b_actionTargetActive = true;
+    return true;
+}
+
+void PatternChainHandler::resetActionTarget()
+{
+    b_actionTargetActive = false;
+}
+
+bool PatternChainHandler::actionTargetValid()
+{
+    if (!b_actionTargetActive)
+        return false;
+
+    if (&chains[currentChainIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aTV:curCIx NULL");
+        return false;
+    }
+
+    if (currentChain == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aTV:curCh NULL");
+        return false;
+    }
+
+    if (actionTargetChainIndex != currentChainIndex)
+        return false;
+
+    if (&currentChain->links[actionTargetLinkIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:aTV:atL NULL");
+        return false;
+    }    
+
+    return true;
+}
+
+void PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetLinkIndex)
+{
+
 }
 
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)
@@ -558,6 +631,22 @@ void PatternChainHandler::showEditParam()
                 s_param_val = "(...)";
                 break;
             }
+            case SaveToLink:
+            {
+                int foo;
+                i_param_use = USECOMPOSITE;
+
+                if(b_actionTargetActive)
+                    foo = actionTargetLinkIndex + 1;
+                else
+                    foo = currentLinkIndex + 1; // TODO: should b_actionTargetActive be set here?
+                
+                char buffer [4];
+                int bar = snprintf(buffer, 3, "%d]", foo);
+                s_param_val = buffer;
+                blinkPosForComposite = strlen(buffer);
+                break;
+            }
             case LinkContent:
             {
                 i_param_use = USECHARPARAM;
@@ -663,7 +752,7 @@ void PatternChainHandler::showEditParam()
         }
 /*
 CurrentChain, CurrentLink, ChainTimesToPlay, ChainContent
- PreviousChain, NextChain, OverrideThisLink, InsertAfterCurrent
+ PreviousChain, NextChain, SaveToLink, InsertAfterCurrent
  AppendtoChain, StartNewChain, DeleteThisLink, DuplicateLink
  CopyLink, PasteLink
 LinkContent, LeadTrack, TimesToPlay, SpeedFactor, LengthOverride, PathOverride
@@ -687,6 +776,10 @@ int PatternChainHandler::captureEditParamStartVal()
         
         case ChainTimesToPlay:
             retVal = chains[currentChainIndex].timesToPlay;
+            break;
+
+        case SaveToLink:
+            retVal = currentLinkIndex;
             break;
         
         case LeadTrack:
@@ -750,6 +843,12 @@ void PatternChainHandler::editParam(int value)
             {
                 value = putInRange(value, 16, 1);
                 setTimesToPlay(value);
+                break;
+            }
+            case SaveToLink:
+            {   // TODO: Extend to include "Append"
+                value = putInRange(value, currentChain->numberOfLinks, 0);
+                setActionTarget(value);
                 break;
             }
             case LeadTrack: // TODO: check included tracks here...
@@ -823,6 +922,22 @@ void PatternChainHandler::handleSelectButton()
         Serial.println("PCH:handleSelectButton");
 #endif
 
+        switch (currentEditParamIndex)
+        {
+            case SaveToLink:
+            {
+                if(actionTargetValid())
+                {
+                    savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
+                    resetActionTarget();
+                }
+                break;
+            }
+            default:
+            {
+                break;                
+            }
+        }
 }
 
 void PatternChainHandler::handleEncoder(int encoder, int value)

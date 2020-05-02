@@ -119,7 +119,7 @@ enum {PatternChainEditOptionsCount = 22};
 enum linkEditOptions {CurrentChain = 0, CurrentLink = 1, 
                       ChainTimesToPlay = 2, ChainContent = 3, 
                       PreviousChain = 4, NextChain = 5,
-                      OverrideThisLink = 6, InsertAfterCurrent = 7,
+                      SaveToLink = 6, InsertAfterCurrent = 7,
                       AppendtoChain = 8, StartNewChain = 9, 
                       DeleteThisLink = 10, DuplicateLink = 11, 
                       CopyLink = 12, PasteLink = 13, 

@@ -524,13 +524,13 @@ void PatternChainHandler::showEditParam()
         {
             case CurrentChain:
             {
-                i_param_val = currentChainIndex;
+                i_param_val = currentChainIndex + 1;
                 break;
             }
             case CurrentLink:
             {
 
-                i_param_val = currentLinkIndex;
+                i_param_val = currentLinkIndex + 1;
                 break;
             }
             case ChainTimesToPlay:
@@ -562,7 +562,36 @@ void PatternChainHandler::showEditParam()
             }
             case SpeedFactor:
             {
-                i_param_val = currentLink->getSpeedMult();
+                i_param_use = USECHARPARAM;
+                int foo = currentLink->getSpeedMult();
+                switch (foo)
+                {
+                    case UNDEFINED:
+                    {
+                        s_param_val = "Off";
+                        break;
+                    }
+                    case NORMAL:
+                    {
+                        s_param_val = "Normal";
+                        break;
+                    }
+                    case DOUBLE:
+                    {
+                        s_param_val = "Double";
+                        break;
+                    }
+                    case TRIPLE:
+                    {
+                        s_param_val = "Triple";
+                        break;
+                    }
+                    case QUAD:
+                    {
+                        s_param_val = "Quad";
+                        break;
+                    }
+                }
                 break;
             }
             case LengthOverride:
@@ -585,7 +614,7 @@ void PatternChainHandler::showEditParam()
                     i_param_use = USECHARPARAM;
                     s_param_val = "Off";
                 } else
-                    i_param_val = foo;
+                    i_param_val = foo + 1;
                 break;
             }
             default:
@@ -720,7 +749,7 @@ void PatternChainHandler::editParam(int value)
                         value++;
                         sentry++;
                         if (sentry > TRACKCOUNT) {
-                            inout.ShowErrorOnLCD("PCH:eP LT epicfail", value);
+                            inout.ShowErrorOnLCD("PCH:eP LT fail2", value);
                             done = true;
                         }
                     }

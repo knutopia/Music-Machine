@@ -88,7 +88,7 @@ class PatternChainHandler
                           "[Delete This Link]", "[Duplicate Link]", 
                           "[Copy Link]", "[Paste Link]", 
                           "Link Content:", "Lead Track:",
-                          "Times to Play:", "Speed Factor:",
+                          "Times to Play:", "Speed*:",
                           "Length Override:", "Path Override:",
                           "[Previous Link]", "[Next Link]"};       
 

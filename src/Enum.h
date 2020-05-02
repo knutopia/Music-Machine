@@ -128,7 +128,7 @@ enum linkEditOptions {CurrentChain = 0, CurrentLink = 1,
                       LengthOverride = 18, PathOverride = 19,
                       PreviousLink = 20, NextLink = 21};       
 
-enum paramUsed {UNUSED, USEINTPARAM, USECHARPARAM};
+enum paramUsed {UNUSED, USEINTPARAM, USECHARPARAM, USECOMPOSITE};
 
 enum {OVERRIDEINACTIVE = -1};
 

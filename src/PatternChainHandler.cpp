@@ -517,6 +517,7 @@ void PatternChainHandler::showEditParam()
         int i_param_use = USEINTPARAM;
         int i_param_val = 0;
         char* s_param_val = "                    ";
+        int blinkPosForComposite = 0;
 
         const char* param_name = EditOptionNames[currentEditParamIndex];
 
@@ -524,13 +525,26 @@ void PatternChainHandler::showEditParam()
         {
             case CurrentChain:
             {
-                i_param_val = currentChainIndex + 1;
+                i_param_use = USECHARPARAM;
+                int foo = currentChainIndex + 1;
+                int linkCount = chains[currentChainIndex].numberOfLinks;
+                char buffer [14];
+                if (linkCount == 0)
+                    int bar = snprintf(buffer, 14, "%d (Empty)", foo);
+                else
+                    int bar = snprintf(buffer, 14, "%d (%d Links)", foo, linkCount);
+                s_param_val = buffer;
                 break;
             }
             case CurrentLink:
             {
-
-                i_param_val = currentLinkIndex + 1;
+                i_param_use = USECOMPOSITE;
+                int foo = currentLinkIndex + 1;
+                char buffer [18];
+                int bar = snprintf(buffer, 12, "%d) Link:%d", 
+                                   currentChainIndex, foo);
+                s_param_val = buffer;
+                blinkPosForComposite = strlen(buffer);
                 break;
             }
             case ChainTimesToPlay:
@@ -624,22 +638,29 @@ void PatternChainHandler::showEditParam()
             }
         }
 
-        if(i_param_use == UNUSED)
-            inout.ShowActionOnLCD(param_name);
-        else
-            if(i_param_use == USECHARPARAM) {
-                inout.ShowParamOnLCD(param_name, s_param_val);
-#ifdef DEBUG
-                Serial.print(param_name);
-                Serial.println(s_param_val);
-#endif
-            } else {
-                inout.ShowParamOnLCD(param_name, i_param_val);
-#ifdef DEBUG
-                Serial.print(param_name);
-                Serial.println(i_param_val);
-#endif
+        switch (i_param_use)
+        {
+            case UNUSED:
+            {
+                inout.ShowActionOnLCD(param_name);
+                break;
             }
+            case USECHARPARAM:
+            {
+                inout.ShowParamOnLCD(param_name, s_param_val);
+                break;
+            }
+            case USECOMPOSITE:
+            {
+                inout.ShowParamOnLCD(param_name, s_param_val, blinkPosForComposite);
+                break;
+            }
+            default:
+            {
+                inout.ShowParamOnLCD(param_name, i_param_val);
+                break;
+            }
+        }
 /*
 CurrentChain, CurrentLink, ChainTimesToPlay, ChainContent
  PreviousChain, NextChain, OverrideThisLink, InsertAfterCurrent

@@ -80,7 +80,7 @@ class PatternChainHandler
     unsigned long m_button_press_time;
 
     const char *EditOptionNames[PatternChainEditOptionsCount] = {
-                          "Chain: ", "Link: ", 
+                          "Chain:", "(Chain ", 
                           "Ch Plays: ", "Chain Content:", 
                           "[Previous Chain]", "[Next Chain]",
                           "[Override Link]", "[Insert After]",
@@ -88,8 +88,8 @@ class PatternChainHandler
                           "[Delete This Link]", "[Duplicate Link]", 
                           "[Copy Link]", "[Paste Link]", 
                           "Link Content:", "Lead Track:",
-                          "Times to Play:", "Speed*:",
-                          "Length Override:", "Path Override:",
+                          "Link Plays:", "Speed*:",
+                          "Length Ovrd:", "Path Ovrd:",
                           "[Previous Link]", "[Next Link]"};       
 
     bool timeForNextChain(); // utility

@@ -2159,7 +2159,8 @@ void InOutHelper::ShowParamOnLCD(const char label[], int value)
     lcd.setCursor(0, 2);
     lcd.print(label);
     lcd.setCursor(strlen(label), 2);
-    lcd.print(value);
+	  lcd.print(value);
+    lcd.setCursor(strlen(label), 2);
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
 }
 
@@ -2170,6 +2171,8 @@ void InOutHelper::ShowParamOnLCD(const char label[], float value)
     lcd.print(label);
     lcd.setCursor(strlen(label), 2);
     lcd.print(value);
+    lcd.setCursor(strlen(label), 2);
+    
     ValueOrButtonOnLCDLength = constrain(strlen(label) + 6, 0, 20);
 }
 
@@ -2180,6 +2183,18 @@ void InOutHelper::ShowParamOnLCD(const char label[], const char value[])
     lcd.print(label);
     lcd.setCursor(strlen(label), 2);
     lcd.print(value);
+    lcd.setCursor(strlen(label), 2);
+    ValueOrButtonOnLCDLength = constrain(strlen(label) + strlen(value), 0, 20);
+}
+
+void InOutHelper::ShowParamOnLCD(const char label[], const char value[], int blinkpos)
+{
+    ClearInfoOnLCD();
+    lcd.setCursor(0, 2);
+    lcd.print(label);
+    lcd.setCursor(strlen(label), 2);
+    lcd.print(value);
+    lcd.setCursor(strlen(label) + blinkpos, 2);
     ValueOrButtonOnLCDLength = constrain(strlen(label) + strlen(value), 0, 20);
 }
 
@@ -2702,3 +2717,12 @@ void InOutHelper::showLoopTimer()
 }
   
 
+void InOutHelper::blinketh()
+{
+    lcd.blink();
+}
+
+void InOutHelper::enoughbl()
+{
+    lcd.noBlink();
+}

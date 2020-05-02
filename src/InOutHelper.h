@@ -69,6 +69,7 @@ class InOutHelper
     void ShowParamOnLCD(const char label[], int value);
     void ShowParamOnLCD(const char label[], float value);
     void ShowParamOnLCD(const char label[], const char value[]);
+    void ShowParamOnLCD(const char label[], const char value[], int blinkpos);
     void ShowActionOnLCD(const char label[]);
     void ShowErrorOnLCD(const char error[]);
     void ShowErrorOnLCD(const char error[], byte value);
@@ -89,6 +90,8 @@ class InOutHelper
     String midiToNoteName(int note);
     char* midiToNoteChar(int note, char* notename);
     void showLoopTimer();
+    void blinketh();
+    void enoughbl();
 
     // public because called by queued actions
     void pathModeTrellisButtonPressed(int index);

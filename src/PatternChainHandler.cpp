@@ -7,6 +7,7 @@
 
 extern InOutHelper inout;
 extern SDjsonHandler jsonHandler;
+extern StepSequencer sequencer;
 
 byte PatternChainHandler::currentLeadTrack;
 intFunc PatternChainHandler::updatePatternNumberCb;
@@ -221,9 +222,33 @@ bool PatternChainHandler::actionTargetValid()
     return true;
 }
 
-void PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetLinkIndex)
+bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetLinkIndex)
 {
+    if (&chains[targetChainIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sPTL:tCIx NULL");
+        return false;
+    }
 
+    if (targetLinkIndex > currentChain->numberOfLinks - 1)
+    {
+        inout.ShowErrorOnLCD("PCH:sPTL:tLI oor");
+        return false;
+    }    
+
+    if (currentChain->links[targetLinkIndex] == NULL)
+    {
+        inout.ShowErrorOnLCD("PCH:sPTL:tLi NULL");
+        return false;
+    }    
+
+    for(int trackNum = 1; trackNum <= TRACKCOUNT; trackNum++)
+    {
+        bool mute = sequencer.getTrackMute(trackNum);
+        chains[targetChainIndex].links[targetLinkIndex]
+                                ->addTrackPatterntoLink(trackNum, 0, mute);
+    }
+    return true;
 }
 
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)

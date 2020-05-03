@@ -765,6 +765,37 @@ byte StepSequencer::getCurrentTrack()
         return 0;
 }
 
+bool StepSequencer::getTrackMute(byte aTrackNum)
+{
+    bool retVal = false;
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("SS:gTM m_ac noval");
+
+    while(m_activeTracks.hasValue())
+    {        
+        Track* aTrack = m_activeTracks.getTrackRef();
+        if(aTrack != NULL)
+        {
+            if(aTrack->getNumber() == aTrackNum)
+            {
+                if(aTrack->isMuted())
+                    retVal = true;
+                break;
+            }
+        } else {
+            inout.ShowErrorOnLCD("SS:gTM aTrack NULL");
+            break;
+        }
+        m_activeTracks.next();
+    }
+    setCurrentTrack(curTrackNumBuf);
+    return retVal;
+}
+
 byte StepSequencer::getPreviousStep()
 {
     if(! &activeEditTrack == NULL)

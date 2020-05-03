@@ -53,6 +53,7 @@ class StepSequencer
       note getNoteParams(int _step);
       byte getPath(); // kg
       const char* getPathName();
+      bool getTrackMute(byte trackNum);
 
       int getCurrentPattern();
       byte getCurrentTrack();

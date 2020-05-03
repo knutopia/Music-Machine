@@ -74,7 +74,7 @@ class PatternChainHandler
     bool actionTargetValid();
     void resetActionTarget();
     bool savePatternsToLink(byte targetChainIndex, byte targetlinkIndex);
-
+    void printChains();
 
     simpleFunc stopPlaybackCb;
     int putInRange(int iVar, int iRange, int iMin);

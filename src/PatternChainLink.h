@@ -4,33 +4,7 @@
 #include <Arduino.h>
 #include "Enum.h"
 
-/*
-//UI Stuff
-struct LinkIntParam {
-  int id;
-  int minVal;
-  int maxVal;
-  int defaultVal;
-  int paramVal;
-  bool isInt = true;
-};
 
-struct LinkByteParam {
-  int id;
-  byte minVal;
-  byte maxVal;
-  byte defaultVal;
-  byte paramVal;
-  bool isInt = false;
-};
-
-struct LinkAction {
-  int id;
-  bool isInt = false;
-};
-*/
-
-//Structure
 struct ChainLink {
 
     byte patternPerTrack[TRACKCOUNT];
@@ -77,6 +51,9 @@ class PatternChainLink
     bool timeForNextLinkIndex();
     void incrementLinkPlayCount();
     void primeLinktoPlay();
+
+    // debugging
+    void printLink();
 
     // public for serialization
     ChainLink link;

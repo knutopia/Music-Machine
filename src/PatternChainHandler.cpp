@@ -590,6 +590,9 @@ bool PatternChainHandler::timeForNextChain()
     return retVal;
 }
 
+
+// ##################### Editing #######################
+
 void PatternChainHandler::prepPatternChainForEdit()
 {
 #ifdef DEBUG
@@ -640,7 +643,7 @@ void PatternChainHandler::showEditParam()
                 int foo = currentLinkIndex + 1;
                 char buffer [18];
                 int bar = snprintf(buffer, 12, "%d) Link:%d", 
-                                   currentChainIndex, foo);
+                                   currentChainIndex + 1, foo);
                 s_param_val = buffer;
                 blinkPosForComposite = strlen(buffer);
                 break;
@@ -951,11 +954,19 @@ void PatternChainHandler::handleSelectButton()
         {
             case SaveToLink:
             {
+                Serial.print("Here we go ");
+                Serial.print(actionTargetChainIndex);
+                Serial.print(" ");
+                Serial.print(actionTargetLinkIndex);
                 if(actionTargetValid())
                 {
                     savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
                     resetActionTarget();
-                }
+                    Serial.print(" done");
+                    printChains();
+                } else
+                    Serial.print(" not done");
+
                 break;
             }
             default:
@@ -1047,4 +1058,31 @@ int PatternChainHandler::putInRange(int iVar, int iRange, int iMin)
     Serial.println(retval);
 
     return retval;
+}
+
+void PatternChainHandler::printChains()
+{
+    Serial.println();
+    for (int foo = 0; foo < MAXCHAINCOUNT; foo++)
+    {
+        byte linkCount = chains[foo].numberOfLinks;
+        Serial.print("Chain ");
+        Serial.print(foo + 1);
+
+        if (linkCount == 0)
+            Serial.println(" empty");
+        else {
+            Serial.print(" with ");
+            Serial.print(linkCount);
+            Serial.println(" links:");
+            for (int bar = 0; bar < linkCount; bar++)
+            {
+                Serial.print(" Link ");
+                Serial.print(bar + 1);
+                Serial.print(": ");
+                chains[foo].links[bar]->printLink();
+            }
+        }
+
+    }
 }

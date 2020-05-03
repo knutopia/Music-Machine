@@ -212,7 +212,9 @@ void PatternChainLink::incrementLinkPlayCount()
 
 void PatternChainLink::primeLinktoPlay()
 {
+#ifdef DEBUG
     Serial.println("primeLinktoPlay: ");
+#endif
 
     if( link.speedMult != UNDEFINED)
         PatternChainHandler::updateSpeedMultiplierCb(link.speedMult);
@@ -223,24 +225,24 @@ void PatternChainLink::primeLinktoPlay()
         // only deal with link tracks, leave others alone (good idea? mute?)
         if( link.trackUsedInLink[trackIndex])
         {
-
+#ifdef DEBUG
             Serial.print("  track ");
             Serial.print(trackNum);
-
+#endif
 
             if( link.patternPerTrack[trackIndex] == 255) {
                 // TODO: This here is an error condition !
             } else {
                 
-
+#ifdef DEBUG
                 Serial.print("  seq ");
                 Serial.print(link.patternPerTrack[trackIndex]);
-
 
                 if(link.mutePerTrack[trackIndex])
                     Serial.println("  muted ");
                 else
                     Serial.println("  unmuted ");
+#endif
 
                 // PATTERNCHANGE
                 sequencer.setCurrentTrack(trackNum);
@@ -298,19 +300,56 @@ void PatternChainLink::primeLinktoPlay()
                 }
             }
         } else {
-
+#ifdef DEBUG
             Serial.print("  track ");
             Serial.print(trackNum);
             Serial.print(" unused  ");
-
+#endif
         }
     }
     sequencer.setCurrentTrack(link.leadTrack);
 
     currentPlayCount = 1;
 
-
+#ifdef DEBUG
     Serial.println(" primeLinktoPlay done");
     Serial.println("");
+#endif
+}
 
+void PatternChainLink::printLink()
+{
+    Serial.print("leadTrack:");
+    Serial.print(link.leadTrack);
+    Serial.print(" timesToPlay:");
+    Serial.print(link.timesToPlay);
+    Serial.print(" speedMult:");
+    Serial.print(link.speedMult);
+
+    if (link.lengthOverride != OVERRIDEINACTIVE)
+    {
+        Serial.print( " lengthOverride:");
+        Serial.print(link.lengthOverride);
+    }
+    if (link.pathOverride != OVERRIDEINACTIVE)
+    {
+        Serial.print( " pathOverride:");
+        Serial.print(link.pathOverride);
+    }
+    Serial.print(" nextLinkIndex:");
+    Serial.println(link.nextLinkIndex);
+    
+    for (int foo = 0; foo < TRACKCOUNT; foo++)
+    {
+        if(link.trackUsedInLink[foo])
+        {
+            Serial.print("  track:");
+            Serial.print(foo + 1);
+            Serial.print(" pattern:");
+            Serial.print(link.patternPerTrack[foo] + 1);
+            if (link.mutePerTrack[foo])
+                Serial.print(" muted");
+            Serial.println();
+        }
+    }
 }

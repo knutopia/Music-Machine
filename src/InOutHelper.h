@@ -75,7 +75,7 @@ class InOutHelper
     void ShowErrorOnLCD(const char error[], byte value);
     void ShowErrorOnLCD(const char error[], int value);
     void ShowErrorOnLCD(const char error[], const char context[]);
-    void ShowPatternNumberOnLCD(int seqNum);
+    void ShowPatternNumberOnLCD(int patNum);
     void ShowTrackNumberOnLCD(byte trackNum);
     void ShowPathNumberOnLCD(byte pathNum);
     void ShowChainLinkPlayOnLCD(const byte chain, const byte curChainPlay, const byte maxChainPlays, 
@@ -130,6 +130,7 @@ class InOutHelper
     void HoldModeTrellisButtonPressed(int index);
     void AccentModeTrellisButtonPressed(int index);
     void SynthEditModeTrellisButtonPressed(int index);
+    void ChainEditModeTrellisButtonPressed(int index);
     void QueueableSimpleIndicatorModeTrellisButtonPressed(int index);
     void RepeatButtonPressed(byte repetitions);
     void RetrigButtonPressed(byte retrigs);
@@ -138,7 +139,7 @@ class InOutHelper
     bool PrimeQueueButtonPressed();
     
     void LiteUpTrellisSteps(bool helperSteps[]);
-    void RetrievePatternStates();
+    void RetrieveMultiSelectTrellisStates();
     void ClearBoolSteps(bool arrayPointer[], int arrayLength);
     
     void ClearInfoOnLCD();

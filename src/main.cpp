@@ -153,9 +153,9 @@ void QueueActionCb(actionID whatAction, byte param, byte track);
 void ChangeModeCb();
 void ChangeRepetitionCb(int noteRepetition,  boolean activeSteps[]);
 void ChangePatternLengthCb(int patternLength);
-void ChangePatternNumberCb(int seqNum);
+void ChangePatternNumberCb(int patNum);
 void ChangeTrackCb(int trackNum);
-void ChangeSavePatternDestinationCb(int seqNum);
+void ChangeSavePatternDestinationCb(int patNum);
 void ChangeTempoCb(int newTempo);
 void ChangeSpeedMultiplierCb(speedFactor mult);
 void SaveToSdCb();
@@ -246,17 +246,17 @@ void ChangePatternLengthCb(int patternLength) {
 }
 
 
-void ChangePatternNumberCb(int seqNum) {
+void ChangePatternNumberCb(int patNum) {
   
     if(!g_queueing)
     {
-        sequencer.setCurrentPattern(seqNum);
-        inout.ShowPatternNumberOnLCD(seqNum);
+        sequencer.setCurrentPattern(patNum);
+        inout.ShowPatternNumberOnLCD(patNum);
         inout.ShowPathNumberOnLCD(sequencer.getPath());
 //      sequencer.printPattern();
     } else {
 
-        QueueActionCb(PATTERNCHANGE, (byte) seqNum, sequencer.getCurrentTrack());
+        QueueActionCb(PATTERNCHANGE, (byte) patNum, sequencer.getCurrentTrack());
     }
 }
 
@@ -272,10 +272,10 @@ void ChangeTrackCb(int trackNum) {
     Serial.println(sequencer.getCurrentTrack());
 }
 
-void ChangeSavePatternDestinationCb(int seqNum) {
+void ChangeSavePatternDestinationCb(int patNum) {
           
-    save_pattern_destination = seqNum;
-    inout.ShowValueInfoOnLCD("Save to Pat", seqNum);
+    save_pattern_destination = patNum;
+    inout.ShowValueInfoOnLCD("Save to Pat", patNum);
 }
 
 
@@ -410,6 +410,7 @@ void SynthButtonCb(int butNum)
 
 void ChainButtonCb(int butNum)
 {
+//  ChangePatternNumberCb(butNum);
     patternChain.handleButton(butNum);
 }
 

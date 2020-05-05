@@ -251,6 +251,12 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
     return true;
 }
 
+void saveToLinkInCurrentChain()
+{
+    //differentiate between update and append...
+    
+}
+
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)
 {
     if(chains == NULL)
@@ -299,6 +305,19 @@ void PatternChainHandler::setTimesToPlay(byte times)
     currentChain->timesToPlay = times;
 }
 
+// getters
+byte PatternChainHandler::getNumberOfLinks()
+{
+    if (currentChain == NULL && (!setCurrentChain(0)))
+    {
+        inout.ShowErrorOnLCD("PCH:gNOL:cC NULL");
+        return 0;
+    }
+
+    return currentChain->numberOfLinks;
+}
+
+
 // for editing...
 void PatternChainHandler::selectLink(byte linkNum)
 {
@@ -308,7 +327,10 @@ void PatternChainHandler::selectLink(byte linkNum)
 PatternChainLink* PatternChainHandler::appendLink()
 {
     if (currentChain == NULL && (!setCurrentChain(0)))
+    {
+        inout.ShowErrorOnLCD("PCH:aL:cC NULL");
         return NULL;
+    }
 
     if (currentChain->numberOfLinks >= MAXLINKSPERCHAIN)
     {
@@ -1017,7 +1039,8 @@ void PatternChainHandler::handleEncoder(int encoder, int value)
         }
 }
 
-//handle trellis buttons to choose chain or link
+// handle encoder button to edit chains, links
+// handle trellis buttons to choose chain or link ?
 void PatternChainHandler::handleButton(int butNum)
 {
     // TODO: also do trellis button shortcuts here

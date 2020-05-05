@@ -223,13 +223,13 @@ void InOutHelper::setupNewMode() {
         SetupPatternSaveModeTrellis();
         break;      
       case chain_edit:
-        StepButtonCb = updateChainCb;    
+//      StepButtonCb = updateChainCb;    
+        StepButtonCb = NULL;    
         StartStopButtonCb = startStopCb; // use a separate one for chain play ?
         initTrackEncoder = true;
         SetupChainEditModeTrellis();
         patternChain.prepPatternChainForEdit();
         break;  
-
       case step_mute: 
         StepButtonCb = NULL; // selection handling as a callback instead ?
         StartStopButtonCb = startStopCb;
@@ -352,7 +352,7 @@ void InOutHelper::ResetTrellis() {
 void InOutHelper::SetupMuteOrHoldModeTrellis() {
 
     stepsToCheck = helperSteps;      
-    RetrievePatternStates();
+    RetrieveMultiSelectTrellisStates();
     
     LiteUpTrellisSteps(helperSteps);
 }
@@ -368,7 +368,7 @@ void InOutHelper::SetupSelectEditTrellis() {
 void InOutHelper::SetupAccentModeTrellis() {
 
     stepsToCheck = helperSteps;      
-    RetrievePatternStates();
+    RetrieveMultiSelectTrellisStates();
     
     LiteUpTrellisSteps(helperSteps);
 }
@@ -386,42 +386,38 @@ void InOutHelper::SetupLengthModeTrellis() {
 
 void InOutHelper::SetupPatternSelectModeTrellis() {
     
-    int seqNum = sequencer.getCurrentPattern();
+    int patNum = sequencer.getCurrentPattern();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
-    helperSteps[seqNum] = true;
+    helperSteps[patNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-    ShowPatternNumberOnLCD(seqNum);
+    ShowPatternNumberOnLCD(patNum);
 }
 
 
 void InOutHelper::SetupPatternSaveModeTrellis() {
     
-    int seqNum = sequencer.getCurrentPattern();
+    int patNum = sequencer.getCurrentPattern();
     
     stepsToCheck = helperSteps;
     ClearBoolSteps(helperSteps, 16);
-    helperSteps[seqNum] = true;
+    helperSteps[patNum] = true;
     
     LiteUpTrellisSteps(helperSteps);
-    ShowPatternNumberOnLCD(seqNum);
+    ShowPatternNumberOnLCD(patNum);
 }
 
 
 void InOutHelper::SetupChainEditModeTrellis() {
     
-    // TODO
-    
-//  int seqNum = sequencer.getCurrentPattern();
-    
-    stepsToCheck = helperSteps;
+    stepsToCheck = helperSteps;      
     ClearBoolSteps(helperSteps, 16);
-//  helperSteps[seqNum] = true;
+
+    RetrieveMultiSelectTrellisStates();
     
     LiteUpTrellisSteps(helperSteps);
-//  ShowPatternNumberOnLCD(seqNum);
 }
 
 
@@ -860,6 +856,12 @@ void InOutHelper::handleButtonHoldTiming(holdableButton buttn, bool pressed) {
             holdActionState = INACTIVE;
           }        
           break;
+        case CHAINLINKSELECTBUTTON:
+          if (currentHoldAction == SAVELINK) {
+            currentHoldAction = NONE;
+            holdActionState = INACTIVE;
+          }        
+          break;
         case PLAYBUTTON: 
         case SELECTBUTTON: 
         case MUTEMODEBUTTON: 
@@ -944,10 +946,20 @@ void InOutHelper::ProcessTrellisButtonRelease(uint8_t i)
           // shorthand to light up current patch again
           // since long press may have saved to different one
           SetupSynthEditTrellis();
-          
           break;
+
         case save_to_sd:     
           trellis.clrLED(i);
+          break;
+
+        case chain_edit:
+          if (i % STEPSOFFSET > patternChain.getNumberOfLinks()) // not a link
+            trellis.clrLED(i);
+          else if (i % STEPSOFFSET = patternChain.getNumberOfLinks()) // append link?
+            trellis.clrLED(i);
+            handleButtonHoldTiming(CHAINLINKSELECTBUTTON, false);
+          else // <= patternChain.getNumberofLinks())
+            handleButtonHoldTiming(CHAINLINKSELECTBUTTON, false); // existing link
           break;
       }
     }
@@ -1149,6 +1161,9 @@ void InOutHelper::ProcessTrellisButtonPress(uint8_t i)
               break;
             case save_to_sd:
               break;
+            case chain_edit:
+              ChainEditModeTrellisButtonPressed(i);
+              break;
             default:
               SelectEditTrellisButtonPressed(i);
               showStepInfoOnLCD(i % STEPSOFFSET);
@@ -1330,16 +1345,8 @@ void InOutHelper::trackMuteTrellisButtonPressed(int i)
                     trellis.clrLED(i);
             } else
                 recordActionCb(TRACKMUTECHANGE, (byte)true, track);
-    } 
-}
-
-
-
-
-
-
-
-
+        } 
+    }
 }
 
 
@@ -1347,6 +1354,33 @@ void InOutHelper::SynthEditModeTrellisButtonPressed(int i)
 {
     simpleIndicatorModeTrellisButtonPressed(i);
     handleButtonHoldTiming(SYNTHPATCHBUTTON, true);
+}
+
+
+
+
+
+
+
+
+
+
+void InOutHelper::ChainEditModeTrellisButtonPressed(int i)
+{
+    byte linkCount = patternChain.getNumberOfLinks();
+
+    if (i % STEPSOFFSET <= linkCount) // "=" for "select to append"
+    {
+      for (uint8_t foo = 0; foo < 16; foo++)
+        if (helperSteps[foo% STEPSOFFSET]) {
+          trellis.clrLED(foo + STEPSOFFSET);
+          helperSteps[foo] = false;
+        }
+      helperSteps[i % STEPSOFFSET] = true;
+      trellis.setLED(i);
+      handleButtonHoldTiming(CHAINLINKSELECTBUTTON, true);
+    } else       
+      trellis.clrLED(i); 
 }
 
 
@@ -1821,6 +1855,15 @@ void InOutHelper::handleButtonHolds()
                 sequencer.save_all_patterns();
                 SaveToSdCb();
             }
+        } else {
+
+          held = GetHoldableButtonPressed(CHAINLINKSELECTBUTTON);
+          if (held > 0) {
+              currentHoldAction = SAVELINK;
+              if (trackActionHoldTime(held, SAVELINK))
+              {
+                  patternChain.saveToLinkInCurrentChain();
+              }
         }
       }
     }
@@ -1965,7 +2008,7 @@ void InOutHelper::RemoveStepIndicatorOnLCD()
 
 
 // Sequencer Helpers
-void InOutHelper::RetrievePatternStates()
+void InOutHelper::RetrieveMultiSelectTrellisStates()
 {
     byte seqMaxLength = sequencer.getMaxLength(); //hoping this matches array size
 //  byte seqLength = sequencer.getLength();
@@ -1975,19 +2018,39 @@ void InOutHelper::RetrievePatternStates()
       case step_mute:
         for (i = 0; i < seqMaxLength; i++) helperSteps[i] = !sequencer.getMute(i);
         Serial.println("step mute");
-       break;
+        break;
+
       case step_hold:
         for (i = 0; i < seqMaxLength; i++) helperSteps[i] = sequencer.getHold(i);
         Serial.println("step hold");
-       break;
+        break;
+
       case accent_edit:
         for (i = 0; i < seqMaxLength; i++) helperSteps[i] = sequencer.getAccent(i);
         Serial.println("accent edit");
-      break;
+        break;
+
+      case chain_edit: 
+      {
+        byte linkCount = patternChain.getNumberOfLinks();
+        for (uint8_t foo = 0; foo < linkCount; foo++)
+        {
+          helperSteps[foo] = true;
+          trellis.setLED(foo + STEPSOFFSET);
+        }
+        for (uint8_t foo = linkCount; foo > 16; foo++)
+        {
+          helperSteps[foo] = false;
+          trellis.clrLED(foo + STEPSOFFSET);
+        }
+        Serial.println("chain edit");
+        break;
+      }
       default:
-        ShowErrorOnLCD("YOWZA uncaught mode in RetrievePatternStates");
+        ShowErrorOnLCD("IOH:RMSTS uncaught");
         Serial.print("mode: ");
         Serial.println(currentMode);
+        break;
     }
 }
 
@@ -2371,15 +2434,15 @@ void InOutHelper::ShowMemoryOnLCD(int mem)
 }
 
 
-void InOutHelper::ShowPatternNumberOnLCD(int seqNum)
+void InOutHelper::ShowPatternNumberOnLCD(int patNum)
 {
     lcd.setCursor(18, 2);
     lcd.print("  ");  
 
-    if(seqNum < 9) lcd.setCursor(19, 2);
+    if(patNum < 9) lcd.setCursor(19, 2);
     else lcd.setCursor(18, 2);
 
-    lcd.print(seqNum);  
+    lcd.print(patNum);  
 }
 
 
@@ -2526,6 +2589,30 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
         }        
         break;
         
+      case SAVELINK:
+        switch (state)
+        {
+          destination = patternChain.getTargetLink();
+          case SHOWNOTHING:
+            break;
+          case ANNOUNCE:
+            ShowInfoOnLCD("Hold: Save to link ", destination);
+            SetLCDinfoTimeout();
+            break;
+          case ACTION:
+            ShowInfoOnLCD("Saving to Link ", destination);
+            SetLCDinfoTimeout();
+            break;
+          case DONE:
+            ShowInfoOnLCD("Saved.");
+            SetLCDinfoTimeout();
+            break;
+          case INACTIVE:
+          default:
+            ClearInfoOnLCD();
+            break;
+        }        
+        break;
       default:
         ShowErrorOnLCD("OOPSIE SHA MSG");
         Serial.print("OOPSIE: invalid mode in InOutHelper::ShowHoldActionMessage");

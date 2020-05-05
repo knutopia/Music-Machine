@@ -35,6 +35,9 @@ class PatternChainHandler
     bool setNextChain(byte chainIndex, byte nextIndex);
     void setTimesToPlay(byte times);
 
+    // getters
+    byte getNumberOfLinks();
+
     // for editing...
     void selectLink(byte linkNum);
     PatternChainLink* appendLink();
@@ -53,7 +56,7 @@ class PatternChainHandler
     void handleSelectButton();
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
-
+    void saveToLinkInCurrentChain();
 
     // class data
     static byte currentLeadTrack;

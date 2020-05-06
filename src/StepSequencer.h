@@ -56,6 +56,7 @@ class StepSequencer
       bool getTrackMute(byte trackNum);
 
       int getCurrentPattern();
+      int getCurrentPattern(byte trackNum);
       byte getCurrentTrack();
       byte getPreviousStep();
       byte getLowestSelectedNote(boolean selectedNotes[]);

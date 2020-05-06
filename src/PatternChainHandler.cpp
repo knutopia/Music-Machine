@@ -272,23 +272,76 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
         return false;
     }    
 
+#ifdef DEBUG
+        Serial.print("Saving patterns to link:");
+        Serial.print(targetLinkIndex);
+        Serial.print(" in chain:");
+        Serial.print(targetChainIndex);
+#endif
+
+
     for(int trackNum = 1; trackNum <= TRACKCOUNT; trackNum++)
     {
+#ifdef DEBUG
+        Serial.print(" track:");
+        Serial.print(trackNum);
+#endif
         bool mute = sequencer.getTrackMute(trackNum);
+        byte patNum = sequencer.getCurrentPattern();
         chains[targetChainIndex].links[targetLinkIndex]
-                                ->addTrackPatterntoLink(trackNum, 0, mute);
+                                ->addTrackPatterntoLink(trackNum, patNum, mute);
     }
     return true;
 }
 
 void PatternChainHandler::saveToLinkInCurrentChain()
 {
+#ifdef DEBUG
     Serial.println("saveToLinkInCurrentChain");
+#endif
+
+    if(b_actionTargetActive)
+        if(actionType == SaveToLink)
+        {
+            savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
+            setCurrentLink(actionTargetLinkIndex);
+        } else
+            inout.ShowErrorOnLCD("PCH:sTLICC miss");
+    else
+            inout.ShowErrorOnLCD("PCH:sTLICC baTA x");
+    
+    resetActionTarget();
+
+#ifdef DEBUG
+    printChains();
+#endif
 }
 
 void PatternChainHandler::appendLinkToCurrentChain()
 {
+#ifdef DEBUG
     Serial.println("appendLinkToCurrentChain");
+#endif
+
+    if(b_actionTargetActive)
+        if(actionType == AppendtoChain)
+        {
+            if(appendLink())
+            {
+                savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
+                setCurrentLink(actionTargetLinkIndex);
+            } else
+                inout.ShowErrorOnLCD("PCH:aLTCC fail");
+        } else
+            inout.ShowErrorOnLCD("PCH:aLTCC miss");
+    else
+            inout.ShowErrorOnLCD("PCH:aLTCC baTA x");
+    
+    resetActionTarget();
+
+#ifdef DEBUG
+    printChains();
+#endif
 }
 
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)

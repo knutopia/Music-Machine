@@ -337,7 +337,7 @@ void PatternChainLink::printLink()
         Serial.print(link.pathOverride);
     }
     Serial.print(" nextLinkIndex:");
-    Serial.println(link.nextLinkIndex);
+    Serial.println(link.nextLinkIndex + 1);
     
     for (int foo = 0; foo < TRACKCOUNT; foo++)
     {

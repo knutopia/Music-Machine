@@ -757,6 +757,12 @@ int StepSequencer::getCurrentPattern() // TODO
         return 0;
 }
 
+int StepSequencer::getCurrentPattern(byte trackNum)
+{
+    
+    
+}
+
 byte StepSequencer::getCurrentTrack()
 {
     if(! &activeEditTrack == NULL)

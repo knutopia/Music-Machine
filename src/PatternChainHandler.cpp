@@ -296,17 +296,22 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
     return true;
 }
 
-void PatternChainHandler::saveToLinkInCurrentChain()
+bool PatternChainHandler::saveToLinkInCurrentChain()
 {
 #ifdef DEBUG
     Serial.println("saveToLinkInCurrentChain");
 #endif
 
+    bool retVal = false;
+
     if(b_actionTargetActive)
         if(actionType == SaveToLink)
         {
-            savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
-            setCurrentLink(actionTargetLinkIndex);
+            if(savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex))
+            {
+                retVal = true;
+                setCurrentLink(actionTargetLinkIndex);
+            }
         } else
             inout.ShowErrorOnLCD("PCH:sTLICC miss");
     else
@@ -317,21 +322,27 @@ void PatternChainHandler::saveToLinkInCurrentChain()
 #ifdef DEBUG
     printChains();
 #endif
+    return retVal;
 }
 
-void PatternChainHandler::appendLinkToCurrentChain()
+bool PatternChainHandler::appendLinkToCurrentChain()
 {
 #ifdef DEBUG
     Serial.println("appendLinkToCurrentChain");
 #endif
+
+    bool retVal = false;
 
     if(b_actionTargetActive)
         if(actionType == AppendtoChain)
         {
             if(appendLink())
             {
-                savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
-                setCurrentLink(actionTargetLinkIndex);
+                if (savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex))
+                {
+                    retVal = true;
+                    setCurrentLink(actionTargetLinkIndex);
+                }
             } else
                 inout.ShowErrorOnLCD("PCH:aLTCC fail");
         } else
@@ -344,6 +355,8 @@ void PatternChainHandler::appendLinkToCurrentChain()
 #ifdef DEBUG
     printChains();
 #endif
+
+    return retVal;
 }
 
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)
@@ -1077,39 +1090,49 @@ void PatternChainHandler::editParam(int value)
 void PatternChainHandler::handleSelectButton()
 {
 #ifdef DEBUG
-        Serial.println("PCH:handleSelectButton");
+        Serial.print("PCH:handleSelectButton");
 #endif
 
         switch (currentEditParamIndex)
         {
             case SaveToLink:
             {
-                Serial.print("Here we go with SaveToLink ");
+#ifdef DEBUG
+                Serial.print(" SaveToLink chain ");
                 Serial.print(actionTargetChainIndex);
-                Serial.print(" ");
+                Serial.print(" link ");
                 Serial.print(actionTargetLinkIndex);
+#endif
                 if(actionTargetValid())
-                {
-                    saveToLinkInCurrentChain();
-//                  savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
-//                  resetActionTarget();
-//                  printChains();
-                } else
+                    if(saveToLinkInCurrentChain())
+                    {
+                        inout.ShowInfoOnLCD("Link saved.");
+                        inout.SetLCDinfoTimeout();
+                    } else {
+                        inout.ShowInfoOnLCD("Link save failed.");
+                        inout.SetLCDinfoTimeout();
+                    }
+                else
                     inout.ShowErrorOnLCD("PCH:hSB STLf");
 
                 break;
             }
             case AppendtoChain:
             {
-                Serial.print("Here we go with AppendtoChain ");
+#ifdef DEBUG
+                Serial.print(" AppendtoChain ");
                 Serial.print(actionTargetChainIndex);
-                Serial.print(" ");
-                Serial.print(actionTargetLinkIndex);
+#endif
 //              if(actionTargetValid())
 //              {
-                    appendLinkToCurrentChain();
-//                  resetActionTarget();
-//                  printChains();
+                if(appendLinkToCurrentChain())
+                {
+                    inout.ShowInfoOnLCD("Link appended.");
+                    inout.SetLCDinfoTimeout();
+                } else {
+                    inout.ShowInfoOnLCD("Link append failed.");
+                    inout.SetLCDinfoTimeout();
+                }
 //              } else
 //                  inout.ShowErrorOnLCD("PCH:hSB STLf");
 

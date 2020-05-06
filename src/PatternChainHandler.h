@@ -58,8 +58,8 @@ class PatternChainHandler
     void handleSelectButton();
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
-    void saveToLinkInCurrentChain();
-    void appendLinkToCurrentChain();
+    bool saveToLinkInCurrentChain();
+    bool appendLinkToCurrentChain();
     bool setActionTarget(byte linkIndex, linkEditAction action);
     bool actionTargetValid();
     void resetActionTarget();

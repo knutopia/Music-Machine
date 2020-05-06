@@ -223,8 +223,8 @@ void InOutHelper::setupNewMode() {
         SetupPatternSaveModeTrellis();
         break;      
       case chain_edit:
-//      StepButtonCb = updateChainCb;    
-        StepButtonCb = NULL;    
+        StepButtonCb = updateChainCb;    
+//      StepButtonCb = NULL;    
         StartStopButtonCb = startStopCb; // use a separate one for chain play ?
         initTrackEncoder = true;
         SetupChainEditModeTrellis();

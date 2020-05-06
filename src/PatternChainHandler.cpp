@@ -292,8 +292,6 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
         Serial.print(" w patnum:");
         Serial.print(patNum);
 #endif
-
-
     }
     return true;
 }
@@ -1001,9 +999,14 @@ void PatternChainHandler::editParam(int value)
                 break;
             }
             case SaveToLink:
-            {   // TODO: Extend to include "Append"
+            {   
                 value = putInRange(value, currentChain->numberOfLinks, 0);
                 setActionTarget(value, SaveToLink);
+                break;
+            }
+            case AppendtoChain:
+            {
+                setActionTarget(currentChain->numberOfLinks, AppendtoChain);
                 break;
             }
             case LeadTrack: // TODO: check included tracks here...
@@ -1081,18 +1084,34 @@ void PatternChainHandler::handleSelectButton()
         {
             case SaveToLink:
             {
-                Serial.print("Here we go ");
+                Serial.print("Here we go with SaveToLink ");
                 Serial.print(actionTargetChainIndex);
                 Serial.print(" ");
                 Serial.print(actionTargetLinkIndex);
                 if(actionTargetValid())
                 {
-                    savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
-                    resetActionTarget();
-                    Serial.print(" done");
-                    printChains();
+                    saveToLinkInCurrentChain();
+//                  savePatternsToLink(actionTargetChainIndex, actionTargetLinkIndex);
+//                  resetActionTarget();
+//                  printChains();
                 } else
-                    Serial.print(" not done");
+                    inout.ShowErrorOnLCD("PCH:hSB STLf");
+
+                break;
+            }
+            case AppendtoChain:
+            {
+                Serial.print("Here we go with AppendtoChain ");
+                Serial.print(actionTargetChainIndex);
+                Serial.print(" ");
+                Serial.print(actionTargetLinkIndex);
+//              if(actionTargetValid())
+//              {
+                    appendLinkToCurrentChain();
+//                  resetActionTarget();
+//                  printChains();
+//              } else
+//                  inout.ShowErrorOnLCD("PCH:hSB STLf");
 
                 break;
             }

@@ -37,6 +37,8 @@ class PatternChainHandler
 
     // getters
     byte getNumberOfLinks();
+    byte getTargetLinkIndex();
+    byte getCurrentLinkIndex();
 
     // for editing...
     void selectLink(byte linkNum);
@@ -57,6 +59,11 @@ class PatternChainHandler
     void handleEncoder(int encoder, int value);
     void handleButton(int butNum);
     void saveToLinkInCurrentChain();
+    void appendLinkToCurrentChain();
+    bool setActionTarget(byte linkIndex, linkEditAction action);
+    bool actionTargetValid();
+    void resetActionTarget();
+
 
     // class data
     static byte currentLeadTrack;
@@ -73,9 +80,6 @@ class PatternChainHandler
     int captureEditParamStartVal();
     void editParam(int value);
 
-    bool setActionTarget(byte linkIndex);
-    bool actionTargetValid();
-    void resetActionTarget();
     bool savePatternsToLink(byte targetChainIndex, byte targetlinkIndex);
     void printChains();
 
@@ -114,6 +118,7 @@ class PatternChainHandler
     byte actionTargetChainIndex;
     byte actionTargetLinkIndex;
     bool b_actionTargetActive;
+    linkEditAction actionType;
 };
 
 #endif

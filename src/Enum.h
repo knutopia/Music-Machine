@@ -38,7 +38,7 @@ enum {HOLDABLEBUTTONCOUNT = 10};
 enum holdableButton {PLAYBUTTON = 0, REWINDBUTTON = 1, SELECTBUTTON = 2, 
                     PATTERNMODEBUTTON = 3, MUTEMODEBUTTON = 4, STEPEDITMODEBUTTON = 5, 
                     ACCENTEDITMODEBUTTON = 6, LENGTHEDITMODEBUTTON = 7, PATHEDITMODEBUTTON = 8,
-                    SYNTHPATCHBUTTON = 9, CHAINLINKSELECTBUTTON = 10};               
+                    SYNTHPATCHBUTTON = 9, CHAINLINKSELECTBUTTON = 10, CHAINLINKAPPENDBUTTON = 11};               
 
 enum process {START, BUSY, STOP};
 
@@ -46,7 +46,7 @@ enum holdActionProcess {SHOWNOTHING = 1000, ANNOUNCE = 3000, ACTION = 5000, DONE
 
 enum {BUTTONHOLDTIME = 1000};
 
-enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET, SAVETOSD, SAVELINK};
+enum holdActionMode {NONE, SAVEPATCH, SAVESEQ, TRESET, SAVETOSD, SAVELINK, APPENDLINK};
 
 enum speedFactor {UNDEFINED = 0, NORMAL = 1, DOUBLE = 2, TRIPLE = 3, QUAD = 4, MAX = 4};
 
@@ -116,7 +116,7 @@ enum playMode {PATTERNPLAY, CHAINPLAY};
 
 enum {PatternChainEditOptionsCount = 22};
 
-enum linkEditOptions {CurrentChain = 0, CurrentLink = 1, 
+enum linkEditAction {CurrentChain = 0, CurrentLink = 1, 
                       ChainTimesToPlay = 2, ChainContent = 3, 
                       PreviousChain = 4, NextChain = 5,
                       SaveToLink = 6, InsertAfterCurrent = 7,

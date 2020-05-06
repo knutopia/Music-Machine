@@ -157,8 +157,11 @@ bool PatternChainHandler::setCurrentLink(byte index)
     return true;
 }
 
-bool PatternChainHandler::setActionTarget(byte linkIndex)
+// TODO: accomodate action
+bool PatternChainHandler::setActionTarget(byte linkIndex, linkEditAction action)
 {
+    b_actionTargetActive = false;
+
     if (&chains[currentChainIndex] == NULL)
     {
         inout.ShowErrorOnLCD("PCH:sATL:curCIx NULL");
@@ -171,21 +174,48 @@ bool PatternChainHandler::setActionTarget(byte linkIndex)
         return false;
     }
 
-    if (linkIndex > currentChain->numberOfLinks - 1)
+    Serial.print("######## sATL linkIndex ");
+    Serial.println(linkIndex);
+    
+    switch (action)
     {
-        inout.ShowErrorOnLCD("PCH:sATL:lI oor");
-        return false;
-    }    
+        case SaveToLink:
+        {
+            if (linkIndex > currentChain->numberOfLinks - 1)
+            {
+                inout.ShowErrorOnLCD("PCH:sATL:lI oor");
+                return false;
+            }    
 
-    if (currentChain->links[linkIndex] == NULL)
-    {
-        inout.ShowErrorOnLCD("PCH:sATL:fLi NULL");
-        return false;
-    }    
-    actionTargetChainIndex = currentChainIndex;
-    actionTargetLinkIndex = linkIndex;
-    b_actionTargetActive = true;
-    return true;
+            if (currentChain->links[linkIndex] == NULL)
+            {
+                inout.ShowErrorOnLCD("PCH:sATL:fLi NULL");
+                return false;
+            }    
+            actionTargetChainIndex = currentChainIndex;
+            actionTargetLinkIndex = linkIndex;
+            actionType = action;
+            b_actionTargetActive = true;
+            return true;
+            break;
+        }
+        case AppendtoChain:
+        {
+            if (linkIndex != currentChain->numberOfLinks)
+            {
+                inout.ShowErrorOnLCD("PCH:sATL:lI off");
+                return false;
+            }    
+            actionTargetChainIndex = currentChainIndex;
+            actionTargetLinkIndex = linkIndex;
+            actionType = action;
+            b_actionTargetActive = true;
+            return true;
+            break;
+        }
+        default:
+            break;
+    }
 }
 
 void PatternChainHandler::resetActionTarget()
@@ -251,10 +281,14 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
     return true;
 }
 
-void saveToLinkInCurrentChain()
+void PatternChainHandler::saveToLinkInCurrentChain()
 {
-    //differentiate between update and append...
-    
+    Serial.println("saveToLinkInCurrentChain");
+}
+
+void PatternChainHandler::appendLinkToCurrentChain()
+{
+    Serial.println("appendLinkToCurrentChain");
 }
 
 bool PatternChainHandler::setNextChain(byte chainIndex, byte nextIndex)
@@ -317,6 +351,20 @@ byte PatternChainHandler::getNumberOfLinks()
     return currentChain->numberOfLinks;
 }
 
+byte PatternChainHandler::getTargetLinkIndex()
+{
+    if (b_actionTargetActive)
+        return actionTargetLinkIndex;
+    else {
+        inout.ShowErrorOnLCD("PCH:gTLI:baTA f");
+        return 0;
+    }
+}
+
+byte PatternChainHandler::getCurrentLinkIndex()
+{
+    return currentLinkIndex;
+}
 
 // for editing...
 void PatternChainHandler::selectLink(byte linkNum)
@@ -898,7 +946,7 @@ void PatternChainHandler::editParam(int value)
             case SaveToLink:
             {   // TODO: Extend to include "Append"
                 value = putInRange(value, currentChain->numberOfLinks, 0);
-                setActionTarget(value);
+                setActionTarget(value, SaveToLink);
                 break;
             }
             case LeadTrack: // TODO: check included tracks here...

@@ -862,6 +862,12 @@ void InOutHelper::handleButtonHoldTiming(holdableButton buttn, bool pressed) {
             holdActionState = INACTIVE;
           }        
           break;
+        case CHAINLINKAPPENDBUTTON:
+          if (currentHoldAction == APPENDLINK) {
+            currentHoldAction = NONE;
+            holdActionState = INACTIVE;
+          }        
+          break;
         case PLAYBUTTON: 
         case SELECTBUTTON: 
         case MUTEMODEBUTTON: 
@@ -953,13 +959,14 @@ void InOutHelper::ProcessTrellisButtonRelease(uint8_t i)
           break;
 
         case chain_edit:
-          if (i % STEPSOFFSET > patternChain.getNumberOfLinks()) // not a link
-            trellis.clrLED(i);
-          else if (i % STEPSOFFSET = patternChain.getNumberOfLinks()) // append link?
-            trellis.clrLED(i);
-            handleButtonHoldTiming(CHAINLINKSELECTBUTTON, false);
+          if (i % STEPSOFFSET == patternChain.getNumberOfLinks()) // append link?
+            handleButtonHoldTiming(CHAINLINKAPPENDBUTTON, false);
           else // <= patternChain.getNumberofLinks())
             handleButtonHoldTiming(CHAINLINKSELECTBUTTON, false); // existing link
+
+          ClearBoolSteps(helperSteps, 16);
+          helperSteps[patternChain.getCurrentLinkIndex()] = true;
+          LiteUpTrellisSteps(helperSteps);
           break;
       }
     }
@@ -1376,9 +1383,28 @@ void InOutHelper::ChainEditModeTrellisButtonPressed(int i)
           trellis.clrLED(foo + STEPSOFFSET);
           helperSteps[foo] = false;
         }
-      helperSteps[i % STEPSOFFSET] = true;
-      trellis.setLED(i);
-      handleButtonHoldTiming(CHAINLINKSELECTBUTTON, true);
+
+      if (i % STEPSOFFSET == linkCount)
+      {
+        patternChain.setActionTarget(i % STEPSOFFSET, AppendtoChain);
+        handleButtonHoldTiming(CHAINLINKAPPENDBUTTON, true);
+        helperSteps[i % STEPSOFFSET] = true;
+        trellis.setLED(i);
+      } else
+        if(patternChain.setCurrentLink(i % STEPSOFFSET))
+        {
+          patternChain.setActionTarget(i % STEPSOFFSET, SaveToLink);
+          handleButtonHoldTiming(CHAINLINKSELECTBUTTON, true);
+          helperSteps[i % STEPSOFFSET] = true;
+          trellis.setLED(i);
+        } else {
+          ShowErrorOnLCD("IOH:CHMTBP scl f");
+#ifdef DEBUG
+          Serial.println("IOH:CHMTBP scl f");
+#endif
+          trellis.clrLED(i); 
+        }
+        
     } else       
       trellis.clrLED(i); 
 }
@@ -1857,13 +1883,24 @@ void InOutHelper::handleButtonHolds()
             }
         } else {
 
-          held = GetHoldableButtonPressed(CHAINLINKSELECTBUTTON);
-          if (held > 0) {
+          held = GetHoldableButtonPressed(CHAINLINKSELECTBUTTON); // TODO fork for APPENDLINK
+          if (held > 0) {  
               currentHoldAction = SAVELINK;
               if (trackActionHoldTime(held, SAVELINK))
               {
                   patternChain.saveToLinkInCurrentChain();
               }
+          } else {
+            
+            held = GetHoldableButtonPressed(CHAINLINKAPPENDBUTTON); // TODO fork for APPENDLINK
+            if (held > 0) {  
+                currentHoldAction = APPENDLINK;
+                if (trackActionHoldTime(held, APPENDLINK))
+                {
+                    patternChain.appendLinkToCurrentChain();
+                }
+            }
+          }
         }
       }
     }
@@ -2592,15 +2629,15 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
       case SAVELINK:
         switch (state)
         {
-          destination = patternChain.getTargetLink();
+          destination = patternChain.getTargetLinkIndex() + 1;
           case SHOWNOTHING:
             break;
           case ANNOUNCE:
-            ShowInfoOnLCD("Hold: Save to link ", destination);
+            ShowValueInfoOnLCD("Hold: Save to link", destination);
             SetLCDinfoTimeout();
             break;
           case ACTION:
-            ShowInfoOnLCD("Saving to Link ", destination);
+            ShowValueInfoOnLCD("Saving to link", destination);
             SetLCDinfoTimeout();
             break;
           case DONE:
@@ -2613,6 +2650,32 @@ void InOutHelper::ShowHoldActionMessage(holdActionProcess state, holdActionMode 
             break;
         }        
         break;
+
+      case APPENDLINK:
+        switch (state)
+        {
+          destination = patternChain.getTargetLinkIndex() + 1;
+          case SHOWNOTHING:
+            break;
+          case ANNOUNCE:
+            ShowValueInfoOnLCD("Hold: Append link", destination);
+            SetLCDinfoTimeout();
+            break;
+          case ACTION:
+            ShowValueInfoOnLCD("Appending link", destination);
+            SetLCDinfoTimeout();
+            break;
+          case DONE:
+            ShowInfoOnLCD("Link appended.");
+            SetLCDinfoTimeout();
+            break;
+          case INACTIVE:
+          default:
+            ClearInfoOnLCD();
+            break;
+        }        
+        break;
+
       default:
         ShowErrorOnLCD("OOPSIE SHA MSG");
         Serial.print("OOPSIE: invalid mode in InOutHelper::ShowHoldActionMessage");

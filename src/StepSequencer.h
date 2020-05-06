@@ -54,9 +54,9 @@ class StepSequencer
       byte getPath(); // kg
       const char* getPathName();
       bool getTrackMute(byte trackNum);
+      byte getTrackPattern(byte trackNum);
 
       int getCurrentPattern();
-      int getCurrentPattern(byte trackNum);
       byte getCurrentTrack();
       byte getPreviousStep();
       byte getLowestSelectedNote(boolean selectedNotes[]);

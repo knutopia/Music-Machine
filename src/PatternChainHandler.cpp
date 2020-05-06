@@ -282,14 +282,18 @@ bool PatternChainHandler::savePatternsToLink(byte targetChainIndex, byte targetL
 
     for(int trackNum = 1; trackNum <= TRACKCOUNT; trackNum++)
     {
-#ifdef DEBUG
-        Serial.print(" track:");
-        Serial.print(trackNum);
-#endif
         bool mute = sequencer.getTrackMute(trackNum);
-        byte patNum = sequencer.getCurrentPattern();
+        byte patNum = sequencer.getTrackPattern(trackNum);
         chains[targetChainIndex].links[targetLinkIndex]
                                 ->addTrackPatterntoLink(trackNum, patNum, mute);
+#ifdef DEBUG
+        Serial.print("  track:");
+        Serial.print(trackNum);
+        Serial.print(" w patnum:");
+        Serial.print(patNum);
+#endif
+
+
     }
     return true;
 }
@@ -1191,7 +1195,7 @@ void PatternChainHandler::printChains()
     {
         byte linkCount = chains[foo].numberOfLinks;
         Serial.print("Chain ");
-        Serial.print(foo + 1);
+        Serial.print(foo);
 
         if (linkCount == 0)
             Serial.println(" empty");
@@ -1202,7 +1206,7 @@ void PatternChainHandler::printChains()
             for (int bar = 0; bar < linkCount; bar++)
             {
                 Serial.print(" Link ");
-                Serial.print(bar + 1);
+                Serial.print(bar);
                 Serial.print(": ");
                 chains[foo].links[bar]->printLink();
             }

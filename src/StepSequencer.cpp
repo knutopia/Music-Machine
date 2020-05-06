@@ -757,10 +757,34 @@ int StepSequencer::getCurrentPattern() // TODO
         return 0;
 }
 
-int StepSequencer::getCurrentPattern(byte trackNum)
+byte StepSequencer::getTrackPattern(byte aTrackNum)
 {
-    
-    
+    byte retVal = 0;
+    byte curTrackNumBuf = activeEditTrack->getNumber();
+
+    m_activeTracks.rewind();
+
+    if ( !m_activeTracks.hasValue())
+        inout.ShowErrorOnLCD("SS:gCP m_ac noval");
+
+    while(m_activeTracks.hasValue())
+    {        
+        Track* aTrack = m_activeTracks.getTrackRef();
+        if(aTrack != NULL)
+        {
+            if(aTrack->getNumber() == aTrackNum)
+            {
+                retVal = aTrack->getCurrentPatternIndex();
+                break;
+            }
+        } else {
+            inout.ShowErrorOnLCD("SS:gTM aTrack NULL");
+            break;
+        }
+        m_activeTracks.next();
+    }
+    setCurrentTrack(curTrackNumBuf);
+    return retVal;
 }
 
 byte StepSequencer::getCurrentTrack()

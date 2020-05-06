@@ -337,16 +337,16 @@ void PatternChainLink::printLink()
         Serial.print(link.pathOverride);
     }
     Serial.print(" nextLinkIndex:");
-    Serial.println(link.nextLinkIndex + 1);
+    Serial.println(link.nextLinkIndex);
     
     for (int foo = 0; foo < TRACKCOUNT; foo++)
     {
         if(link.trackUsedInLink[foo])
         {
             Serial.print("  track:");
-            Serial.print(foo + 1);
+            Serial.print(foo);
             Serial.print(" pattern:");
-            Serial.print(link.patternPerTrack[foo] + 1);
+            Serial.print(link.patternPerTrack[foo]);
             if (link.mutePerTrack[foo])
                 Serial.print(" muted");
             Serial.println();
